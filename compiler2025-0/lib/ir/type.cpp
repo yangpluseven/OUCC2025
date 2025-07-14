@@ -48,6 +48,7 @@ BasicType::BasicType(BasicKind kind) : _kind(kind) {}
 static BasicType i1Type(BasicKind::I1);
 static BasicType i32Type(BasicKind::I32);
 static BasicType f32Type(BasicKind::F32);
+static BasicType voidType(BasicKind::VOID);
 
 BasicType *BasicType::get(BasicKind kind) {
   switch (kind) {
@@ -57,6 +58,7 @@ BasicType *BasicType::get(BasicKind kind) {
     return &i32Type;
   case BasicKind::F32:
     return &f32Type;
+  case BasicKind::VOID:
   default:
     return nullptr;
   }
@@ -83,6 +85,8 @@ std::string BasicType::str() const {
     return "i32";
   case BasicKind::F32:
     return "f32";
+  case BasicKind::VOID:
+    return "void";
   default:
     return "unknown";
   }

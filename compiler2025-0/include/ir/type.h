@@ -32,7 +32,7 @@ public:
 // ======== BASIC TYPE ========
 //
 
-enum class BasicKind { I1, I32, F32 };
+enum class BasicKind { I1, I32, F32, VOID };
 
 class BasicType : public Type {
 public:
