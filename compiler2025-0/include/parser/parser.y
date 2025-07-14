@@ -2,15 +2,15 @@
 %locations
 
 %{
-    #include <memory>
     #include <cstring>
+    #include <memory>
     #include <stdarg.h>
 
     #include "parser/ast.h"
     #include "parser/define.h"
 
     using namespace std;
-    unique_ptr<CompUnit> root; /* the top level root node of our final AST */
+    unique_ptr<CompUnit> root;
 
     extern int yylineno;
     extern int yylex();

@@ -43,12 +43,12 @@ class EqExp;
 class LAndExp;
 class LOrExp;
 
-class Visitor;
+class ASTVisitor;
 
 // 结点基类
 class BaseNode {
 public:
-  virtual void accept(Visitor &visitor) = 0;
+  virtual void accept(ASTVisitor &visitor) = 0;
   BaseNode() = default;
   virtual ~BaseNode() = default;
 };
@@ -56,7 +56,7 @@ public:
 class CompUnit : public BaseNode {
 public:
   vector<unique_ptr<DeclDef>> declDefList; // declaration-definition-list
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~CompUnit() {}
 };
 
@@ -65,7 +65,7 @@ class DeclDef : public BaseNode {
 public:
   unique_ptr<Decl> decl = nullptr;       // 声明结点
   unique_ptr<FuncDef> funcDef = nullptr; // 函数定义结点
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~DeclDef() {}
 };
 
@@ -75,7 +75,7 @@ public:
   Type bType = Type::VOID;         // 基本数据类型
   bool isConst = false;            // 是否为const声明
   vector<unique_ptr<Def>> defList; // 定义列表
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~Decl() {}
 };
 
@@ -91,7 +91,7 @@ public:
   unique_ptr<string> id;             // 标识符
   vector<unique_ptr<AddExp>> arrays; // 数组下标列表
   unique_ptr<InitVal> initVal;       // 初始化值
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~Def() {}
 };
 
@@ -107,7 +107,7 @@ public:
   unique_ptr<AddExp> exp; // 如果是单个表达式，则存储在exp中
   vector<unique_ptr<InitVal>>
       initValList; // 如果是初始化值列表，则存储在initValList中
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~InitVal() {}
 };
 
@@ -124,7 +124,7 @@ public:
   unique_ptr<string> id;                         // 函数名
   vector<unique_ptr<FuncFParam>> funcFParamList; // 函数形参列表
   unique_ptr<Block> block = nullptr;             // 函数体
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~FuncDef() {}
 };
 
@@ -142,7 +142,7 @@ public:
   bool isArray =
       false; // 用于区分是否是数组参数，此时一维数组和多维数组expArrays都是empty
   vector<unique_ptr<AddExp>> arrays; // 数组下标列表
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~FuncFParam() {}
 };
 
@@ -150,7 +150,7 @@ public:
 class Block : public BaseNode {
 public:
   vector<unique_ptr<BlockItem>> blockItemList; // 语句块项列表
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~Block() {}
 };
 
@@ -165,7 +165,7 @@ class BlockItem : public BaseNode {
 public:
   unique_ptr<Decl> decl = nullptr; // 声明结点
   unique_ptr<Stmt> stmt = nullptr; // 语句结点
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~BlockItem() {}
 };
 
@@ -179,7 +179,7 @@ public:
   unique_ptr<IfStmt> ifStmt = nullptr;          // 条件语句结点
   unique_ptr<WhileStmt> whileStmtAST = nullptr; // 循环语句结点
   unique_ptr<Block> block = nullptr;            // 代码块结点
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~Stmt() {}
 };
 
@@ -187,7 +187,7 @@ public:
 class ReturnStmt : public BaseNode {
 public:
   unique_ptr<AddExp> exp = nullptr; // 返回值表达式结点
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~ReturnStmt() {}
 };
 
@@ -196,7 +196,7 @@ class IfStmt : public BaseNode {
 public:
   unique_ptr<LOrExp> cond;           // 条件表达式结点
   unique_ptr<Stmt> ifStmt, elseStmt; // if语句和else语句结点
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~IfStmt() {}
 };
 
@@ -205,7 +205,7 @@ class WhileStmt : public BaseNode {
 public:
   unique_ptr<LOrExp> cond; // 条件表达式结点
   unique_ptr<Stmt> stmt;   // 循环体语句结点
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~WhileStmt() {}
 };
 
@@ -216,7 +216,7 @@ public:
   unique_ptr<Call> call;             // 函数调用结点
   unique_ptr<UnaryExp> unaryExp;     // 一元表达式结点（递归）
   UnaryOp op;                        // 一元操作符
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~UnaryExp() {}
 };
 
@@ -226,7 +226,7 @@ public:
   unique_ptr<AddExp> addExp; // 加减表达式结点（递归）
   unique_ptr<MulExp> mulExp; // 乘除模表达式结点
   AddOp op;                  // 加减操作符
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~AddExp() {}
 };
 
@@ -236,7 +236,7 @@ public:
   unique_ptr<UnaryExp> unaryExp; // 一元表达式结点
   unique_ptr<MulExp> mulExp;     // 乘除模表达式结点（递归）
   MulOp op;                      // 乘除模操作符
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~MulExp() {}
 };
 
@@ -246,7 +246,7 @@ public:
   unique_ptr<AddExp> exp;    // 表达式结点
   unique_ptr<LVal> lval;     // 左值表达式结点
   unique_ptr<Number> number; // 数字结点
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~PrimaryExp() {}
 };
 
@@ -258,7 +258,7 @@ public:
     int intval;     // 整型值
     float floatval; // 浮点型值
   };
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~Number() {}
 };
 
@@ -267,7 +267,7 @@ class LVal : public BaseNode {
 public:
   unique_ptr<string> id;             // 标识符
   vector<unique_ptr<AddExp>> arrays; // 数组下标列表
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~LVal() {}
 };
 
@@ -276,7 +276,7 @@ class Call : public BaseNode {
 public:
   unique_ptr<string> id;                     // 函数名
   vector<unique_ptr<AddExp>> funcCParamList; // 函数实参列表
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~Call() {}
 };
 
@@ -292,7 +292,7 @@ public:
   unique_ptr<AddExp> addExp; // 加减表达式结点
   unique_ptr<RelExp> relExp; // 关系表达式结点（递归）
   RelOp op;                  // 关系操作符
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~RelExp() {}
 };
 
@@ -302,7 +302,7 @@ public:
   unique_ptr<RelExp> relExp; // 关系表达式结点
   unique_ptr<EqExp> eqExp;   // 等值表达式结点（递归）
   EqOp op;                   // 等值操作符
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~EqExp() {}
 };
 
@@ -312,7 +312,7 @@ public:
   // lAndExp不为空则说明有and符号，or类似
   unique_ptr<EqExp> eqExp;     // 等值表达式结点
   unique_ptr<LAndExp> lAndExp; // 逻辑与表达式结点（递归）
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~LAndExp() {}
 };
 
@@ -321,11 +321,11 @@ class LOrExp : public BaseNode {
 public:
   unique_ptr<LOrExp> lOrExp;   // 逻辑或表达式结点（递归）
   unique_ptr<LAndExp> lAndExp; // 逻辑与表达式结点
-  void accept(Visitor &visitor) override;
+  void accept(ASTVisitor &visitor) override;
   ~LOrExp() {}
 };
 
-class Visitor {
+class ASTVisitor {
 public:
   virtual void visit(CompUnit &ast) = 0;
   virtual void visit(DeclDef &ast) = 0;
