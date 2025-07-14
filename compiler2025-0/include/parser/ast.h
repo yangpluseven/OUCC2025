@@ -1,12 +1,11 @@
 #pragma once
 
+#include "parser/define.h"
 #include <cstring>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
-
-#include "parser/define.h"
 
 using namespace std;
 

@@ -43,6 +43,8 @@ bool Type::isEqual(const Type *lhs, const Type *rhs) {
 // ======== BASIC TYPE ========
 //
 
+BasicType::BasicType(BasicKind kind) : _kind(kind) {}
+
 static BasicType i1Type(BasicKind::I1);
 static BasicType i32Type(BasicKind::I32);
 static BasicType f32Type(BasicKind::F32);
@@ -59,8 +61,6 @@ BasicType *BasicType::get(BasicKind kind) {
     return nullptr;
   }
 }
-
-BasicType::BasicType(BasicKind kind) : _kind(kind) {}
 
 size_t BasicType::getSize() const {
   switch (_kind) {
@@ -137,7 +137,7 @@ PointerType::PointerType(Type *pointeeType) : _pointeeType(pointeeType) {
 }
 
 size_t PointerType::getSize() const {
-  return 8; // Assume 64-bit pointer
+  return 8; // 64-bit pointer (ATTENTION)
 }
 
 std::string PointerType::str() const { return _pointeeType->str() + "*"; }

@@ -1,5 +1,5 @@
-#ifndef IR_TYPE_HPP
-#define IR_TYPE_HPP
+#ifndef IR_TYPE_H
+#define IR_TYPE_H
 
 #include <cassert>
 #include <string>
@@ -98,4 +98,4 @@ private:
 
 } // namespace ir
 
-#endif // IR_TYPE_HPP
+#endif // IR_TYPE_H
