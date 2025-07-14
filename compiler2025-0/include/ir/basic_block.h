@@ -1,5 +1,5 @@
-#ifndef IR_BASIC_BLOCK_HPP
-#define IR_BASIC_BLOCK_HPP
+#ifndef IR_BASIC_BLOCK_H
+#define IR_BASIC_BLOCK_H
 
 // #include "function.hpp"
 #include "ir/instruction.h"
@@ -55,4 +55,4 @@ public:
 
 } // namespace ir
 
-#endif // IR_BASIC_BLOCK_HPP
+#endif // IR_BASIC_BLOCK_H

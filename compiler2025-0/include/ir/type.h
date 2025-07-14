@@ -18,12 +18,10 @@ public:
   [[nodiscard]] virtual size_t getSize() const = 0;
   [[nodiscard]] virtual std::string str() const = 0;
 
-  // 类型判断工具方法
   bool isBasic() const { return getKind() == TypeKind::BASIC; }
   bool isArray() const { return getKind() == TypeKind::ARRAY; }
   bool isPointer() const { return getKind() == TypeKind::POINTER; }
 
-  // 类型等价检查
   static bool isEqual(const Type *lhs, const Type *rhs);
   bool operator==(const Type &rhs) const { return isEqual(this, &rhs); }
 };
@@ -66,10 +64,10 @@ public:
   [[nodiscard]] Type *getElementType() const { return _elementType; }
   [[nodiscard]] size_t getLength() const { return _arraySize; }
 
-  // 获取所有维度，如 int[2][3][4] => [2, 3, 4]
+  // Get all dimensions like: int[2][3][4] => [2, 3, 4]
   [[nodiscard]] std::vector<size_t> getDimensions() const;
 
-  // 最内层的标量类型（int/float）
+  // The innermost scaler type int/float of this (one or multi-dims) array
   [[nodiscard]] Type *getInnermostElementType() const;
 
 private:

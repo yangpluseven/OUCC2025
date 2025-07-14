@@ -16,9 +16,7 @@ enum class InstKind {
   Binary,
   BitCast,
   Branch,
-  Cast, // Base class for BitCast, FPToSI, SIToFP, SExt and ZExt
   Call,
-  Cmp, // Base class for FCmp and ICmp
   FCmp,
   FPToSI,
   GEP,
@@ -41,8 +39,9 @@ private:
   bool _notRemapped = false;
 
 protected:
-  Instruction(BasicBlock *block, Type *type,
-              const std::vector<Value *> &useOperands);
+  Instruction(Type *type, BasicBlock *block) : User(type), _block(block) {}
+  Instruction(Type *type, const std::vector<Value *> &useOperands,
+              BasicBlock *block);
 
 public:
   virtual ~Instruction() = default;
