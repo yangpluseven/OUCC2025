@@ -143,22 +143,6 @@ public:
   [[nodiscard]] Instruction *clone() const override;
 };
 
-// TODO: Unfinished
-class PhiInst : public Instruction {
-private:
-  std::vector<BasicBlock *> _incomingBlocks;
-
-public:
-  PhiInst(Type *type, BasicBlock *block);
-
-  void addIncoming(Value *val, BasicBlock *fromBlock);
-  [[nodiscard]] const std::vector<BasicBlock *> &getIncomingBlocks() const;
-
-  [[nodiscard]] InstKind kind() const override;
-  [[nodiscard]] std::string str() const override;
-  [[nodiscard]] Instruction *clone() const override;
-};
-
 } // namespace ir
 
 #endif // IR_INSTRUCTIONS_H

@@ -5,6 +5,12 @@ namespace ir {
 
 User::User(Type *type) : Value(type) {}
 
+User::User(Type *type, const std::vector<Value *> &useOperands) : Value(type) {
+  for (auto *v : useOperands) {
+    addOperand(v);
+  }
+}
+
 void User::addOperand(Value *v) {
   operands.push_back(std::make_unique<Use>(this, v));
 }

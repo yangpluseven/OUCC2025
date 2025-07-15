@@ -15,13 +15,14 @@ protected:
 
 public:
   explicit User(Type *type);
+  explicit User(Type *type, const std::vector<Value *> &useOperands);
   ~User() override = default;
 
   void addOperand(Value *v);
   void setOperand(size_t index, Value *v);
   Value *getOperand(size_t index) const;
 
-  size_t numOperands() const { return operands.size(); }
+  size_t getNumOperands() const { return operands.size(); }
   bool empty() const { return operands.empty(); }
   // Probably no use
   std::unique_ptr<Use> eraseOperand(size_t index);

@@ -1,7 +1,7 @@
 #ifndef IR_BASIC_BLOCK_H
 #define IR_BASIC_BLOCK_H
 
-// #include "function.hpp"
+#include "ir/function.h"
 #include "ir/instruction.h"
 #include "ir/value.h"
 #include <string>
@@ -17,33 +17,34 @@ private:
   static int _counter;
   int _id;
   Function *_function;
-  std::vector<Instruction *> _instructions;
+  std::vector<std::unique_ptr<Instruction>> _instructions;
 
 public:
   explicit BasicBlock(Function *func);
-  Function *getFunction() const { return _function; }
-  std::vector<Instruction *> &getInstructions() { return _instructions; }
+  [[nodiscard]] Function *getFunction() const { return _function; }
 
-  bool isEmpty() const;
-  Instruction *getLast() const { return _instructions.back(); }
-  Instruction *getFirst() const { return _instructions.back(); }
-  void push(Instruction *inst);
-  void insert(int index, Instruction *inst);
-  void insert(int index, const std::vector<Instruction *> &newInsts);
-  void insert(const Instruction *base, Instruction *inst);
-  void insert(const Instruction *base,
-              const std::vector<Instruction *> &newInst);
-  Instruction *erase(int index);
-  Instruction *erase(Instruction *inst);
-  Instruction *pop();
-  Instruction *get(int index) const;
-  size_t size() const;
+  [[nodiscard]] bool empty() const;
+  // Check the last instruction
+  [[nodiscard]] bool hasTerminator() const;
+  void pushInstruction(std::unique_ptr<Instruction> inst);
+  [[nodiscard]] Instruction *getTerminator() const;
+  [[nodiscard]] Instruction *getInstruction(size_t index) const;
+  void insertInstruction(size_t index, std::unique_ptr<Instruction> inst);
+  std::unique_ptr<Instruction> eraseInstruction(size_t index);
+  [[nodiscard]] size_t size() const { return _instructions.size(); }
 
-  std::string getName() const override;
-  std::string str() const;
+  // Get the LLVM like block label
+  [[nodiscard]] std::string str() const override;
 
-  using iterator = std::vector<Instruction *>::iterator;
-  using const_iterator = std::vector<Instruction *>::const_iterator;
+  using iterator = std::vector<std::unique_ptr<Instruction>>::iterator;
+  using const_iterator =
+      std::vector<std::unique_ptr<Instruction>>::const_iterator;
+
+  [[nodiscard]] Instruction *getInstruction(iterator pos) const;
+  // Insert using iterator, can be used in other insert functions
+  iterator insertInstruction(iterator pos, std::unique_ptr<Instruction> inst);
+  // Erase using iterator, move out the ownership
+  std::unique_ptr<Instruction> eraseInstruction(iterator pos);
 
   iterator begin();
   iterator end();

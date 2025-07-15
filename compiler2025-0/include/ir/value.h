@@ -28,7 +28,7 @@ public:
     return _uses;
   }
 
-  virtual std::string getName() const { return ""; }
+  [[nodiscard]] virtual std::string str() const { return "Unnamed"; }
 };
 
 } // namespace ir
