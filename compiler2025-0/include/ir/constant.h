@@ -22,6 +22,7 @@ private:
   Number _value;
 
   static BasicType *determineType(const Number &num);
+  BasicKind getBasicKind() const;
 
 public:
   explicit ConstantNumber(bool value);

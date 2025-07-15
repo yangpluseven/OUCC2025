@@ -2,23 +2,24 @@
 #include "ir/type.h"
 #include "ir/value.h"
 
+#include <cassert>
 #include <sstream>
 #include <utility>
 
 namespace ir {
 
-Constant::Constant(Type *type) : ir::User(type) {}
+Constant::Constant(Type *type) : User(type) {}
 
 Constant::~Constant() = default;
 
 BasicType *ConstantNumber::determineType(const Number &num) {
-  auto value = num.getValue();
+  const auto &value = num.getValue();
   if (std::holds_alternative<int>(value))
     return BasicType::get(BasicKind::I32);
   else if (std::holds_alternative<float>(value))
     return BasicType::get(BasicKind::F32);
   else
-    throw std::runtime_error("Unsupported value");
+    throw std::runtime_error("Unsupported number type");
 }
 
 ConstantNumber::ConstantNumber(bool value)
@@ -34,177 +35,108 @@ ConstantNumber::ConstantNumber(ConstantNumber &&other) noexcept
     : Constant(other.getType()), _value(std::move(other._value)) {}
 
 Number ConstantNumber::getValue() const { return _value; }
-
+int ConstantNumber::intValue() const { return _value.intValue(); }
 float ConstantNumber::floatValue() const { return _value.floatValue(); }
 
-int ConstantNumber::intValue() const { return _value.intValue(); }
+BasicKind ConstantNumber::getBasicKind() const {
+  assert(getType()->isBasic());
+  return static_cast<BasicType *>(getType())->getBasicKind();
+}
 
 std::string ConstantNumber::getLiteralStr() const {
-  if (getType() == BasicType::get(BasicKind::I1))
+  switch (getBasicKind()) {
+  case BasicKind::I1:
     return intValue() ? "true" : "false";
-  else if (getType() == BasicType::get(BasicKind::I32))
+  case BasicKind::I32:
     return std::to_string(intValue());
-  else if (getType() == BasicType::get(BasicKind::F32)) {
-    auto value = floatValue();
+  case BasicKind::F32: {
+    float value = floatValue();
     std::stringstream ss;
     ss << "0x" << std::hex << std::uppercase
        << *reinterpret_cast<unsigned int *>(&value);
     return ss.str();
-  } else
+  }
+  default:
     throw std::runtime_error("Unexpected type");
-}
-
-ConstantNumber ConstantNumber::operator+(const ConstantNumber &rhs) const {
-  if (getType() == BasicType::get(BasicKind::I32) ||
-      getType() == BasicType::get(BasicKind::I1))
-    return ConstantNumber(Number(intValue() + rhs.intValue()));
-  else if (getType() == BasicType::get(BasicKind::F32))
-    return ConstantNumber(Number(floatValue() + rhs.floatValue()));
-  else
-    throw std::runtime_error("Unsupported type");
-}
-
-ConstantNumber ConstantNumber::operator-(const ConstantNumber &rhs) const {
-  if (getType() == BasicType::get(BasicKind::I32) ||
-      getType() == BasicType::get(BasicKind::I1))
-    return ConstantNumber(Number(intValue() - rhs.intValue()));
-  else if (getType() == BasicType::get(BasicKind::F32))
-    return ConstantNumber(Number(floatValue() - rhs.floatValue()));
-  else
-    throw std::runtime_error("Unsupported type");
-}
-
-ConstantNumber ConstantNumber::operator*(const ConstantNumber &rhs) const {
-  if (getType() == BasicType::get(BasicKind::I32) ||
-      getType() == BasicType::get(BasicKind::I1))
-    return ConstantNumber(Number(intValue() * rhs.intValue()));
-  else if (getType() == BasicType::get(BasicKind::F32))
-    return ConstantNumber(Number(floatValue() * rhs.floatValue()));
-  else
-    throw std::runtime_error("Unsupported type");
-}
-
-ConstantNumber ConstantNumber::operator/(const ConstantNumber &rhs) const {
-  if (getType() == BasicType::get(BasicKind::I32) ||
-      getType() == BasicType::get(BasicKind::I1))
-    return ConstantNumber(Number(intValue() / rhs.intValue()));
-  else if (getType() == BasicType::get(BasicKind::F32))
-    return ConstantNumber(Number(floatValue() / rhs.floatValue()));
-  else
-    throw std::runtime_error("Unsupported type");
-}
-
-ConstantNumber ConstantNumber::operator%(const ConstantNumber &rhs) const {
-  if (getType() == BasicType::get(BasicKind::I32) ||
-      getType() == BasicType::get(BasicKind::I1))
-    return ConstantNumber(Number(intValue() % rhs.intValue()));
-  else
-    throw std::runtime_error("Unsupported type");
-}
-
-ConstantNumber ConstantNumber::operator^(const ConstantNumber &rhs) const {
-  if (getType() == BasicType::get(BasicKind::I32))
-    return ConstantNumber(Number(intValue() ^ rhs.intValue()));
-  else if (getType() == BasicType::get(BasicKind::I1))
-    return ConstantNumber((intValue() ^ rhs.intValue()) != 0);
-  else
-    throw std::runtime_error("Unsupported type");
-}
-
-ConstantNumber ConstantNumber::operator-() const {
-  if (getType() == BasicType::get(BasicKind::I32) ||
-      getType() == BasicType::get(BasicKind::I1))
-    return ConstantNumber(Number(-intValue()));
-  else if (getType() == BasicType::get(BasicKind::F32))
-    return ConstantNumber(Number(-floatValue()));
-  else
-    throw std::runtime_error("Unsupported type");
-}
-
-ConstantNumber ConstantNumber::operator!() const {
-  if (getType() == BasicType::get(BasicKind::I1) ||
-      getType() == BasicType::get(BasicKind::I32))
-    return ConstantNumber(intValue() == 0);
-  else if (getType() == BasicType::get(BasicKind::F32))
-    return ConstantNumber(floatValue() == 0.0f);
-  else
-    throw std::runtime_error("Unsupported type");
-}
-
-ConstantNumber ConstantNumber::operator==(const ConstantNumber &rhs) const {
-  if (getType() == BasicType::get(BasicKind::I32) ||
-      getType() == BasicType::get(BasicKind::I1))
-    return ConstantNumber(intValue() == rhs.intValue());
-  else if (getType() == BasicType::get(BasicKind::F32))
-    return ConstantNumber(floatValue() == rhs.floatValue());
-  else
-    throw std::runtime_error("Unsupported type");
-}
-
-ConstantNumber ConstantNumber::operator!=(const ConstantNumber &rhs) const {
-  if (getType() == BasicType::get(BasicKind::I32) ||
-      getType() == BasicType::get(BasicKind::I1))
-    return ConstantNumber(intValue() != rhs.intValue());
-  else if (getType() == BasicType::get(BasicKind::F32))
-    return ConstantNumber(floatValue() != rhs.floatValue());
-  else
-    throw std::runtime_error("Unsupported type");
-}
-
-ConstantNumber ConstantNumber::operator>(const ConstantNumber &rhs) const {
-  if (getType() == BasicType::get(BasicKind::I32) ||
-      getType() == BasicType::get(BasicKind::I1))
-    return ConstantNumber(intValue() > rhs.intValue());
-  else if (getType() == BasicType::get(BasicKind::F32))
-    return ConstantNumber(floatValue() > rhs.floatValue());
-  else
-    throw std::runtime_error("Unsupported type");
-}
-
-ConstantNumber ConstantNumber::operator>=(const ConstantNumber &rhs) const {
-  if (getType() == BasicType::get(BasicKind::I32) ||
-      getType() == BasicType::get(BasicKind::I1))
-    return ConstantNumber(intValue() >= rhs.intValue());
-  else if (getType() == BasicType::get(BasicKind::F32))
-    return ConstantNumber(floatValue() >= rhs.floatValue());
-  else
-    throw std::runtime_error("Unsupported type");
-}
-
-ConstantNumber ConstantNumber::operator<(const ConstantNumber &rhs) const {
-  if (getType() == BasicType::get(BasicKind::I32) ||
-      getType() == BasicType::get(BasicKind::I1))
-    return ConstantNumber(intValue() < rhs.intValue());
-  else if (getType() == BasicType::get(BasicKind::F32))
-    return ConstantNumber(floatValue() < rhs.floatValue());
-  else
-    throw std::runtime_error("Unsupported type");
-}
-
-ConstantNumber ConstantNumber::operator<=(const ConstantNumber &rhs) const {
-  if (getType() == BasicType::get(BasicKind::I32) ||
-      getType() == BasicType::get(BasicKind::I1))
-    return ConstantNumber(intValue() <= rhs.intValue());
-  else if (getType() == BasicType::get(BasicKind::F32))
-    return ConstantNumber(floatValue() <= rhs.floatValue());
-  else
-    throw std::runtime_error("Unsupported type");
+  }
 }
 
 std::string ConstantNumber::str() const {
   return getType()->str() + " " + getLiteralStr();
 }
 
-ConstantZero::ConstantZero(Type *type) : Constant(type) {}
+// General operators for integer/float
+#define DEFINE_BINARY_OP(OPNAME, OP)                                           \
+  ConstantNumber ConstantNumber::operator OPNAME(const ConstantNumber &rhs)    \
+      const {                                                                  \
+    switch (getBasicKind()) {                                                  \
+    case BasicKind::I1:                                                        \
+    case BasicKind::I32:                                                       \
+      return ConstantNumber(Number(intValue() OP rhs.intValue()));             \
+    case BasicKind::F32:                                                       \
+      return ConstantNumber(Number(floatValue() OP rhs.floatValue()));         \
+    default:                                                                   \
+      throw std::runtime_error("Unsupported type in " #OPNAME);                \
+    }                                                                          \
+  }
 
-std::string ConstantZero::str() const {
-  return getType()->str() + " zeroinitializer";
+DEFINE_BINARY_OP(+, +)
+DEFINE_BINARY_OP(-, -)
+DEFINE_BINARY_OP(*, *)
+DEFINE_BINARY_OP(/, /)
+DEFINE_BINARY_OP(==, ==)
+DEFINE_BINARY_OP(!=, !=)
+DEFINE_BINARY_OP(>, >)
+DEFINE_BINARY_OP(>=, >=)
+DEFINE_BINARY_OP(<, <)
+DEFINE_BINARY_OP(<=, <=)
+
+// Operators for only integer
+ConstantNumber ConstantNumber::operator%(const ConstantNumber &rhs) const {
+  switch (getBasicKind()) {
+  case BasicKind::I1:
+  case BasicKind::I32:
+    return ConstantNumber(Number(intValue() % rhs.intValue()));
+  default:
+    throw std::runtime_error("Modulo not supported for this type");
+  }
 }
 
-ConstantArray::ConstantArray(Type *type, std::vector<Constant *> values)
-    : Constant(getType()), values(std::move(values)) {}
+ConstantNumber ConstantNumber::operator^(const ConstantNumber &rhs) const {
+  switch (getBasicKind()) {
+  case BasicKind::I1:
+    return ConstantNumber((intValue() ^ rhs.intValue()) != 0);
+  case BasicKind::I32:
+    return ConstantNumber(Number(intValue() ^ rhs.intValue()));
+  default:
+    throw std::runtime_error("Bitwise XOR not supported for this type");
+  }
+}
 
-std::vector<Constant *> &ConstantArray::getValues() { return values; }
+// Unary
+ConstantNumber ConstantNumber::operator-() const {
+  switch (getBasicKind()) {
+  case BasicKind::I1:
+  case BasicKind::I32:
+    return ConstantNumber(Number(-intValue()));
+  case BasicKind::F32:
+    return ConstantNumber(Number(-floatValue()));
+  default:
+    throw std::runtime_error("Unary minus not supported for this type");
+  }
+}
+
+ConstantNumber ConstantNumber::operator!() const {
+  switch (getBasicKind()) {
+  case BasicKind::I1:
+  case BasicKind::I32:
+    return ConstantNumber(intValue() == 0);
+  case BasicKind::F32:
+    return ConstantNumber(floatValue() == 0.0f);
+  default:
+    throw std::runtime_error("Logical not not supported for this type");
+  }
+}
 
 std::string ConstantArray::str() const {
   std::ostringstream oss;
