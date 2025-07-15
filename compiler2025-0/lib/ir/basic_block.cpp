@@ -12,8 +12,6 @@ BasicBlock::BasicBlock(Function *func)
     : Value(BasicType::get(BasicKind::VOID)), _id(_counter++), _function(func) {
 }
 
-bool BasicBlock::empty() const { return _instructions.empty(); }
-
 bool BasicBlock::hasTerminator() const {
   return !empty() && _instructions.back()->isTerminator();
 }
@@ -48,9 +46,18 @@ std::unique_ptr<Instruction> BasicBlock::eraseInstruction(size_t index) {
   return erased;
 }
 
-std::string BasicBlock::str() const {
+std::string BasicBlock::getLabel() const {
   std::ostringstream oss;
   oss << "%bb" << _id;
+  return oss.str();
+}
+
+std::string BasicBlock::str() const {
+  std::ostringstream oss;
+  oss << getLabel() << ":\n";
+  for (const auto &instPtr : _instructions) {
+    oss << "  " << instPtr->str() << "\n";
+  }
   return oss.str();
 }
 

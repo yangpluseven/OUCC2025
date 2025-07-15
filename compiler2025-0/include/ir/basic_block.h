@@ -23,7 +23,7 @@ public:
   explicit BasicBlock(Function *func);
   [[nodiscard]] Function *getFunction() const { return _function; }
 
-  [[nodiscard]] bool empty() const;
+  [[nodiscard]] bool empty() const { return _instructions.empty(); }
   // Check the last instruction
   [[nodiscard]] bool hasTerminator() const;
   void pushInstruction(std::unique_ptr<Instruction> inst);
@@ -34,6 +34,9 @@ public:
   [[nodiscard]] size_t size() const { return _instructions.size(); }
 
   // Get the LLVM like block label
+  [[nodiscard]] std::string getLabel() const;
+  // Form the .ll IR string for the whole block, including the label and string
+  // for all instructions
   [[nodiscard]] std::string str() const override;
 
   using iterator = std::vector<std::unique_ptr<Instruction>>::iterator;

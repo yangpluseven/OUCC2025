@@ -13,7 +13,7 @@ Instruction::Instruction(Type *type, const std::vector<Value *> &useOperands,
 
 std::string Instruction::getSSAName() const { return "Unnamed"; }
 
-std::string Instruction::getName() const { return "Unknown instruction."; }
+std::string Instruction::str() const { return "Unknown instruction."; }
 
 void Instruction::remapOperands(const ValueMap &map) {
   for (size_t i = 0; i < operands.size(); ++i) {
