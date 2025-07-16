@@ -9,8 +9,6 @@ GlobalVariable::GlobalVariable(std::unique_ptr<Type> type, std::string name,
     : Value(std::move(type)), _name(std::move(name)), _isConst(isConst),
       _value(std::move(value)) {}
 
-bool GlobalVariable::isConst() const { return _isConst; }
-
 bool GlobalVariable::isSingle() const { return this->getType()->isBasic(); }
 
 bool GlobalVariable::isInBss() const { return _value && _value->isZero(); }
@@ -90,8 +88,6 @@ float GlobalVariable::getFloat(size_t index) const {
   assert(curValue->isNumber() && "getFloat() requires a ConstantNumber");
   return static_cast<ConstantNumber *>(curValue)->floatValue();
 }
-
-float GlobalVariable::getFloat(size_t index) const {}
 
 std::string GlobalVariable::getSSAName() const { return "@" + _name; }
 

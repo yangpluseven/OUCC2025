@@ -17,7 +17,7 @@ class SymbolTable {
 private:
   std::list<std::unordered_map<std::string, ir::Value *>> _table;
 
-  [[nodiscard]] ir::Value *get(const std::string &name) const {
+  [[nodiscard]] ir::Value *getItem(const std::string &name) const {
     for (auto item : _table) {
       if (item.find(name) != item.end())
         return item[name];
@@ -64,18 +64,22 @@ private:
   }
 
 public:
+  [[nodiscard]] size_t size() const { return _table.size(); }
+
+  void out() { _table.pop_front(); }
+
+  void in() { _table.emplace_front(); }
+
   [[nodiscard]] ir::Value *getData(const std::string &name) const {
-    return get(name);
+    return getItem(name);
   }
 
-  [[nodiscard]] ir::Function *getFunc(const std::string &name) const {
-    auto symbol = get(name);
+  [[nodiscard]] ir::Function *getFunction(const std::string &name) const {
+    auto symbol = getItem(name);
     if (auto func = dynamic_cast<ir::Function *>(symbol))
       return func;
     throw std::runtime_error("Undefined function: " + name);
   }
-
-  void in() { _table.emplace_front(); }
 
   ir::Function *makeFunc(std::unique_ptr<ir::Type> type,
                          const std::string &name) {
@@ -138,8 +142,6 @@ public:
     return symbol;
   }
 
-  [[nodiscard]] size_t size() const { return _table.size(); }
-
   std::unique_ptr<ir::AllocaInst>
   makeLocal(ir::BasicBlock *block, ir::Type *type, const std::string &name) {
     auto symbol = std::make_unique<ir::AllocaInst>(type, block);
@@ -164,8 +166,6 @@ public:
     _table.front()[name] = arg.get();
     return std::move(arg);
   }
-
-  void out() { _table.pop_front(); }
 };
 
 #endif
