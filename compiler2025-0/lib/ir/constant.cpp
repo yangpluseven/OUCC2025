@@ -8,8 +8,6 @@
 
 namespace ir {
 
-Constant::Constant(Type *type) : User(type) {}
-
 Constant::~Constant() = default;
 
 BasicType *ConstantNumber::determineType(const Number &num) {

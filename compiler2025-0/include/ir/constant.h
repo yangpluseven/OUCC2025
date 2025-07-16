@@ -34,7 +34,6 @@ public:
   float floatValue() const;
   int intValue() const;
 
-  std::string str() const override;
   ConstantNumber operator+(const ConstantNumber &rhs) const;
   ConstantNumber operator-(const ConstantNumber &rhs) const;
   ConstantNumber operator*(const ConstantNumber &rhs) const;
@@ -63,12 +62,12 @@ public:
 
 class ConstantArray : public Constant {
 private:
-  std::vector<Constant *> values;
+  std::vector<std::unique_ptr<Constant>> values;
 
 public:
-  ConstantArray(Type *type, std::vector<Constant *> values);
+  ConstantArray(Type *type, std::vector<std::unique_ptr<Constant>> values);
 
-  std::vector<Constant *> &getValues();
+  const Constant *getValue(size_t index) const;
 
   std::string str() const override;
 };

@@ -1,5 +1,5 @@
-#ifndef MODEL_NUMBER_H
-#define MODEL_NUMBER_H
+#ifndef IR_NUMBER_H
+#define IR_NUMBER_H
 
 #include <variant>
 

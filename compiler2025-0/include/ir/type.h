@@ -68,7 +68,7 @@ public:
   [[nodiscard]] std::vector<size_t> getDimensions() const;
 
   // The innermost scaler type int/float of this (one or multi-dims) array
-  [[nodiscard]] Type *getInnermostElementType() const;
+  [[nodiscard]] BasicType *getInnermostElementType() const;
 
 private:
   Type *_elementType;

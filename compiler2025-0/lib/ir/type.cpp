@@ -124,12 +124,12 @@ std::vector<size_t> ArrayType::getDimensions() const {
   return dims;
 }
 
-Type *ArrayType::getInnermostElementType() const {
+BasicType *ArrayType::getInnermostElementType() const {
   const Type *curr = this;
   while (curr->isArray()) {
     curr = static_cast<const ArrayType *>(curr)->getElementType();
   }
-  return const_cast<Type *>(curr);
+  return const_cast<BasicType *>(static_cast<const BasicType *>(curr));
 }
 
 //
