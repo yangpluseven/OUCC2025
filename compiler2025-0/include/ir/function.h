@@ -15,10 +15,11 @@ private:
   const std::string _name;
 
 public:
-  Argument(Type *type, std::string name)
-      : Value(type), _name(std::move(name)) {}
-  // Get the LLVM like name
+  Argument(std::unique_ptr<Type> type, std::string name)
+      : Value(std::move(type)), _name(std::move(name)) {}
+  // Get the LLVM like SSA name, example: %a
   std::string getSSAName() const;
+  // Get the LLVM like full name, example: i32 %a
   std::string str() const override;
 };
 
@@ -29,7 +30,8 @@ private:
   std::vector<std::unique_ptr<BasicBlock>> _blocks;
 
 public:
-  Function(Type *type, std::string name);
+  Function(std::unique_ptr<Type> type, std::string name)
+      : Value(std::move(type)), _name(std::move(name)) {}
 
   [[nodiscard]] bool empty() const { return _blocks.empty(); }
 

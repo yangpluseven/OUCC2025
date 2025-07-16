@@ -10,27 +10,22 @@ namespace ir {
 
 Constant::~Constant() = default;
 
-BasicType *ConstantNumber::determineType(const Number &num) {
+std::unique_ptr<BasicType> ConstantNumber::determineType(const Number &num) {
   const auto &value = num.getValue();
   if (std::holds_alternative<int>(value))
-    return BasicType::get(BasicKind::I32);
+    return std::make_unique<BasicType>(BasicKind::I32);
   else if (std::holds_alternative<float>(value))
-    return BasicType::get(BasicKind::F32);
+    return std::make_unique<BasicType>(BasicKind::F32);
   else
     throw std::runtime_error("Unsupported number type");
 }
 
 ConstantNumber::ConstantNumber(bool value)
-    : Constant(BasicType::get(BasicKind::I1)), _value(value ? 1 : 0) {}
+    : Constant(std::make_unique<BasicType>(BasicKind::I1)),
+      _value(value ? 1 : 0) {}
 
 ConstantNumber::ConstantNumber(const Number &num)
     : Constant(determineType(num)), _value(num) {}
-
-ConstantNumber::ConstantNumber(const ConstantNumber &other)
-    : Constant(other.getType()), _value(other._value) {}
-
-ConstantNumber::ConstantNumber(ConstantNumber &&other) noexcept
-    : Constant(other.getType()), _value(std::move(other._value)) {}
 
 Number ConstantNumber::getValue() const { return _value; }
 int ConstantNumber::intValue() const { return _value.intValue(); }

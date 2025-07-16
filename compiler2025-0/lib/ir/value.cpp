@@ -1,9 +1,12 @@
 #include "ir/value.h"
 #include <cassert>
+#include <memory>
 
 namespace ir {
 
-Value::Value(Type *type) : _type(type) { assert(type); }
+Value::Value(std::unique_ptr<Type> type) : _type(std::move(type)) {
+  assert(type);
+}
 
 Value::~Value() {
   for (auto *use : _uses) {

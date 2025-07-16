@@ -5,19 +5,21 @@
 #include "ir/use.h"
 #include <string>
 #include <unordered_set>
+#include <memory>
 
 namespace ir {
 
 class Value {
-protected:
-  Type *_type;
+private:
+  std::unique_ptr<Type> _type;
   std::unordered_set<Use *> _uses;
 
 public:
-  explicit Value(Type *type);
+  explicit Value(std::unique_ptr<Type> type);
   virtual ~Value();
 
-  [[nodiscard]] Type *getType() const { return _type; }
+  // Return a viewport instead of the actual ownership
+  [[nodiscard]] Type *getType() const { return _type.get(); }
   [[nodiscard]] size_t getSize() const { return _type->getSize(); }
 
   void addUse(Use *use);

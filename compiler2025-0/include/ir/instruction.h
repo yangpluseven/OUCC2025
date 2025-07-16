@@ -41,9 +41,9 @@ private:
   Instruction *_cloneTarget = nullptr;
 
 protected:
-  Instruction(Type *type, BasicBlock *block);
-  Instruction(Type *type, const std::vector<Value *> &useOperands,
-              BasicBlock *block);
+  Instruction(std::unique_ptr<Type> type, BasicBlock *block);
+  Instruction(std::unique_ptr<Type> type,
+              const std::vector<Value *> &useOperands, BasicBlock *block);
 
 public:
   virtual ~Instruction() = default;

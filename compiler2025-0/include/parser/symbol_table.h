@@ -56,7 +56,7 @@ private:
     std::vector<std::unique_ptr<ir::Constant>> array;
     for (size_t i = base; i < base + size; i += size / arrayType->getLength())
       array.push_back(
-          fuseConst(arrayType->baseType(),
+          fuseConst(arrayType->getBaseType(),
                     submap(values, static_cast<int>(i),
                            static_cast<int>(i + size / arrayType->getLength())),
                     static_cast<int>(i)));

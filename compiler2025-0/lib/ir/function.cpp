@@ -7,10 +7,7 @@ namespace ir {
 
 std::string Argument::getSSAName() const { return "%" + _name; }
 
-std::string Argument::str() const { return _type->str() + getSSAName(); }
-
-Function::Function(Type *type, std::string name)
-    : Value(type), _name(std::move(name)) {}
+std::string Argument::str() const { return getType()->str() + getSSAName(); }
 
 void Function::addArg(std::unique_ptr<Argument> arg) {
   assert(arg && "Cannot add nullptr argument");

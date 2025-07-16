@@ -4,12 +4,13 @@ namespace ir {
 
 int Instruction::_counter = 0;
 
-Instruction::Instruction(Type *type, BasicBlock *block)
-    : User(type), _block(block), _id(_counter++) {}
+Instruction::Instruction(std::unique_ptr<Type> type, BasicBlock *block)
+    : User(std::move(type)), _block(block), _id(_counter++) {}
 
-Instruction::Instruction(Type *type, const std::vector<Value *> &useOperands,
+Instruction::Instruction(std::unique_ptr<Type> type,
+                         const std::vector<Value *> &useOperands,
                          BasicBlock *block)
-    : User(type, useOperands), _block(block), _id(_counter++) {}
+    : User(std::move(type), useOperands), _block(block), _id(_counter++) {}
 
 std::string Instruction::getSSAName() const { return "Unnamed"; }
 

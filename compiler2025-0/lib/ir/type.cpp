@@ -1,5 +1,6 @@
 #include "ir/type.h"
 #include <cassert>
+#include <memory>
 #include <sstream>
 
 namespace ir {
@@ -14,10 +15,10 @@ bool Type::isEqual(const Type *lhs, const Type *rhs) {
   if (!lhs || !rhs)
     return false;
 
-  if (lhs->getKind() != rhs->getKind())
+  if (lhs->getTypeKind() != rhs->getTypeKind())
     return false;
 
-  switch (lhs->getKind()) {
+  switch (lhs->getTypeKind()) {
   case TypeKind::BASIC: {
     auto lhsBasic = static_cast<const BasicType *>(lhs);
     auto rhsBasic = static_cast<const BasicType *>(rhs);
@@ -44,25 +45,6 @@ bool Type::isEqual(const Type *lhs, const Type *rhs) {
 //
 
 BasicType::BasicType(BasicKind kind) : _kind(kind) {}
-
-static BasicType i1Type(BasicKind::I1);
-static BasicType i32Type(BasicKind::I32);
-static BasicType f32Type(BasicKind::F32);
-static BasicType voidType(BasicKind::VOID);
-
-BasicType *BasicType::get(BasicKind kind) {
-  switch (kind) {
-  case BasicKind::I1:
-    return &i1Type;
-  case BasicKind::I32:
-    return &i32Type;
-  case BasicKind::F32:
-    return &f32Type;
-  case BasicKind::VOID:
-  default:
-    return nullptr;
-  }
-}
 
 size_t BasicType::getSize() const {
   switch (_kind) {
@@ -96,8 +78,8 @@ std::string BasicType::str() const {
 // ======== ARRAY TYPE ========
 //
 
-ArrayType::ArrayType(Type *elementType, size_t arraySize)
-    : _elementType(elementType), _arraySize(arraySize) {
+ArrayType::ArrayType(std::unique_ptr<Type> elementType, size_t arraySize)
+    : _elementType(std::move(elementType)), _arraySize(arraySize) {
   assert(elementType && "Element type cannot be null");
 }
 
@@ -136,7 +118,8 @@ BasicType *ArrayType::getInnermostElementType() const {
 // ======== POINTER TYPE ========
 //
 
-PointerType::PointerType(Type *pointeeType) : _pointeeType(pointeeType) {
+PointerType::PointerType(std::unique_ptr<Type> pointeeType)
+    : _pointeeType(std::move(pointeeType)) {
   assert(pointeeType && "Pointee type cannot be null");
 }
 

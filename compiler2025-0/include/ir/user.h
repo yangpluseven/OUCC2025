@@ -14,8 +14,9 @@ protected:
   std::vector<std::unique_ptr<Use>> operands;
 
 public:
-  explicit User(Type *type);
-  explicit User(Type *type, const std::vector<Value *> &useOperands);
+  using Value::Value;
+  explicit User(std::unique_ptr<Type> type,
+                const std::vector<Value *> &useOperands);
   ~User() override = default;
 
   void addOperand(Value *v);

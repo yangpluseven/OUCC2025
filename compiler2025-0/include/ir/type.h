@@ -4,6 +4,7 @@
 #include <cassert>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace ir {
 
@@ -13,14 +14,16 @@ class Type {
 public:
   virtual ~Type() = default;
 
-  [[nodiscard]] virtual TypeKind getKind() const = 0;
-  [[nodiscard]] virtual Type *baseType() const = 0;
+  [[nodiscard]] virtual TypeKind getTypeKind() const = 0;
+  // Probably no usage, cause type check + static cast + unique function for
+  // array and pointer is recommended
+  [[nodiscard]] virtual Type *getBaseType() const = 0;
   [[nodiscard]] virtual size_t getSize() const = 0;
   [[nodiscard]] virtual std::string str() const = 0;
 
-  bool isBasic() const { return getKind() == TypeKind::BASIC; }
-  bool isArray() const { return getKind() == TypeKind::ARRAY; }
-  bool isPointer() const { return getKind() == TypeKind::POINTER; }
+  bool isBasic() const { return getTypeKind() == TypeKind::BASIC; }
+  bool isArray() const { return getTypeKind() == TypeKind::ARRAY; }
+  bool isPointer() const { return getTypeKind() == TypeKind::POINTER; }
 
   static bool isEqual(const Type *lhs, const Type *rhs);
   bool operator==(const Type &rhs) const { return isEqual(this, &rhs); }
@@ -32,17 +35,21 @@ public:
 
 enum class BasicKind { I1, I32, F32, VOID };
 
+// Any comparison or identification needs to be done with enum class BasicKind,
+// check function isEqual in class Type
 class BasicType : public Type {
 public:
-  // Do not call this, use get() instead
   explicit BasicType(BasicKind kind);
-  static BasicType *get(BasicKind kind);
 
-  [[nodiscard]] TypeKind getKind() const override { return TypeKind::BASIC; }
-  [[nodiscard]] BasicKind getBasicKind() const { return _kind; }
+  [[nodiscard]] TypeKind getTypeKind() const override {
+    return TypeKind::BASIC;
+  }
   [[nodiscard]] size_t getSize() const override;
+  // Should not be called
+  [[nodiscard]] Type *getBaseType() const override { return nullptr; }
+  [[nodiscard]] BasicKind getBasicKind() const { return _kind; }
+
   [[nodiscard]] std::string str() const override;
-  [[nodiscard]] Type *baseType() const override { return nullptr; }
 
 private:
   BasicKind _kind;
@@ -54,14 +61,19 @@ private:
 
 class ArrayType : public Type {
 public:
-  ArrayType(Type *elementType, size_t arraySize);
+  explicit ArrayType(std::unique_ptr<Type> elementType, size_t arraySize);
 
-  [[nodiscard]] TypeKind getKind() const override { return TypeKind::ARRAY; }
+  [[nodiscard]] TypeKind getTypeKind() const override {
+    return TypeKind::ARRAY;
+  }
   [[nodiscard]] size_t getSize() const override;
   [[nodiscard]] std::string str() const override;
-
-  [[nodiscard]] Type *baseType() const override { return _elementType; }
-  [[nodiscard]] Type *getElementType() const { return _elementType; }
+  // Recommend getElementType()
+  [[nodiscard]] Type *getBaseType() const override {
+    return _elementType.get();
+  }
+  // Return a viewport instead of the actual ownership
+  [[nodiscard]] Type *getElementType() const { return _elementType.get(); }
   [[nodiscard]] size_t getLength() const { return _arraySize; }
 
   // Get all dimensions like: int[2][3][4] => [2, 3, 4]
@@ -71,7 +83,7 @@ public:
   [[nodiscard]] BasicType *getInnermostElementType() const;
 
 private:
-  Type *_elementType;
+  std::unique_ptr<Type> _elementType;
   size_t _arraySize;
 };
 
@@ -81,17 +93,22 @@ private:
 
 class PointerType : public Type {
 public:
-  explicit PointerType(Type *pointeeType);
+  explicit PointerType(std::unique_ptr<Type> pointeeType);
 
-  [[nodiscard]] TypeKind getKind() const override { return TypeKind::POINTER; }
+  [[nodiscard]] TypeKind getTypeKind() const override {
+    return TypeKind::POINTER;
+  }
   [[nodiscard]] size_t getSize() const override;
   [[nodiscard]] std::string str() const override;
-
-  [[nodiscard]] Type *baseType() const override { return _pointeeType; }
-  [[nodiscard]] Type *getPointeeType() const { return _pointeeType; }
+  // Recommend getPointeeType()
+  [[nodiscard]] Type *getBaseType() const override {
+    return _pointeeType.get();
+  }
+  // Return a viewport instead of the actual ownership
+  [[nodiscard]] Type *getPointeeType() const { return _pointeeType.get(); }
 
 private:
-  Type *_pointeeType;
+  std::unique_ptr<Type> _pointeeType;
 };
 
 } // namespace ir

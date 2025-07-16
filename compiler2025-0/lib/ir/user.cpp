@@ -3,9 +3,8 @@
 
 namespace ir {
 
-User::User(Type *type) : Value(type) {}
-
-User::User(Type *type, const std::vector<Value *> &useOperands) : Value(type) {
+User::User(std::unique_ptr<Type> type, const std::vector<Value *> &useOperands)
+    : User(std::move(type)) {
   for (auto *v : useOperands) {
     addOperand(v);
   }

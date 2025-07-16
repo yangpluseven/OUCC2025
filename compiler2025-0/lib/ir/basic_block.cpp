@@ -9,8 +9,8 @@ namespace ir {
 int BasicBlock::_counter = 0;
 
 BasicBlock::BasicBlock(Function *func)
-    : Value(BasicType::get(BasicKind::VOID)), _id(_counter++), _function(func) {
-}
+    : Value(std::make_unique<BasicType>(BasicKind::VOID)), _id(_counter++),
+      _function(func) {}
 
 bool BasicBlock::hasTerminator() const {
   return !empty() && _instructions.back()->isTerminator();

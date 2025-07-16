@@ -10,7 +10,7 @@ namespace ir {
 
 class Constant : public User {
 public:
-  explicit Constant(Type *type) : User(type) {}
+  explicit Constant(std::unique_ptr<Type> type) : User(std::move(type)) {}
 
   ~Constant() override;
 
@@ -21,14 +21,12 @@ class ConstantNumber : public Constant {
 private:
   Number _value;
 
-  static BasicType *determineType(const Number &num);
+  static std::unique_ptr<BasicType> determineType(const Number &num);
   BasicKind getBasicKind() const;
 
 public:
   explicit ConstantNumber(bool value);
   explicit ConstantNumber(const Number &num);
-  ConstantNumber(const ConstantNumber &other);
-  ConstantNumber(ConstantNumber &&other) noexcept;
 
   Number getValue() const;
   float floatValue() const;
