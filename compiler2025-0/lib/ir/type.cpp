@@ -74,22 +74,26 @@ std::string BasicType::str() const {
   }
 }
 
+std::unique_ptr<Type> BasicType::clone() const {
+  return std::make_unique<BasicType>(_kind);
+}
+
 //
 // ======== ARRAY TYPE ========
 //
 
 ArrayType::ArrayType(std::unique_ptr<Type> elementType, size_t arraySize)
-    : _elementType(std::move(elementType)), _arraySize(arraySize) {
+    : _elementType(std::move(elementType)), _arrayLength(arraySize) {
   assert(elementType && "Element type cannot be null");
 }
 
 size_t ArrayType::getSize() const {
-  return _arraySize * _elementType->getSize();
+  return _arrayLength * _elementType->getSize();
 }
 
 std::string ArrayType::str() const {
   std::ostringstream oss;
-  oss << "[" << _arraySize << " x " << _elementType->str() << "]";
+  oss << "[" << _arrayLength << " x " << _elementType->str() << "]";
   return oss.str();
 }
 
@@ -114,6 +118,10 @@ BasicType *ArrayType::getInnermostElementType() const {
   return const_cast<BasicType *>(static_cast<const BasicType *>(curr));
 }
 
+std::unique_ptr<Type> ArrayType::clone() const {
+  return std::make_unique<ArrayType>(_elementType->clone(), _arrayLength);
+}
+
 //
 // ======== POINTER TYPE ========
 //
@@ -128,5 +136,9 @@ size_t PointerType::getSize() const {
 }
 
 std::string PointerType::str() const { return _pointeeType->str() + "*"; }
+
+std::unique_ptr<Type> PointerType::clone() const {
+  return std::make_unique<PointerType>(_pointeeType->clone());
+}
 
 } // namespace ir

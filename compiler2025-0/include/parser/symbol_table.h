@@ -77,17 +77,18 @@ public:
 
   void in() { _table.emplace_front(); }
 
-  ir::Function *makeFunc(ir::Type *type, const std::string &name) {
-    auto func = new ir::Function(type, name);
+  ir::Function *makeFunc(std::unique_ptr<ir::Type> type,
+                         const std::string &name) {
+    auto func = new ir::Function(std::move(type), name);
     _table.back()[name] = func;
     return func;
   }
 
-  ir::GlobalVariable *makeGlobal(bool isConst, ir::Type *type,
+  ir::GlobalVariable *makeGlobal(bool isConst, std::unique_ptr<ir::Type> type,
                                  const std::string &name, const Number &value) {
     assert(type->isBasic());
     Number realVal(0);
-    auto basicType = static_cast<ir::BasicType *>(type)->getBasicKind();
+    auto basicType = static_cast<ir::BasicType *>(type.get())->getBasicKind();
     switch (basicType) {
     case ir::BasicKind::I32:
       realVal = Number(value.intValue());
@@ -99,20 +100,22 @@ public:
       throw std::runtime_error("Unsupported type in makeGlobal");
     }
 
-    auto symbol = new ir::GlobalVariable(
-        type, name, isConst, std::make_unique<ir::ConstantNumber>(realVal));
+    auto symbol =
+        new ir::GlobalVariable(std::move(type), name, isConst,
+                               std::make_unique<ir::ConstantNumber>(realVal));
     _table.front()[name] = symbol;
     return symbol;
   }
 
-  ir::GlobalVariable *makeGlobal(bool isConst, ir::Type *type,
+  ir::GlobalVariable *makeGlobal(bool isConst, std::unique_ptr<ir::Type> type,
                                  const std::string &name,
                                  const std::map<int, Number> &values) {
     ir::BasicType *rootType;
     if (type->isArray()) {
-      rootType = static_cast<ir::ArrayType *>(type)->getInnermostElementType();
+      rootType =
+          static_cast<ir::ArrayType *>(type.get())->getInnermostElementType();
     } else {
-      rootType = static_cast<ir::BasicType *>(type);
+      rootType = static_cast<ir::BasicType *>(type.get());
     }
     ir::BasicKind basicKind = rootType->getBasicKind();
     for (auto i : values) {
@@ -129,7 +132,8 @@ public:
     }
 
     auto symbol =
-        new ir::GlobalVariable(type, name, isConst, fuseConst(type, values, 0));
+        new ir::GlobalVariable(std::move(type), name, isConst,
+                               std::move(fuseConst(type.get(), values, 0)));
     _table.front()[name] = symbol;
     return symbol;
   }
@@ -144,20 +148,21 @@ public:
   }
 
   std::unique_ptr<ir::AllocaInst>
-  makeLocal(ir::BasicBlock *block, ir::Type *type, const std::string &name,
-            const std::vector<int> &dimensions) {
+  makeLocal(ir::BasicBlock *block, std::unique_ptr<ir::Type> type,
+            const std::string &name, const std::vector<int> &dimensions) {
     for (int i = static_cast<int>(dimensions.size() - 1); i >= 0; i--)
-      type = new ir::ArrayType(type, dimensions[i]);
+      type = std::make_unique<ir::ArrayType>(std::move(type), dimensions[i]);
 
     auto allocaInst = std::make_unique<ir::AllocaInst>(type, block);
     _table.front()[name] = allocaInst.get();
     return std::move(allocaInst);
   }
 
-  ir::Argument *makeArg(ir::Type *type, const std::string &name) {
-    auto arg = new ir::Argument(type, name);
-    _table.front()[name] = arg;
-    return arg;
+  std::unique_ptr<ir::Argument> makeArg(std::unique_ptr<ir::Type> type,
+                                        const std::string &name) {
+    auto arg = std::make_unique<ir::Argument>(std::move(type), name);
+    _table.front()[name] = arg.get();
+    return std::move(arg);
   }
 
   void out() { _table.pop_front(); }

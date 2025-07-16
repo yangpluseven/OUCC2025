@@ -2,6 +2,7 @@
 #define IR_GLOBAL_VARIABLE_H
 
 #include "ir/constant.h"
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -14,14 +15,14 @@ private:
   std::unique_ptr<Constant> _value;
 
 public:
-  GlobalVariable(Type *type, std::string name, bool isConst,
+  GlobalVariable(std::unique_ptr<Type> type, std::string name, bool isConst,
                  std::unique_ptr<Constant> value);
 
   bool isConst() const { return _isConst; }
 
-  const Constant *getValue() const { return _value.get(); }
+  Constant *getValue() const { return _value.get(); }
 
-  bool isZeroInitialized() const;
+  bool isSingle() const;
   bool isInBss() const;
 
   int getInt() const;

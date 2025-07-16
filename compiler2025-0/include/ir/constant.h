@@ -8,13 +8,18 @@
 
 namespace ir {
 
+enum class ConstantKind { Number, Zero, Array };
+
 class Constant : public User {
 public:
-  explicit Constant(std::unique_ptr<Type> type) : User(std::move(type)) {}
-
+  using User::User;
   ~Constant() override;
 
-  virtual std::string str() const override = 0;
+  [[nodiscard]] virtual ConstantKind getConstantKind() const = 0;
+  
+  bool isNumber() const { return getConstantKind() == ConstantKind::Number; }
+  bool isZero() const { return getConstantKind() == ConstantKind::Zero; }
+  bool isArray() const { return getConstantKind() == ConstantKind::Array; }
 };
 
 class ConstantNumber : public Constant {
@@ -27,6 +32,8 @@ private:
 public:
   explicit ConstantNumber(bool value);
   explicit ConstantNumber(const Number &num);
+
+  ConstantKind getConstantKind() const override { return ConstantKind::Number; }
 
   Number getValue() const;
   float floatValue() const;
@@ -53,19 +60,25 @@ public:
 
 class ConstantZero : public Constant {
 public:
-  explicit ConstantZero(Type *type);
+  using Constant::Constant;
+
+  ConstantKind getConstantKind() const override { return ConstantKind::Zero; }
 
   std::string str() const override;
 };
 
 class ConstantArray : public Constant {
 private:
-  std::vector<std::unique_ptr<Constant>> values;
+  std::vector<std::unique_ptr<Constant>> _values;
 
 public:
-  ConstantArray(Type *type, std::vector<std::unique_ptr<Constant>> values);
+  ConstantArray(std::unique_ptr<Type> type,
+                std::vector<std::unique_ptr<Constant>> values)
+      : Constant(std::move(type)), _values(std::move(values)) {}
 
-  const Constant *getValue(size_t index) const;
+  ConstantKind getConstantKind() const override { return ConstantKind::Array; }
+
+  Constant *getValue(size_t index) const;
 
   std::string str() const override;
 };

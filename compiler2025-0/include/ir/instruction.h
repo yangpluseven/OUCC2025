@@ -35,12 +35,12 @@ private:
   static int _counter;
   int _id;
   int _indexInBlock = -1;
-  bool _notRemapped = false;
   BasicBlock *_block;
-  // Only used during clone process
-  Instruction *_cloneTarget = nullptr;
 
 protected:
+  // Only used during clone process
+  Instruction *_cloneTarget = nullptr;
+  bool _notRemapped = false;
   Instruction(std::unique_ptr<Type> type, BasicBlock *block);
   Instruction(std::unique_ptr<Type> type,
               const std::vector<Value *> &useOperands, BasicBlock *block);
@@ -53,20 +53,22 @@ public:
   void setBlock(BasicBlock *block) { _block = block; }
 
   [[nodiscard]] int getID() const { return _id; }
-  // Get the SSA name like %1, %2
-  [[nodiscard]] virtual std::string getSSAName() const;
+  // Get the SSA name like %v1, %v2
+  [[nodiscard]] std::string getSSAName() const;
   // Get the LLVM .ll format instruction string
   [[nodiscard]] std::string str() const;
 
-  [[nodiscard]] virtual InstKind kind() const = 0;
+  [[nodiscard]] virtual InstKind getInstKind() const = 0;
 
   using ValueMap = std::unordered_map<ir::Value *, ir::Value *>;
 
-  // Create a copy without operands, notRemapped <- true
-  virtual Instruction *clone() const = 0;
+  // Create a empty copy without operands, set notRemapped to true. Other part
+  // should be the same as the clone target
+  virtual std::unique_ptr<Instruction> cloneEmpty() const = 0;
   // Use _cloneTarget to find the old instruction, use the map oldVal -> newVal
   // to map the operands. Set _cloneTarget to nullptr after the process
-  virtual void remapOperands(const ValueMap &map);
+  // and set notRemapped to false
+  void remapValues(const ValueMap &map);
 
   [[nodiscard]] bool isRemapped() const { return !_notRemapped; }
   [[nodiscard]] virtual bool isTerminator() const { return false; }

@@ -1,4 +1,5 @@
 #include "ir/type.h"
+#include "ir/instructions.h"
 #include <iostream>
 #include <memory>
 

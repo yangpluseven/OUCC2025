@@ -59,6 +59,7 @@ std::string ConstantNumber::str() const {
 }
 
 // General operators for integer/float
+
 #define DEFINE_BINARY_OP(OPNAME, OP)                                           \
   ConstantNumber ConstantNumber::operator OPNAME(const ConstantNumber &rhs)    \
       const {                                                                  \
@@ -85,6 +86,7 @@ DEFINE_BINARY_OP(<, <)
 DEFINE_BINARY_OP(<=, <=)
 
 // Operators for only integer
+
 ConstantNumber ConstantNumber::operator%(const ConstantNumber &rhs) const {
   switch (getBasicKind()) {
   case BasicKind::I1:
@@ -131,12 +133,21 @@ ConstantNumber ConstantNumber::operator!() const {
   }
 }
 
+std::string ConstantZero::str() const {
+  return getType()->str() + " zeroinitializer";
+}
+
+Constant *ConstantArray::getValue(size_t index) const {
+  assert(index < _values.size());
+  return _values[index].get();
+}
+
 std::string ConstantArray::str() const {
   std::ostringstream oss;
   oss << getType()->str() << " [";
-  for (size_t i = 0; i < values.size(); ++i) {
-    oss << values[i]->str();
-    if (i + 1 < values.size())
+  for (size_t i = 0; i < _values.size(); ++i) {
+    oss << _values[i]->str();
+    if (i + 1 < _values.size())
       oss << ", ";
   }
   oss << "]";
