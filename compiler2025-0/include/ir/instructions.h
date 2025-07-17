@@ -105,7 +105,7 @@ public:
 
 class AllocaInst : public Instruction {
 public:
-  AllocaInst(BasicBlock *block, std::unique_ptr<Type> allocType);
+  AllocaInst(std::unique_ptr<Type> allocType, BasicBlock *block);
   [[nodiscard]] InstKind getInstKind() const override;
   [[nodiscard]] std::string str() const override;
   [[nodiscard]] std::unique_ptr<Instruction> cloneEmpty() const override;
@@ -114,7 +114,7 @@ public:
 class LoadInst : public Instruction {
 public:
   using Instruction::Instruction;
-  LoadInst(BasicBlock *block, std::unique_ptr<Type> loadedType, Value *ptr);
+  LoadInst(std::unique_ptr<Type> loadedType, BasicBlock *block, Value *ptr);
   [[nodiscard]] InstKind getInstKind() const override;
   [[nodiscard]] std::string str() const override;
   [[nodiscard]] std::unique_ptr<Instruction> cloneEmpty() const override;

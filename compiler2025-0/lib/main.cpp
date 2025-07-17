@@ -1,5 +1,6 @@
 #include "ir/type.h"
 #include "ir/instructions.h"
+#include "parser/symbol_table.h"
 #include <iostream>
 #include <memory>
 

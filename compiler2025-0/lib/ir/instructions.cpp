@@ -247,7 +247,7 @@ bool BranchInst::isTerminator() const { return true; }
 
 //===---------------- Other Instructions ----------------===//
 
-AllocaInst::AllocaInst(BasicBlock *block, std::unique_ptr<Type> allocType)
+AllocaInst::AllocaInst(std::unique_ptr<Type> allocType, BasicBlock *block)
     : Instruction(std::make_unique<PointerType>(std::move(allocType)), block) {}
 
 InstKind AllocaInst::getInstKind() const { return InstKind::Alloca; }
@@ -258,13 +258,13 @@ std::string AllocaInst::str() const {
 }
 
 std::unique_ptr<Instruction> AllocaInst::cloneEmpty() const {
-  auto cloned = std::make_unique<AllocaInst>(nullptr, getType()->clone());
+  auto cloned = std::make_unique<AllocaInst>(getType()->clone(), nullptr);
   cloned->_cloneTarget = const_cast<AllocaInst *>(this);
   cloned->_notRemapped = true;
   return cloned;
 }
 
-LoadInst::LoadInst(BasicBlock *block, std::unique_ptr<Type> loadedType,
+LoadInst::LoadInst(std::unique_ptr<Type> loadedType, BasicBlock *block,
                    Value *ptr)
     : Instruction(std::move(loadedType), {ptr}, block) {}
 
@@ -277,7 +277,7 @@ std::string LoadInst::str() const {
 
 std::unique_ptr<Instruction> LoadInst::cloneEmpty() const {
   auto cloned =
-      std::make_unique<LoadInst>(nullptr, getType()->clone(), nullptr);
+      std::make_unique<LoadInst>(getType()->clone(), nullptr, nullptr);
   cloned->_cloneTarget = const_cast<LoadInst *>(this);
   cloned->_notRemapped = true;
   return cloned;

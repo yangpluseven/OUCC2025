@@ -67,6 +67,7 @@ int GlobalVariable::getInt(size_t index) const {
   return static_cast<ConstantNumber *>(curValue)->intValue();
 }
 
+// Careful! Might be a wrong implementation. (ATTENTION)
 float GlobalVariable::getFloat(size_t index) const {
   assert(getType()->isArray());
   auto arrayType = static_cast<ArrayType *>(getType());
