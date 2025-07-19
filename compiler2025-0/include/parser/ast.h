@@ -31,7 +31,7 @@ class IfStmt;
 class WhileStmt;
 class LVal;
 class PrimaryExp;
-class Number;
+class NumberNode;
 class UnaryExp;
 class Call;
 class FuncCParamList;
@@ -71,7 +71,7 @@ public:
 // 变量声明
 class Decl : public BaseNode {
 public:
-  Type bType = Type::VOID;         // 基本数据类型
+  BType bType = BType::VOID;         // 基本数据类型
   bool isConst = false;            // 是否为const声明
   vector<unique_ptr<Def>> defList; // 定义列表
   void accept(ASTVisitor &visitor) override;
@@ -119,7 +119,7 @@ public:
 // 函数定义
 class FuncDef : public BaseNode {
 public:
-  Type returnType = Type::VOID;                  // 函数返回类型
+  BType returnType = BType::VOID;                  // 函数返回类型
   unique_ptr<string> id;                         // 函数名
   vector<unique_ptr<FuncFParam>> funcFParamList; // 函数形参列表
   unique_ptr<Block> block = nullptr;             // 函数体
@@ -136,7 +136,7 @@ public:
 // 函数形参
 class FuncFParam : public BaseNode {
 public:
-  Type bType;
+  BType bType;
   unique_ptr<string> id; // 标识符
   bool isArray =
       false; // 用于区分是否是数组参数，此时一维数组和多维数组expArrays都是empty
@@ -239,18 +239,8 @@ public:
   ~MulExp() {}
 };
 
-// 基本表达式
-class PrimaryExp : public BaseNode {
-public:
-  unique_ptr<AddExp> exp;    // 表达式结点
-  unique_ptr<LVal> lval;     // 左值表达式结点
-  unique_ptr<Number> number; // 数字结点
-  void accept(ASTVisitor &visitor) override;
-  ~PrimaryExp() {}
-};
-
 // 数字
-class Number : public BaseNode {
+class NumberNode : public BaseNode {
 public:
   bool isInt; // 是否为整型
   union {
@@ -258,7 +248,17 @@ public:
     float floatval; // 浮点型值
   };
   void accept(ASTVisitor &visitor) override;
-  ~Number() {}
+  ~NumberNode() {}
+};
+
+// 基本表达式
+class PrimaryExp : public BaseNode {
+public:
+  unique_ptr<AddExp> exp;    // 表达式结点
+  unique_ptr<LVal> lval;     // 左值表达式结点
+  unique_ptr<NumberNode> number; // 数字结点
+  void accept(ASTVisitor &visitor) override;
+  ~PrimaryExp() {}
 };
 
 // 左值表达式
@@ -344,7 +344,7 @@ public:
   virtual void visit(UnaryExp &ast) = 0;
   virtual void visit(PrimaryExp &ast) = 0;
   virtual void visit(LVal &ast) = 0;
-  virtual void visit(Number &ast) = 0;
+  virtual void visit(NumberNode &ast) = 0;
   virtual void visit(Call &ast) = 0;
   virtual void visit(RelExp &ast) = 0;
   virtual void visit(EqExp &ast) = 0;

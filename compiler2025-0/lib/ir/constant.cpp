@@ -27,6 +27,11 @@ ConstantNumber::ConstantNumber(bool value)
 ConstantNumber::ConstantNumber(const Number &num)
     : Constant(determineType(num)), _value(num) {}
 
+// Probably should just move the type (ATTENTION)
+ConstantNumber::ConstantNumber(ConstantNumber &&other) noexcept
+    : Constant(std::move(other.getType()->clone())),
+      _value(std::move(other._value)) {}
+
 Number ConstantNumber::getValue() const { return _value; }
 int ConstantNumber::intValue() const { return _value.intValue(); }
 float ConstantNumber::floatValue() const { return _value.floatValue(); }

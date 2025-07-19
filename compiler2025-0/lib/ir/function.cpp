@@ -102,6 +102,17 @@ Function::iterator Function::insertBlock(iterator pos,
   return _blocks.insert(pos, std::move(block));
 }
 
+void ir::Function::insertBlockAfter(BasicBlock *target,
+                                    std::unique_ptr<BasicBlock> block) {
+  for (auto it = _blocks.begin(); it != _blocks.end(); ++it) {
+    if (it->get() == target) {
+      insertBlock(std::next(it), std::move(block));
+      return;
+    }
+  }
+  throw std::runtime_error("Target not found!");
+}
+
 std::unique_ptr<BasicBlock> Function::eraseBlock(iterator pos) {
   std::unique_ptr<BasicBlock> removed = std::move(*pos);
   _blocks.erase(pos);

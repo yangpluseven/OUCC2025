@@ -1,7 +1,5 @@
 #include "parser/symbol_table.h"
 
-std::list<std::unordered_map<std::string, ir::Value *>> _table;
-
 [[nodiscard]] ir::Value *SymbolTable::getItem(const std::string &name) const {
   for (auto item : _table) {
     if (item.find(name) != item.end())
@@ -10,9 +8,10 @@ std::list<std::unordered_map<std::string, ir::Value *>> _table;
   throw std::runtime_error("Undefined variable: " + name);
 }
 
-std::map<int, Number> SymbolTable::submap(const std::map<int, Number> &values,
-                                          int fromKey, int toKey) {
-  std::map<int, Number> sub;
+std::map<int, ir::Number>
+SymbolTable::submap(const std::map<int, ir::Number> &values, int fromKey,
+                    int toKey) {
+  std::map<int, ir::Number> sub;
   auto lower = values.lower_bound(fromKey);
   auto upper = values.upper_bound(toKey);
 
@@ -24,12 +23,12 @@ std::map<int, Number> SymbolTable::submap(const std::map<int, Number> &values,
 
 std::unique_ptr<ir::Constant>
 SymbolTable::fuseConst(std::unique_ptr<ir::Type> type,
-                       const std::map<int, Number> &values, int base) {
+                       const std::map<int, ir::Number> &values, int base) {
   if (type->isBasic())
     if (values.find(base) != values.end())
       return std::make_unique<ir::ConstantNumber>(values.at(base));
     else
-      return std::make_unique<ir::ConstantNumber>(Number(0));
+      return std::make_unique<ir::ConstantNumber>(ir::Number(0));
 
   if (values.empty())
     return std::make_unique<ir::ConstantZero>(std::move(type));
@@ -66,15 +65,15 @@ SymbolTable::makeFunc(std::unique_ptr<ir::Type> type, const std::string &name) {
 
 std::unique_ptr<ir::GlobalVariable>
 SymbolTable::makeGlobal(bool isConst, std::unique_ptr<ir::Type> type,
-                        const std::string &name, Number &value) {
+                        const std::string &name, ir::Number value) {
   assert(type->isBasic());
   auto basicType = static_cast<ir::BasicType *>(type.get())->getBasicKind();
   switch (basicType) {
   case ir::BasicKind::I32:
-    value = Number(value.intValue());
+    value = ir::Number(value.intValue());
     break;
   case ir::BasicKind::F32:
-    value = Number(value.floatValue());
+    value = ir::Number(value.floatValue());
     break;
   default:
     throw std::runtime_error("Unsupported type in makeGlobal");
@@ -90,7 +89,7 @@ SymbolTable::makeGlobal(bool isConst, std::unique_ptr<ir::Type> type,
 std::unique_ptr<ir::GlobalVariable>
 SymbolTable::makeGlobal(bool isConst, std::unique_ptr<ir::Type> type,
                         const std::string &name,
-                        std::map<int, Number> &values) {
+                        std::map<int, ir::Number> &values) {
   ir::BasicType *rootType;
   if (type->isArray()) {
     rootType =
@@ -102,10 +101,10 @@ SymbolTable::makeGlobal(bool isConst, std::unique_ptr<ir::Type> type,
   for (auto &[key, val] : values) {
     switch (basicKind) {
     case ir::BasicKind::I32:
-      val = Number(val.intValue());
+      val = ir::Number(val.intValue());
       break;
     case ir::BasicKind::F32:
-      val = Number(val.floatValue());
+      val = ir::Number(val.floatValue());
       break;
     default:
       throw std::runtime_error("Unsupported type in makeGlobal");

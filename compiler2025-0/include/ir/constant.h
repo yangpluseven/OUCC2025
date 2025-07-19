@@ -2,7 +2,7 @@
 #define IR_CONSTANT_H
 
 #include "ir/number.h"
-#include "ir/user.h"
+#include "ir/value.h"
 #include <stdexcept>
 #include <vector>
 
@@ -10,13 +10,14 @@ namespace ir {
 
 enum class ConstantKind { Number, Zero, Array };
 
-class Constant : public User {
+class Constant : public Value {
 public:
-  using User::User;
+  using Value::Value;
   ~Constant() override;
 
   [[nodiscard]] virtual ConstantKind getConstantKind() const = 0;
-  
+  ValueKind getValueKind() const override { return ValueKind::Const; }
+
   bool isNumber() const { return getConstantKind() == ConstantKind::Number; }
   bool isZero() const { return getConstantKind() == ConstantKind::Zero; }
   bool isArray() const { return getConstantKind() == ConstantKind::Array; }
@@ -32,6 +33,7 @@ private:
 public:
   explicit ConstantNumber(bool value);
   explicit ConstantNumber(const Number &num);
+  ConstantNumber(ConstantNumber &&other) noexcept;
 
   ConstantKind getConstantKind() const override { return ConstantKind::Number; }
 

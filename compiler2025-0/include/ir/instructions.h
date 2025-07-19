@@ -18,9 +18,9 @@ private:
   static std::string opToString(BinaryOp op);
 
 public:
+  BinaryInst(BasicBlock *block, BinaryOp op, Value *lhs, Value *rhs);
   BinaryInst(std::unique_ptr<Type> type, BasicBlock *block, BinaryOp op)
       : Instruction(std::move(type), block) {}
-  BinaryInst(BinaryOp op, Value *lhs, Value *rhs, BasicBlock *block);
 
   [[nodiscard]] BinaryOp getOp() const;
   [[nodiscard]] InstKind getInstKind() const override;
@@ -129,9 +129,13 @@ public:
 };
 
 class GetElementPtrInst : public Instruction {
+private:
+  static std::unique_ptr<Type> calcType(Value *value, size_t indexSize);
+
 public:
-  GetElementPtrInst(std::unique_ptr<Type> resultType, BasicBlock *block,
-                    Value *base, const std::vector<Value *> &indices);
+  GetElementPtrInst(BasicBlock *block, Value *base,
+                    const std::vector<Value *> &indices);
+  GetElementPtrInst(std::unique_ptr<Type> targetType);
   [[nodiscard]] InstKind getInstKind() const override;
   [[nodiscard]] std::string str() const override;
   [[nodiscard]] std::unique_ptr<Instruction> cloneEmpty() const override;

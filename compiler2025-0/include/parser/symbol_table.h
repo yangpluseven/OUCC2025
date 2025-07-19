@@ -19,11 +19,11 @@ private:
 
   [[nodiscard]] ir::Value *getItem(const std::string &name) const;
 
-  static std::map<int, Number> submap(const std::map<int, Number> &values,
+  static std::map<int, ir::Number> submap(const std::map<int, ir::Number> &values,
                                       int fromKey, int toKey);
 
   static std::unique_ptr<ir::Constant>
-  fuseConst(std::unique_ptr<ir::Type> type, const std::map<int, Number> &values,
+  fuseConst(std::unique_ptr<ir::Type> type, const std::map<int, ir::Number> &values,
             int base);
 
 public:
@@ -37,6 +37,8 @@ public:
     return getItem(name);
   }
 
+  bool isGlobal() const { return _table.size() == 1; }
+
   [[nodiscard]] ir::Function *getFunction(const std::string &name) const;
 
   std::unique_ptr<ir::Function> makeFunc(std::unique_ptr<ir::Type> type,
@@ -45,12 +47,12 @@ public:
   std::unique_ptr<ir::GlobalVariable> makeGlobal(bool isConst,
                                                  std::unique_ptr<ir::Type> type,
                                                  const std::string &name,
-                                                 Number &value);
+                                                 ir::Number value);
 
   std::unique_ptr<ir::GlobalVariable> makeGlobal(bool isConst,
                                                  std::unique_ptr<ir::Type> type,
                                                  const std::string &name,
-                                                 std::map<int, Number> &values);
+                                                 std::map<int, ir::Number> &values);
 
   std::unique_ptr<ir::AllocaInst> makeLocal(ir::BasicBlock *block,
                                             std::unique_ptr<ir::Type> type,

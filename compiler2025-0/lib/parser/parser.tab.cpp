@@ -1725,7 +1725,7 @@ yyreduce:
   case 9: /* BType: INTTYPE  */
 #line 169 "parser.y"
             {
-        (yyval.ty) = Type::INT;
+        (yyval.ty) = BType::INT;
     }
 #line 1731 "parser.tab.cpp"
     break;
@@ -1733,7 +1733,7 @@ yyreduce:
   case 10: /* BType: FLOATTYPE  */
 #line 172 "parser.y"
               {
-        (yyval.ty) = Type::FLOAT;
+        (yyval.ty) = BType::FLOAT;
     }
 #line 1739 "parser.tab.cpp"
     break;
@@ -1741,7 +1741,7 @@ yyreduce:
   case 11: /* VoidType: VOID  */
 #line 178 "parser.y"
          {
-        (yyval.ty) = Type::VOID;
+        (yyval.ty) = BType::VOID;
     }
 #line 1747 "parser.tab.cpp"
     break;
@@ -2210,7 +2210,7 @@ yyreduce:
 #line 457 "parser.y"
            {
         (yyval.primaryExp) = new PrimaryExp();
-        (yyval.primaryExp)->number = unique_ptr<Number>((yyvsp[0].number));
+        (yyval.primaryExp)->number = unique_ptr<NumberNode>((yyvsp[0].number));
     }
 #line 2216 "parser.tab.cpp"
     break;
@@ -2218,7 +2218,7 @@ yyreduce:
   case 61: /* Number: INT  */
 #line 464 "parser.y"
         {
-        (yyval.number) = new Number();
+        (yyval.number) = new NumberNode();
         (yyval.number)->isInt = true;
         (yyval.number)->intval = (yyvsp[0].int_val);
     }
@@ -2228,7 +2228,7 @@ yyreduce:
   case 62: /* Number: FLOAT  */
 #line 469 "parser.y"
           {
-        (yyval.number) = new Number();
+        (yyval.number) = new NumberNode();
         (yyval.number)->isInt = false;
         (yyval.number)->floatval = (yyvsp[0].float_val);
     }

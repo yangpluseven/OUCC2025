@@ -121,7 +121,7 @@ union YYSTYPE
     WhileStmt* whileStmtAST;
     LVal* lVal;
     PrimaryExp* primaryExp;
-    Number* number;
+    NumberNode* number;
     UnaryExp* unaryExp;
     Call* call;
     FuncCParamList* funcCParamList;
@@ -132,7 +132,7 @@ union YYSTYPE
     LAndExp* lAndExp;
     LOrExp* lOrExp;
 
-    Type ty;
+    BType ty;
     UnaryOp op;
     string* token;
     int int_val;

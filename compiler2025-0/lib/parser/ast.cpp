@@ -16,7 +16,7 @@ void AddExp::accept(ASTVisitor &visitor) { visitor.visit(*this); }
 void MulExp::accept(ASTVisitor &visitor) { visitor.visit(*this); }
 void UnaryExp::accept(ASTVisitor &visitor) { visitor.visit(*this); }
 void PrimaryExp::accept(ASTVisitor &visitor) { visitor.visit(*this); }
-void Number::accept(ASTVisitor &visitor) { visitor.visit(*this); }
+void NumberNode::accept(ASTVisitor &visitor) { visitor.visit(*this); }
 void Call::accept(ASTVisitor &visitor) { visitor.visit(*this); }
 void LVal::accept(ASTVisitor &visitor) { visitor.visit(*this); }
 void RelExp::accept(ASTVisitor &visitor) { visitor.visit(*this); }

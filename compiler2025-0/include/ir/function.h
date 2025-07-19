@@ -17,6 +17,7 @@ private:
 public:
   Argument(std::unique_ptr<Type> type, std::string name)
       : Value(std::move(type)), _name(std::move(name)) {}
+  ValueKind getValueKind() const override { return ValueKind::Arg; }
   // Get the LLVM like SSA name, example: %a
   std::string getSSAName() const;
   // Get the LLVM like full name, example: i32 %a
@@ -32,6 +33,8 @@ private:
 public:
   Function(std::unique_ptr<Type> type, std::string name)
       : Value(std::move(type)), _name(std::move(name)) {}
+
+  ValueKind getValueKind() const { return ValueKind::Function; }
 
   [[nodiscard]] bool empty() const { return _blocks.empty(); }
 
@@ -58,9 +61,11 @@ public:
 
   BasicBlock *getBlock(iterator pos) const;
   // Insert using iterator, can be used in other insert functions
-  iterator insertBlock(iterator pos, std::unique_ptr<BasicBlock>);
+  iterator insertBlock(iterator pos, std::unique_ptr<BasicBlock> block);
   // Erase using iterator, move out the ownership
   std::unique_ptr<BasicBlock> eraseBlock(iterator pos);
+
+  void insertBlockAfter(BasicBlock *target, std::unique_ptr<BasicBlock> block);
 
   iterator begin();
   iterator end();

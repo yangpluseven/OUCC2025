@@ -19,6 +19,7 @@ public:
                  std::unique_ptr<Constant> value);
 
   bool isConst() const { return _isConst; }
+  ValueKind getValueKind() const override { return ValueKind::Global; }
 
   Constant *getValue() const { return _value.get(); }
 
@@ -31,6 +32,7 @@ public:
   float getFloat() const;
   float getFloat(size_t index) const;
 
+  std::string getRawName() const;
   std::string getSSAName() const;
 
   std::string str() const override;

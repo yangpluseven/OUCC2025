@@ -90,6 +90,8 @@ float GlobalVariable::getFloat(size_t index) const {
   return static_cast<ConstantNumber *>(curValue)->floatValue();
 }
 
+std::string GlobalVariable::getRawName() const { return _name; }
+
 std::string GlobalVariable::getSSAName() const { return "@" + _name; }
 
 std::string GlobalVariable::str() const {

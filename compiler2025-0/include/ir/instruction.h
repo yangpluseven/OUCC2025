@@ -48,6 +48,8 @@ protected:
 public:
   virtual ~Instruction() = default;
 
+  ValueKind getValueKind() const override { return ValueKind::Inst; }
+
   [[nodiscard]] BasicBlock *getBlock() const { return _block; }
   // Used in optimization mostly
   void setBlock(BasicBlock *block) { _block = block; }

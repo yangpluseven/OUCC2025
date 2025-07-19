@@ -34,7 +34,7 @@ std::string BinaryInst::opToString(BinaryOp op) {
   }
 }
 
-BinaryInst::BinaryInst(BinaryOp op, Value *lhs, Value *rhs, BasicBlock *block)
+BinaryInst::BinaryInst(BasicBlock *block, BinaryOp op, Value *lhs, Value *rhs)
     : Instruction(lhs->getType()->clone(), {lhs, rhs}, block), _op(op) {
   assert(*lhs->getType() == *rhs->getType() &&
          "Operands must have the same type");
@@ -302,10 +302,22 @@ std::unique_ptr<Instruction> StoreInst::cloneEmpty() const {
   return cloned;
 }
 
-GetElementPtrInst::GetElementPtrInst(std::unique_ptr<Type> resultType,
-                                     BasicBlock *block, Value *base,
+std::unique_ptr<Type> GetElementPtrInst::calcType(Value *value,
+                                                  size_t indexSize) {
+  auto type = value->getType();
+  if (value->isGlobal()) {
+    auto bType = std::make_unique<PointerType>(type->clone());
+    type = bType.get();
+  }
+  for (int i = 0; i < indexSize; i++) {
+    type = type->getBaseType();
+  }
+  return std::make_unique<PointerType>(type->clone());
+}
+
+GetElementPtrInst::GetElementPtrInst(BasicBlock *block, Value *base,
                                      const std::vector<Value *> &indices)
-    : Instruction(std::move(resultType), {base}, block) {
+    : Instruction(calcType(base, indices.size()), {base}, block) {
   for (auto *idx : indices) {
     addOperand(idx);
   }
@@ -326,8 +338,7 @@ std::string GetElementPtrInst::str() const {
 }
 
 std::unique_ptr<Instruction> GetElementPtrInst::cloneEmpty() const {
-  auto cloned = std::make_unique<GetElementPtrInst>(
-      getType()->clone(), nullptr, nullptr, std::vector<Value *>{});
+  auto cloned = std::make_unique<GetElementPtrInst>(getType()->clone());
   cloned->_cloneTarget = const_cast<GetElementPtrInst *>(this);
   cloned->_notRemapped = true;
   return cloned;

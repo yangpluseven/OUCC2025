@@ -3,11 +3,13 @@
 
 #include "ir/type.h"
 #include "ir/use.h"
+#include <memory>
 #include <string>
 #include <unordered_set>
-#include <memory>
 
 namespace ir {
+
+enum class ValueKind { Const, Inst, Global, Block, Function, Arg };
 
 class Value {
 private:
@@ -21,6 +23,13 @@ public:
   // Return a viewport instead of the actual ownership
   [[nodiscard]] Type *getType() const { return _type.get(); }
   [[nodiscard]] size_t getSize() const { return _type->getSize(); }
+  [[nodiscard]] virtual ValueKind getValueKind() const = 0;
+  [[nodiscard]] bool isConst() const {
+    return getValueKind() == ValueKind::Const;
+  }
+  [[nodiscard]] bool isGlobal() const {
+    return getValueKind() == ValueKind::Global;
+  }
 
   void addUse(Use *use);
   void removeUse(Use *use);

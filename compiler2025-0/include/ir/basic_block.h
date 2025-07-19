@@ -21,6 +21,7 @@ private:
 
 public:
   explicit BasicBlock(Function *func);
+  ValueKind getValueKind() const override { return ValueKind::Block; }
   [[nodiscard]] Function *getFunction() const { return _function; }
 
   [[nodiscard]] bool empty() const { return _instructions.empty(); }

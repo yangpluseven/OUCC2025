@@ -3,6 +3,8 @@
 
 #include <variant>
 
+namespace ir {
+
 class Number {
 private:
   std::variant<int, float> _value;
@@ -34,5 +36,7 @@ public:
     return *this;
   }
 };
+
+} // namespace ir
 
 #endif
