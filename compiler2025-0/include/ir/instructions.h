@@ -114,6 +114,7 @@ public:
 class LoadInst : public Instruction {
 public:
   using Instruction::Instruction;
+  LoadInst(BasicBlock *block, Value *ptr);
   LoadInst(std::unique_ptr<Type> loadedType, BasicBlock *block, Value *ptr);
   [[nodiscard]] InstKind getInstKind() const override;
   [[nodiscard]] std::string str() const override;

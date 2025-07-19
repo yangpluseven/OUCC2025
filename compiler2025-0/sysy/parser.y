@@ -41,7 +41,7 @@
     WhileStmt* whileStmtAST;
     LVal* lVal;
     PrimaryExp* primaryExp;
-    Number* number;
+    NumberNode* number;
     UnaryExp* unaryExp;
     Call* call;
     FuncCParamList* funcCParamList;
@@ -455,18 +455,18 @@ PrimaryExp:
     }|
     Number {
         $$ = new PrimaryExp();
-        $$->number = unique_ptr<Number>($1);
+        $$->number = unique_ptr<NumberNode>($1);
     };
 
 // 数值
 Number:
     INT {
-        $$ = new Number();
+        $$ = new NumberNode();
         $$->isInt = true;
         $$->intval = $1;
     }|
     FLOAT {
-        $$ = new Number();
+        $$ = new NumberNode();
         $$->isInt = false;
         $$->floatval = $1;
     };

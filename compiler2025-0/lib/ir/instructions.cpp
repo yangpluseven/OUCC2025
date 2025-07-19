@@ -264,6 +264,11 @@ std::unique_ptr<Instruction> AllocaInst::cloneEmpty() const {
   return cloned;
 }
 
+LoadInst::LoadInst(BasicBlock *block, Value *ptr)
+    : Instruction(ptr->isGlobal() ? ptr->getType()->clone()
+                                  : ptr->getType()->getBaseType()->clone(),
+                  {ptr}, block) {}
+
 LoadInst::LoadInst(std::unique_ptr<Type> loadedType, BasicBlock *block,
                    Value *ptr)
     : Instruction(std::move(loadedType), {ptr}, block) {}

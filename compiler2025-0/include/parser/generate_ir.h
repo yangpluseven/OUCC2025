@@ -30,6 +30,10 @@ private:
 
   void handleArrayDef(Def &ast);
 
+  void handleScalarVar(LVal &ast);
+
+  void handleArrayVar(LVal &ast);
+
 public:
   GenerateIR() {
     // TODO: Init builtin functions and system calls here

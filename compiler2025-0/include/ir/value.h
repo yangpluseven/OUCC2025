@@ -30,6 +30,7 @@ public:
   [[nodiscard]] bool isGlobal() const {
     return getValueKind() == ValueKind::Global;
   }
+  [[nodiscard]] bool isArg() const { return getValueKind() == ValueKind::Arg; }
 
   void addUse(Use *use);
   void removeUse(Use *use);

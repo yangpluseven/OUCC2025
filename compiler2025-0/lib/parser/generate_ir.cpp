@@ -11,7 +11,7 @@ std::vector<std::unique_ptr<Argument>> _arguments;
 Value *_retVal;
 BasicBlock *_retBlock;
 bool _isNewFunction = false;
-bool _isAssign = false;
+bool _isRealLVal = false;
 Function *_curFunction = nullptr;
 Value *_curVal = nullptr;
 BasicBlock *_entryBlock = nullptr;
@@ -476,7 +476,77 @@ void GenerateIR::visit(PrimaryExp &ast) {
   }
 }
 
-void GenerateIR::visit(LVal &ast) {}
+void GenerateIR::handleScalarVar(LVal &ast) {
+  Value *ptr = _symbolTable->getData(*ast.id);
+  if (ptr->isArg()) {
+    ptr = _argToAllocaMap[static_cast<Argument *>(ptr)];
+  }
+  auto type = ptr->getType();
+  if (ptr->isGlobal()) {
+    auto global = static_cast<GlobalVariable *>(ptr);
+    if (global->isConst() && global->isSingle()) {
+      _curVal = global->getValue();
+      return;
+    }
+  } else {
+    type = type->getBaseType();
+  }
+  if (type->isArray()) {
+    auto arrType = static_cast<ArrayType *>(type);
+    std::vector<Value *> indices(arrType->getDimensions().size(),
+                                 new ConstantNumber(Number(0)));
+    auto gepInst = std::make_unique<GetElementPtrInst>(_curBlock, ptr, indices);
+    _curVal = gepInst.get();
+    _curBlock->pushInstruction(std::move(gepInst));
+  }
+  auto loadInst = std::make_unique<LoadInst>(_curBlock, ptr);
+  _curVal = loadInst.get();
+  _curBlock->pushInstruction(std::move(loadInst));
+}
+
+void GenerateIR::handleArrayVar(LVal &ast) {
+  auto ptr = _symbolTable->getData(*ast.id);
+  bool isFirstDim = false;
+  if (ptr->isArg()) {
+    isFirstDim = true;
+    ptr = _argToAllocaMap[static_cast<Argument *>(ptr)];
+    auto loadInst = std::make_unique<LoadInst>(_curBlock, ptr);
+    ptr = loadInst.get();
+    _curBlock->pushInstruction(std::move(loadInst));
+  }
+  for (auto &exp : ast.arrays) {
+    exp->accept(*this);
+    auto index = typeConversion(_curVal, BasicKind::I32);
+    std::vector<Value *> indices1{index};
+    std::vector<Value *> indices2{new ConstantNumber(Number(0)), index};
+    auto gepInst =
+        isFirstDim
+            ? std::make_unique<GetElementPtrInst>(_curBlock, ptr, indices1)
+            : std::make_unique<GetElementPtrInst>(_curBlock, ptr, indices2);
+    ptr = gepInst.get();
+    _curBlock->pushInstruction(std::move(gepInst));
+    isFirstDim = false;
+  }
+  if (ptr->getType()->getBaseType()->isArray()) {
+    _curVal = ptr;
+    return;
+  }
+  auto loadInst = std::make_unique<LoadInst>(_curBlock, ptr);
+  _curVal = loadInst.get();
+  _curBlock->pushInstruction(std::move(loadInst));
+}
+
+void GenerateIR::visit(LVal &ast) {
+  if (!_isRealLVal) {
+    if (ast.arrays.empty()) {
+      handleScalarVar(ast);
+    } else {
+      handleArrayVar(ast);
+    }
+    return;
+  }
+  // WIP handle read left value
+}
 
 void GenerateIR::visit(NumberNode &ast) {
   if (ast.isInt) {
