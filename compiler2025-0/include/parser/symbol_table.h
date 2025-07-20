@@ -41,7 +41,7 @@ public:
 
   [[nodiscard]] ir::Function *getFunction(const std::string &name) const;
 
-  std::unique_ptr<ir::Function> makeFunc(std::unique_ptr<ir::Type> type,
+  std::unique_ptr<ir::Function> makeFunction(std::unique_ptr<ir::Type> type,
                                          const std::string &name);
 
   std::unique_ptr<ir::GlobalVariable> makeGlobal(bool isConst,

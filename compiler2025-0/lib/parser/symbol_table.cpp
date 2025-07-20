@@ -57,10 +57,10 @@ SymbolTable::getFunction(const std::string &name) const {
 }
 
 std::unique_ptr<ir::Function>
-SymbolTable::makeFunc(std::unique_ptr<ir::Type> type, const std::string &name) {
+SymbolTable::makeFunction(std::unique_ptr<ir::Type> type, const std::string &name) {
   auto func = std::make_unique<ir::Function>(std::move(type), name);
   _table.back()[name] = func.get();
-  return func;
+  return std::move(func);
 }
 
 std::unique_ptr<ir::GlobalVariable>
@@ -83,7 +83,7 @@ SymbolTable::makeGlobal(bool isConst, std::unique_ptr<ir::Type> type,
       std::move(type), name, isConst,
       std::make_unique<ir::ConstantNumber>(value));
   _table.front()[name] = symbol.get();
-  return symbol;
+  return std::move(symbol);
 }
 
 std::unique_ptr<ir::GlobalVariable>
@@ -117,7 +117,7 @@ SymbolTable::makeGlobal(bool isConst, std::unique_ptr<ir::Type> type,
   auto symbol = std::make_unique<ir::GlobalVariable>(
       std::move(type), name, isConst, std::move(constant));
   _table.front()[name] = symbol.get();
-  return symbol;
+  return std::move(symbol);
 }
 
 std::unique_ptr<ir::AllocaInst>

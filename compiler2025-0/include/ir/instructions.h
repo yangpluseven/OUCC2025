@@ -83,7 +83,8 @@ public:
 
 class RetInst : public Instruction {
 public:
-  explicit RetInst(BasicBlock *block, Value *retVal);
+  RetInst(BasicBlock *block, Value *retVal);
+  RetInst(BasicBlock *block);
   [[nodiscard]] InstKind getInstKind() const override;
   [[nodiscard]] std::string str() const override;
   [[nodiscard]] std::unique_ptr<Instruction> cloneEmpty() const override;
@@ -136,7 +137,7 @@ private:
 public:
   GetElementPtrInst(BasicBlock *block, Value *base,
                     const std::vector<Value *> &indices);
-  GetElementPtrInst(std::unique_ptr<Type> targetType);
+  GetElementPtrInst(std::unique_ptr<Type> targetType, BasicBlock *block);
   [[nodiscard]] InstKind getInstKind() const override;
   [[nodiscard]] std::string str() const override;
   [[nodiscard]] std::unique_ptr<Instruction> cloneEmpty() const override;

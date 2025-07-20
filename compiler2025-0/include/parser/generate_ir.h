@@ -16,23 +16,22 @@ private:
 
   void formatLLVM();
 
+  void processCond(ir::Value *value);
+
   void makeInitVal(std::vector<int> &dimensions, std::map<int, AddExp *> &exps,
                    int base, const InitVal *initVal);
-
-  void processValueCond(ir::Value *value);
-
   ir::Value *typeConversion(ir::Value *value, ir::BasicKind targetType);
-
   static ir::BasicKind autoTypePromotion(ir::BasicKind type1,
                                          ir::BasicKind type2);
 
   void handleScalarDef(Def &ast);
-
   void handleArrayDef(Def &ast);
-
   void handleScalarVar(LVal &ast);
-
   void handleArrayVar(LVal &ast);
+  void handleAssignStmt(Stmt &ast);
+  void handleIfElseStmt(IfStmt &ast);
+
+  std::unique_ptr<BasicType> handleType(BType &type);
 
 public:
   GenerateIR() {

@@ -18,6 +18,7 @@ public:
   Argument(std::unique_ptr<Type> type, std::string name)
       : Value(std::move(type)), _name(std::move(name)) {}
   ValueKind getValueKind() const override { return ValueKind::Arg; }
+  std::string getRawName() const { return _name; }
   // Get the LLVM like SSA name, example: %a
   std::string getSSAName() const;
   // Get the LLVM like full name, example: i32 %a

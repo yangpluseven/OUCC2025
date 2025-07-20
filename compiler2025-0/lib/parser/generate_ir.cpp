@@ -7,10 +7,10 @@ using namespace ir;
 BasicKind _curTypeKind;
 bool _isConst;
 // bool _useConst = false;
-std::vector<std::unique_ptr<Argument>> _arguments;
+// std::vector<std::unique_ptr<Argument>> _arguments;
 Value *_retVal;
 BasicBlock *_retBlock;
-bool _isNewFunction = false;
+// bool _isNewFunction = false;
 bool _isRealLVal = false;
 Function *_curFunction = nullptr;
 Value *_curVal = nullptr;
@@ -19,12 +19,41 @@ BasicBlock *_condBlock = nullptr;
 BasicBlock *_trueBlock = nullptr;
 BasicBlock *_falseBlock = nullptr;
 BasicBlock *_breakBlock = nullptr;
-bool _hasBranch = false;
+// // continue, break, return stmt should set this to true;
+// bool _hasBranch = false;
 
 Module *_module;
 BasicBlock *_curBlock;
 SymbolTable *_symbolTable;
 std::unordered_map<Argument *, AllocaInst *> _argToAllocaMap;
+
+void GenerateIR::processCond(Value *value) {
+  if (!value) {
+    return;
+  }
+  auto type = static_cast<BasicType *>(value->getType())->getBasicKind();
+  Value *cond;
+  std::unique_ptr<Instruction> cmpInst;
+  switch (type) {
+  case BasicKind::I1:
+    cond = value;
+    break;
+  case BasicKind::I32:
+    cmpInst = std::make_unique<CmpInst>(_curBlock, CmpOp::NE, value,
+                                        new ConstantNumber(Number(0)));
+    cond = cmpInst.get();
+    _curBlock->pushInstruction(std::move(cmpInst));
+    break;
+  case BasicKind::F32:
+    cmpInst = std::make_unique<CmpInst>(_curBlock, CmpOp::UNE, value,
+                                        new ConstantNumber(Number(0.0f)));
+    cond = cmpInst.get();
+    _curBlock->pushInstruction(std::move(cmpInst));
+    break;
+  }
+  _curBlock->pushInstruction(
+      std::make_unique<BranchInst>(_curBlock, cond, _trueBlock, _falseBlock));
+}
 
 void GenerateIR::makeInitVal(std::vector<int> &dimensions,
                              std::map<int, AddExp *> &exps, int base,
@@ -260,9 +289,455 @@ void GenerateIR::visit(InitVal &ast) {
   }
 }
 
+std::unique_ptr<BasicType> GenerateIR::handleType(BType &type) {
+  switch (type) {
+  case BType::INT:
+    return std::make_unique<BasicType>(BasicKind::I32);
+  case BType::FLOAT:
+    return std::make_unique<BasicType>(BasicKind::F32);
+  case BType::VOID:
+    return std::make_unique<BasicType>(BasicKind::VOID);
+  default:
+    throw std::runtime_error("Unsupported type in handleType");
+  }
+}
+
 void GenerateIR::visit(FuncDef &ast) {
-  _isNewFunction = true;
-  _arguments.clear();
+  _argToAllocaMap.clear();
+  auto retType = handleType(ast.returnType);
+  auto type = retType.get();
+  auto func = _symbolTable->makeFunction(std::move(retType), *ast.id);
+  _curFunction = func.get();
+  _symbolTable->in();
+  auto entry = std::make_unique<BasicBlock>(_curFunction);
+  _entryBlock = entry.get();
+  auto ret = std::make_unique<BasicBlock>(_curFunction);
+  _retBlock = ret.get();
+
+  if (type->getBasicKind() == BasicKind::VOID) {
+    _retVal = nullptr;
+    _retBlock->pushInstruction(std::make_unique<RetInst>(_retBlock));
+  } else {
+    auto allocaInst = std::make_unique<AllocaInst>(
+        _curFunction->getType()->clone(), _entryBlock);
+    _retVal = allocaInst.get();
+    _entryBlock->pushInstruction(std::move(allocaInst));
+    auto loadInst = std::make_unique<LoadInst>(_retBlock, _retVal);
+    auto rawLoadInst = loadInst.get();
+    _retBlock->pushInstruction(std::move(loadInst));
+    _retBlock->pushInstruction(
+        std::make_unique<RetInst>(_retBlock, rawLoadInst));
+  }
+
+  auto block = std::make_unique<BasicBlock>(_curFunction);
+  _curBlock = block.get();
+  _curFunction->pushBlock(std::move(block));
+
+  for (auto &param : ast.funcFParamList) {
+    param->accept(*this);
+  }
+
+  // _hasBranch = false;
+  ast.block->accept(*this);
+
+  // Maybe not the best way to handle default return value (ATTENTION)
+  if (type->getBasicKind() != BasicKind::VOID) {
+    Constant *retVal;
+    if (type->getBasicKind() == BasicKind::I32) {
+      retVal = new ConstantNumber(Number(0));
+    } else {
+      retVal = new ConstantNumber(Number(0.0f));
+    }
+    _entryBlock->pushInstruction(
+        std::make_unique<StoreInst>(_entryBlock, retVal, _retVal));
+  }
+
+  _entryBlock->pushInstruction(
+      std::make_unique<BranchInst>(_entryBlock, _curFunction->getBlock(1)));
+  _curFunction->pushBlock(std::move(ret));
+  _module->addFunction(std::move(func));
+  _symbolTable->out();
+}
+
+void GenerateIR::visit(FuncFParam &ast) {
+  std::unique_ptr<Type> type = handleType(ast.bType);
+  if (ast.isArray) {
+    vector<int> dimensions;
+    for (auto &exp : ast.arrays) {
+      exp->accept(*this);
+      auto number = static_cast<ConstantNumber *>(_curVal);
+      dimensions.push_back(number->intValue());
+    }
+    auto reverseDimensions = dimensions;
+    std::reverse(reverseDimensions.begin(), reverseDimensions.end());
+    for (int i : reverseDimensions) {
+      type = std::make_unique<ArrayType>(std::move(type), i);
+    }
+    type = std::make_unique<PointerType>(std::move(type));
+  }
+
+  auto arg = _symbolTable->makeArgument(std::move(type), *ast.id);
+  auto rawArg = arg.get();
+  _curFunction->addArg(std::move(arg));
+
+  // Use the SSA name of the argument here to avoid conflict (ATTENTION)
+  auto allocaInst = _symbolTable->makeLocal(
+      _entryBlock, rawArg->getType()->clone(), rawArg->getSSAName());
+  auto rawInst = allocaInst.get();
+  _entryBlock->pushInstruction(std::move(allocaInst));
+  _curBlock->pushInstruction(
+      std::make_unique<StoreInst>(_curBlock, rawArg, rawInst));
+  _argToAllocaMap.insert(std::make_pair(rawArg, rawInst));
+}
+
+void GenerateIR::visit(Block &ast) {
+  _symbolTable->in();
+  for (auto &item : ast.blockItemList) {
+    // if (_hasBranch) {
+    //   _hasBranch = false;
+    //   break;
+    // }
+    if (item->stmt) {
+      bool hasBranch = false;
+      switch (item->stmt->sType) {
+      case StmtType::CONTINUE:
+      case StmtType::BREAK:
+      case StmtType::RET:
+        hasBranch = true;
+        break;
+      }
+      if (hasBranch) {
+        break;
+      }
+    }
+    item->accept(*this);
+  }
+  _symbolTable->out();
+}
+
+void GenerateIR::visit(BlockItem &ast) {
+  if (ast.decl) {
+    ast.decl->accept(*this);
+    return;
+  }
+  if (ast.stmt) {
+    ast.stmt->accept(*this);
+  }
+}
+
+void GenerateIR::handleAssignStmt(Stmt &ast) {
+  _isRealLVal = true;
+  ast.lVal->accept(*this);
+  auto lVal = _curVal;
+  auto type = lVal->getType();
+  ast.exp->accept(*this);
+  auto rVal = _curVal;
+  if (type->isBasic()) {
+    rVal = typeConversion(rVal, static_cast<BasicType *>(type)->getBasicKind());
+  } else {
+    rVal = typeConversion(
+        rVal, static_cast<BasicType *>(type->getBaseType())->getBasicKind());
+  }
+  _curBlock->pushInstruction(
+      std::make_unique<StoreInst>(_curBlock, rVal, lVal));
+}
+
+void GenerateIR::visit(ReturnStmt &ast) {
+  if (!ast.exp) {
+    _curBlock->pushInstruction(
+        std::make_unique<BranchInst>(_curBlock, _retBlock));
+    return;
+  }
+
+  ast.exp->accept(*this);
+  auto retVal = typeConversion(
+      _curVal,
+      static_cast<BasicType *>(_curFunction->getType())->getBasicKind());
+  _curBlock->pushInstruction(
+      std::make_unique<StoreInst>(_curBlock, retVal, _retVal));
+  _curBlock->pushInstruction(
+      std::make_unique<BranchInst>(_curBlock, _retBlock));
+  // _hasBranch = true;
+}
+
+void GenerateIR::visit(LAndExp &ast) {
+  if (ast.lAndExp) {
+    auto block = std::make_unique<BasicBlock>(_curFunction);
+    BasicBlock *rawBlock = block.get();
+    _curFunction->insertBlockAfter(_curBlock, std::move(block));
+
+    auto trueBlock = _trueBlock;
+    auto falseBlock = _falseBlock;
+
+    _trueBlock = rawBlock;
+    ast.lAndExp->accept(*this);
+    processCond(_curVal);
+
+    _curBlock = rawBlock;
+    _trueBlock = trueBlock;
+    _falseBlock = falseBlock;
+    // _hasBranch = false;
+  }
+  ast.eqExp->accept(*this);
+  processCond(_curVal);
+}
+
+void GenerateIR::visit(LOrExp &ast) {
+  if (ast.lOrExp) {
+    auto block = std::make_unique<BasicBlock>(_curFunction);
+    BasicBlock *rawBlock = block.get();
+    _curFunction->insertBlockAfter(_curBlock, std::move(block));
+
+    auto trueBlock = _trueBlock;
+    auto falseBlock = _falseBlock;
+
+    _falseBlock = rawBlock;
+    ast.lOrExp->accept(*this);
+    processCond(_curVal);
+
+    _curBlock = rawBlock;
+    _trueBlock = trueBlock;
+    _falseBlock = falseBlock;
+    // _hasBranch = false;
+  }
+  ast.lAndExp->accept(*this);
+  processCond(_curVal);
+}
+
+void GenerateIR::handleIfElseStmt(IfStmt &ast) {
+  auto trueBlock = std::make_unique<BasicBlock>(_curFunction);
+  auto falseBlock = std::make_unique<BasicBlock>(_curFunction);
+  auto ifEndBlock = std::make_unique<BasicBlock>(_curFunction);
+  auto rawTrueBlock = trueBlock.get();
+  auto rawFalseBlock = falseBlock.get();
+  auto rawIfEndBlock = ifEndBlock.get();
+  _trueBlock = rawTrueBlock;
+  _falseBlock = rawFalseBlock;
+  _curFunction->insertBlockAfter(_curBlock, std::move(trueBlock));
+  _curFunction->insertBlockAfter(_trueBlock, std::move(falseBlock));
+  _curFunction->insertBlockAfter(_falseBlock, std::move(ifEndBlock));
+
+  ast.cond->accept(*this);
+  processCond(_curVal);
+  _curBlock = rawTrueBlock;
+  ast.ifStmt->accept(*this);
+  if (!_curBlock->hasTerminator()) {
+    _curBlock->pushInstruction(
+        std::make_unique<BranchInst>(_curBlock, rawIfEndBlock));
+  }
+  _curBlock = rawFalseBlock;
+  ast.elseStmt->accept(*this);
+  if (!_curBlock->hasTerminator()) {
+    _curBlock->pushInstruction(
+        std::make_unique<BranchInst>(_curBlock, rawIfEndBlock));
+  }
+  _curBlock = rawIfEndBlock;
+}
+
+void GenerateIR::visit(IfStmt &ast) {
+  if (ast.elseStmt) {
+    handleIfElseStmt(ast);
+    return;
+  }
+  auto trueBlock = std::make_unique<BasicBlock>(_curFunction);
+  auto falseBlock = std::make_unique<BasicBlock>(_curFunction);
+  auto rawTrueBlock = trueBlock.get();
+  auto rawFalseBlock = falseBlock.get();
+  _trueBlock = rawTrueBlock;
+  _falseBlock = rawFalseBlock;
+  _curFunction->insertBlockAfter(_curBlock, std::move(trueBlock));
+  _curFunction->insertBlockAfter(_trueBlock, std::move(falseBlock));
+
+  ast.cond->accept(*this);
+  processCond(_curVal);
+  _curBlock = rawTrueBlock;
+  ast.ifStmt->accept(*this);
+  if (!_curBlock->hasTerminator()) {
+    _curBlock->pushInstruction(
+        std::make_unique<BranchInst>(_curBlock, rawFalseBlock));
+  }
+  _curBlock = rawFalseBlock;
+}
+
+void GenerateIR::visit(WhileStmt &ast) {
+  // Protect
+  auto tmpCondBlock = _condBlock;
+  auto tmpBreakBlock = _breakBlock;
+
+  auto condBlock = std::make_unique<BasicBlock>(_curFunction);
+  auto loopBlock = std::make_unique<BasicBlock>(_curFunction);
+  auto breakBlock = std::make_unique<BasicBlock>(_curFunction);
+  auto rawCondBlock = condBlock.get();
+  auto rawLoopBlock = loopBlock.get();
+  auto rawBreakBlock = breakBlock.get();
+  _condBlock = rawCondBlock;
+  _breakBlock = rawBreakBlock;
+  _curFunction->insertBlockAfter(_curBlock, std::move(condBlock));
+  _curFunction->insertBlockAfter(_condBlock, std::move(loopBlock));
+  _curFunction->insertBlockAfter(rawLoopBlock, std::move(breakBlock));
+
+  if (!_curBlock->hasTerminator()) {
+    _curBlock->pushInstruction(
+        std::make_unique<BranchInst>(_curBlock, rawCondBlock));
+  }
+  _curBlock = rawCondBlock;
+  _trueBlock = rawLoopBlock;
+  _falseBlock = rawBreakBlock;
+
+  ast.cond->accept(*this);
+  processCond(_curVal);
+  _curBlock = rawLoopBlock;
+  ast.stmt->accept(*this);
+  if (!_curBlock->hasTerminator()) {
+    _curBlock->pushInstruction(std::make_unique<BranchInst>(_curBlock, rawCondBlock));
+  }
+
+  _curBlock = rawBreakBlock;
+  _condBlock = tmpCondBlock;
+  _breakBlock = tmpBreakBlock;
+}
+
+void GenerateIR::visit(Stmt &ast) {
+  switch (ast.sType) {
+  case StmtType::SEMI:
+    return;
+  case StmtType::ASGN:
+    handleAssignStmt(ast);
+    return;
+  case StmtType::EXP:
+    ast.exp->accept(*this);
+    return;
+  case StmtType::CONTINUE:
+    _curBlock->pushInstruction(
+        std::make_unique<BranchInst>(_curBlock, _condBlock));
+    // _hasBranch = true;
+    return;
+  case StmtType::BREAK:
+    _curBlock->pushInstruction(
+        std::make_unique<BranchInst>(_curBlock, _breakBlock));
+    // _hasBranch = true;
+    return;
+  case StmtType::RET:
+    ast.returnStmt->accept(*this);
+    return;
+  case StmtType::BLK:
+    ast.block->accept(*this);
+    return;
+  case StmtType::IF:
+    ast.ifStmt->accept(*this);
+    return;
+  case StmtType::WHILE:
+    ast.whileStmtAST->accept(*this);
+    return;
+  }
+}
+
+void GenerateIR::visit(RelExp &ast) {
+  if (!ast.relExp) {
+    ast.addExp->accept(*this);
+    return;
+  }
+  ast.relExp->accept(*this);
+  auto val1 = _curVal;
+  ast.addExp->accept(*this);
+  auto val2 = _curVal;
+
+  auto type1 = static_cast<BasicType *>(val1->getType())->getBasicKind();
+  auto type2 = static_cast<BasicType *>(val2->getType())->getBasicKind();
+  auto targetType = autoTypePromotion(type1, type2);
+  val1 = typeConversion(val1, targetType);
+  val2 = typeConversion(val2, targetType);
+  CmpOp op;
+  switch (ast.op) {
+  case RelOp::LT:
+    switch (targetType) {
+    case BasicKind::I32:
+      op = CmpOp::SLT;
+      break;
+    case BasicKind::F32:
+      op = CmpOp::OLT;
+      break;
+    }
+    break;
+  case RelOp::GT:
+    switch (targetType) {
+    case BasicKind::I32:
+      op = CmpOp::SGT;
+      break;
+    case BasicKind::F32:
+      op = CmpOp::OGT;
+      break;
+    }
+    break;
+  case RelOp::LTE:
+    switch (targetType) {
+    case BasicKind::I32:
+      op = CmpOp::SLE;
+      break;
+    case BasicKind::F32:
+      op = CmpOp::OLE;
+      break;
+    }
+    break;
+  case RelOp::GTE:
+    switch (targetType) {
+    case BasicKind::I32:
+      op = CmpOp::SGE;
+      break;
+    case BasicKind::F32:
+      op = CmpOp::OGE;
+      break;
+    }
+    break;
+  }
+  auto cmpInst = std::make_unique<CmpInst>(_curBlock, op, val1, val2);
+  _curVal = cmpInst.get();
+  _curBlock->pushInstruction(std::move(cmpInst));
+}
+
+// TODO: Need more type check and exception handling
+void GenerateIR::visit(EqExp &ast) {
+  if (!ast.eqExp) {
+    ast.relExp->accept(*this);
+    return;
+  }
+  ast.eqExp->accept(*this);
+  auto val1 = _curVal;
+  ast.relExp->accept(*this);
+  auto val2 = _curVal;
+
+  auto type1 = static_cast<BasicType *>(val1->getType())->getBasicKind();
+  auto type2 = static_cast<BasicType *>(val1->getType())->getBasicKind();
+  auto targetType = autoTypePromotion(type1, type2);
+  val1 = typeConversion(val1, targetType);
+  val2 = typeConversion(val2, targetType);
+
+  CmpOp op;
+  switch (ast.op) {
+  case EqOp::EQ:
+    break;
+    switch (targetType) {
+    case BasicKind::I32:
+      op = CmpOp::EQ;
+      break;
+    case BasicKind::F32:
+      op = CmpOp::OEQ;
+      break;
+    }
+  case EqOp::NEQ:
+    switch (targetType) {
+    case BasicKind::I32:
+      op = CmpOp::NE;
+      break;
+    case BasicKind::F32:
+      op = CmpOp::UNE;
+      break;
+    }
+    break;
+  }
+  auto cmpInst = std::make_unique<CmpInst>(_curBlock, CmpOp::EQ, val1, val2);
+  _curVal = cmpInst.get();
+  _curBlock->pushInstruction(std::move(cmpInst));
 }
 
 // TODO: Need more type check and exception handling
@@ -272,9 +747,9 @@ void GenerateIR::visit(AddExp &ast) {
     return;
   }
   ast.addExp->accept(*this);
-  Value *val1 = _curVal;
+  auto val1 = _curVal;
   ast.mulExp->accept(*this);
-  Value *val2 = _curVal;
+  auto val2 = _curVal;
 
   if (val1->isConst() && val2->isConst()) {
     auto number1 = static_cast<ConstantNumber *>(val1);
@@ -287,39 +762,39 @@ void GenerateIR::visit(AddExp &ast) {
       _curVal = new ConstantNumber(*number1 - *number2);
       break;
     }
-  } else {
-    auto type1 = static_cast<BasicType *>(val1->getType())->getBasicKind();
-    auto type2 = static_cast<BasicType *>(val2->getType())->getBasicKind();
-    BasicKind targetType = autoTypePromotion(type1, type2);
-    val1 = typeConversion(val1, targetType);
-    val2 = typeConversion(val2, targetType);
-    BinaryOp op;
-    switch (ast.op) {
-    case AddOp::ADD:
-      switch (targetType) {
-      case BasicKind::I32:
-        op = BinaryOp::ADD;
-        break;
-      case BasicKind::F32:
-        op = BinaryOp::FADD;
-        break;
-      }
+    return;
+  }
+  auto type1 = static_cast<BasicType *>(val1->getType())->getBasicKind();
+  auto type2 = static_cast<BasicType *>(val2->getType())->getBasicKind();
+  auto targetType = autoTypePromotion(type1, type2);
+  val1 = typeConversion(val1, targetType);
+  val2 = typeConversion(val2, targetType);
+  BinaryOp op;
+  switch (ast.op) {
+  case AddOp::ADD:
+    switch (targetType) {
+    case BasicKind::I32:
+      op = BinaryOp::ADD;
       break;
-    case AddOp::MINUS:
-      switch (targetType) {
-      case BasicKind::I32:
-        op = BinaryOp::SUB;
-        break;
-      case BasicKind::F32:
-        op = BinaryOp::FSUB;
-        break;
-      }
+    case BasicKind::F32:
+      op = BinaryOp::FADD;
       break;
     }
-    auto inst = new BinaryInst(_curBlock, op, val1, val2);
-    _curBlock->pushInstruction(std::unique_ptr<Instruction>(inst));
-    _curVal = inst;
+    break;
+  case AddOp::MINUS:
+    switch (targetType) {
+    case BasicKind::I32:
+      op = BinaryOp::SUB;
+      break;
+    case BasicKind::F32:
+      op = BinaryOp::FSUB;
+      break;
+    }
+    break;
   }
+  auto inst = new BinaryInst(_curBlock, op, val1, val2);
+  _curBlock->pushInstruction(std::unique_ptr<Instruction>(inst));
+  _curVal = inst;
 }
 
 // TODO: Need more type check and exception handling
@@ -329,9 +804,9 @@ void GenerateIR::visit(MulExp &ast) {
     return;
   }
   ast.mulExp->accept(*this);
-  Value *val1 = _curVal;
+  auto val1 = _curVal;
   ast.unaryExp->accept(*this);
-  Value *val2 = _curVal;
+  auto val2 = _curVal;
 
   if (val1->isConst() && val2->isConst()) {
     auto number1 = static_cast<ConstantNumber *>(val1);
@@ -347,46 +822,46 @@ void GenerateIR::visit(MulExp &ast) {
       _curVal = new ConstantNumber((*number1) % (*number1));
       break;
     }
-  } else {
-    auto type1 = static_cast<BasicType *>(val1->getType())->getBasicKind();
-    auto type2 = static_cast<BasicType *>(val2->getType())->getBasicKind();
-    BasicKind targetType = autoTypePromotion(type1, type2);
-    val1 = typeConversion(val1, targetType);
-    val2 = typeConversion(val2, targetType);
-    BinaryOp op;
-    switch (ast.op) {
-    case MulOp::MUL:
-      switch (targetType) {
-      case BasicKind::I32:
-        op = BinaryOp::MUL;
-        break;
-      case BasicKind::F32:
-        op = BinaryOp::FMUL;
-        break;
-      }
+    return;
+  }
+  auto type1 = static_cast<BasicType *>(val1->getType())->getBasicKind();
+  auto type2 = static_cast<BasicType *>(val2->getType())->getBasicKind();
+  auto targetType = autoTypePromotion(type1, type2);
+  val1 = typeConversion(val1, targetType);
+  val2 = typeConversion(val2, targetType);
+  BinaryOp op;
+  switch (ast.op) {
+  case MulOp::MUL:
+    switch (targetType) {
+    case BasicKind::I32:
+      op = BinaryOp::MUL;
       break;
-    case MulOp::DIV:
-      switch (targetType) {
-      case BasicKind::I32:
-        op = BinaryOp::SDIV;
-        break;
-      case BasicKind::F32:
-        op = BinaryOp::FDIV;
-        break;
-      }
-      break;
-    case MulOp::MOD:
-      switch (targetType) {
-      case BasicKind::I32:
-        op = BinaryOp::SREM;
-        break;
-      }
+    case BasicKind::F32:
+      op = BinaryOp::FMUL;
       break;
     }
-    auto inst = new BinaryInst(_curBlock, op, val1, val2);
-    _curBlock->pushInstruction(std::unique_ptr<Instruction>(inst));
-    _curVal = inst;
+    break;
+  case MulOp::DIV:
+    switch (targetType) {
+    case BasicKind::I32:
+      op = BinaryOp::SDIV;
+      break;
+    case BasicKind::F32:
+      op = BinaryOp::FDIV;
+      break;
+    }
+    break;
+  case MulOp::MOD:
+    switch (targetType) {
+    case BasicKind::I32:
+      op = BinaryOp::SREM;
+      break;
+    }
+    break;
   }
+  auto inst = new BinaryInst(_curBlock, op, val1, val2);
+  _curBlock->pushInstruction(std::unique_ptr<Instruction>(inst));
+  _curVal = inst;
 }
 
 // TODO: Need more type check and exception handling
@@ -545,7 +1020,44 @@ void GenerateIR::visit(LVal &ast) {
     }
     return;
   }
-  // WIP handle read left value
+  // Handle real left value
+  auto ptr = _symbolTable->getData(*ast.id);
+  bool isArg = false;
+  if (ptr->isArg()) {
+    isArg = true;
+    ptr = _argToAllocaMap[static_cast<Argument *>(ptr)];
+  }
+  if (ast.arrays.empty()) {
+    _curVal = ptr;
+    return;
+  }
+  auto type = ptr->getType();
+  if (type->isPointer() && type->getBaseType()->isPointer()) {
+    auto loadInst = std::make_unique<LoadInst>(_curBlock, ptr);
+    ptr = loadInst.get();
+    _curBlock->pushInstruction(std::move(loadInst));
+  }
+
+  std::vector<Value *> dimensions;
+  for (auto &exp : ast.arrays) {
+    exp->accept(*this);
+    dimensions.push_back(_curVal);
+  }
+  bool isFirstDim = true;
+  for (auto dim : dimensions) {
+    std::unique_ptr<Instruction> gepInst;
+    if (isArg && isFirstDim) {
+      std::vector<Value *> indices{dim};
+      gepInst = std::make_unique<GetElementPtrInst>(_curBlock, ptr, indices);
+    } else {
+      std::vector<Value *> indices{new ConstantNumber(Number(0)), dim};
+      gepInst = std::make_unique<GetElementPtrInst>(_curBlock, ptr, indices);
+    }
+    ptr = gepInst.get();
+    _curBlock->pushInstruction(std::move(gepInst));
+    isFirstDim = false;
+  }
+  _curVal = ptr;
 }
 
 void GenerateIR::visit(NumberNode &ast) {

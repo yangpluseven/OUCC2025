@@ -200,6 +200,9 @@ RetInst::RetInst(BasicBlock *block, Value *retVal)
     : Instruction(std::make_unique<BasicType>(BasicKind::VOID), {retVal},
                   block) {}
 
+RetInst::RetInst(BasicBlock *block)
+    : Instruction(std::make_unique<BasicType>(BasicKind::VOID), block) {}
+
 InstKind RetInst::getInstKind() const { return InstKind::Ret; }
 
 std::string RetInst::str() const {
@@ -328,6 +331,10 @@ GetElementPtrInst::GetElementPtrInst(BasicBlock *block, Value *base,
   }
 }
 
+GetElementPtrInst::GetElementPtrInst(std::unique_ptr<Type> targetType,
+                                     BasicBlock *block)
+    : Instruction(std::move(targetType), block) {}
+
 InstKind GetElementPtrInst::getInstKind() const { return InstKind::GEP; }
 
 std::string GetElementPtrInst::str() const {
@@ -343,7 +350,8 @@ std::string GetElementPtrInst::str() const {
 }
 
 std::unique_ptr<Instruction> GetElementPtrInst::cloneEmpty() const {
-  auto cloned = std::make_unique<GetElementPtrInst>(getType()->clone());
+  auto cloned =
+      std::make_unique<GetElementPtrInst>(getType()->clone(), nullptr);
   cloned->_cloneTarget = const_cast<GetElementPtrInst *>(this);
   cloned->_notRemapped = true;
   return cloned;
