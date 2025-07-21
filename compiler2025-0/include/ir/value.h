@@ -40,7 +40,8 @@ public:
     return _uses;
   }
 
-  [[nodiscard]] virtual std::string str() const { return "Unnamed"; }
+  [[nodiscard]] virtual std::string str() const { return "Unknown"; }
+  [[nodiscard]] virtual std::string getSSAName() const = 0;
 };
 
 } // namespace ir

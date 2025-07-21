@@ -36,13 +36,14 @@ Number ConstantNumber::getValue() const { return _value; }
 int ConstantNumber::intValue() const { return _value.intValue(); }
 float ConstantNumber::floatValue() const { return _value.floatValue(); }
 
-BasicKind ConstantNumber::getBasicKind() const {
-  assert(getType()->isBasic());
-  return static_cast<BasicType *>(getType())->getBasicKind();
-}
+// BasicKind ConstantNumber::getBasicKind() const {
+//   assert(getType()->isBasic());
+//   return static_cast<BasicType *>(getType())->getBasicKind();
+// }
 
 std::string ConstantNumber::getLiteralStr() const {
-  switch (getBasicKind()) {
+  auto basicKind = static_cast<BasicType *>(getType())->getBasicKind();
+  switch (basicKind) {
   case BasicKind::I1:
     return intValue() ? "true" : "false";
   case BasicKind::I32:
@@ -63,12 +64,15 @@ std::string ConstantNumber::str() const {
   return getType()->str() + " " + getLiteralStr();
 }
 
+std::string ConstantNumber::getSSAName() const { return getLiteralStr(); }
+
 // General operators for integer/float
 
 #define DEFINE_BINARY_OP(OPNAME, OP)                                           \
   ConstantNumber ConstantNumber::operator OPNAME(const ConstantNumber &rhs)    \
       const {                                                                  \
-    switch (getBasicKind()) {                                                  \
+    auto basicKind = static_cast<BasicType *>(getType())->getBasicKind();      \
+    switch (basicKind) {                                                       \
     case BasicKind::I1:                                                        \
     case BasicKind::I32:                                                       \
       return ConstantNumber(Number(intValue() OP rhs.intValue()));             \
@@ -93,7 +97,8 @@ DEFINE_BINARY_OP(<=, <=)
 // Operators for only integer
 
 ConstantNumber ConstantNumber::operator%(const ConstantNumber &rhs) const {
-  switch (getBasicKind()) {
+  auto basicKind = static_cast<BasicType *>(getType())->getBasicKind();
+  switch (basicKind) {
   case BasicKind::I1:
   case BasicKind::I32:
     return ConstantNumber(Number(intValue() % rhs.intValue()));
@@ -103,7 +108,8 @@ ConstantNumber ConstantNumber::operator%(const ConstantNumber &rhs) const {
 }
 
 ConstantNumber ConstantNumber::operator^(const ConstantNumber &rhs) const {
-  switch (getBasicKind()) {
+  auto basicKind = static_cast<BasicType *>(getType())->getBasicKind();
+  switch (basicKind) {
   case BasicKind::I1:
     return ConstantNumber((intValue() ^ rhs.intValue()) != 0);
   case BasicKind::I32:
@@ -115,7 +121,8 @@ ConstantNumber ConstantNumber::operator^(const ConstantNumber &rhs) const {
 
 // Unary
 ConstantNumber ConstantNumber::operator-() const {
-  switch (getBasicKind()) {
+  auto basicKind = static_cast<BasicType *>(getType())->getBasicKind();
+  switch (basicKind) {
   case BasicKind::I1:
   case BasicKind::I32:
     return ConstantNumber(Number(-intValue()));
@@ -127,7 +134,8 @@ ConstantNumber ConstantNumber::operator-() const {
 }
 
 ConstantNumber ConstantNumber::operator!() const {
-  switch (getBasicKind()) {
+  auto basicKind = static_cast<BasicType *>(getType())->getBasicKind();
+  switch (basicKind) {
   case BasicKind::I1:
   case BasicKind::I32:
     return ConstantNumber(intValue() == 0);
@@ -138,8 +146,10 @@ ConstantNumber ConstantNumber::operator!() const {
   }
 }
 
+std::string ConstantZero::getSSAName() const { return "zeroinitializer"; }
+
 std::string ConstantZero::str() const {
-  return getType()->str() + " zeroinitializer";
+  return getType()->str() + " " + getSSAName();
 }
 
 Constant *ConstantArray::getValue(size_t index) const {
@@ -147,9 +157,9 @@ Constant *ConstantArray::getValue(size_t index) const {
   return _values[index].get();
 }
 
-std::string ConstantArray::str() const {
+std::string ConstantArray::getSSAName() const {
   std::ostringstream oss;
-  oss << getType()->str() << " [";
+  oss << "[";
   for (size_t i = 0; i < _values.size(); ++i) {
     oss << _values[i]->str();
     if (i + 1 < _values.size())
@@ -157,6 +167,10 @@ std::string ConstantArray::str() const {
   }
   oss << "]";
   return oss.str();
+}
+
+std::string ConstantArray::str() const {
+  return getType()->str() + " " + getSSAName();
 }
 
 } // namespace ir

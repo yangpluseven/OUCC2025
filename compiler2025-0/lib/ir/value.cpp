@@ -5,13 +5,13 @@
 namespace ir {
 
 Value::Value(std::unique_ptr<Type> type) : _type(std::move(type)) {
-  assert(type);
+  assert(_type);
 }
 
 Value::~Value() {
-  for (auto *use : _uses) {
-    use->setValue(nullptr);
-  }
+  // for (auto *use : _uses) {
+  //   use->setValue(nullptr);
+  // }
 }
 
 void Value::addUse(Use *use) { _uses.insert(use); }

@@ -56,7 +56,7 @@ public:
 
   [[nodiscard]] int getID() const { return _id; }
   // Get the SSA name like %v1, %v2
-  [[nodiscard]] std::string getSSAName() const;
+  [[nodiscard]] std::string getSSAName() const override;
   // Get the LLVM .ll format instruction string
   [[nodiscard]] std::string str() const;
 

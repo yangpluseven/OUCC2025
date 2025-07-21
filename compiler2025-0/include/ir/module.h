@@ -25,6 +25,9 @@ public:
   GlobalVariable *getGlobal(const std::string &name);
   Function *getFunction(const std::string &name);
 
+  size_t numGlobals() const { return globals.size(); }
+  size_t numFunctions() const { return functions.size(); }
+
   // Return a viewport instead of the actual ownership
   std::vector<GlobalVariable *> getGlobals();
   // Return a viewport instead of the actual ownership

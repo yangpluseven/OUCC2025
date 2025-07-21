@@ -67,7 +67,7 @@ enum class CastOp { BitCast, FPToSI, SIToFP, SExt, ZExt };
 class CastInst : public Instruction {
 private:
   CastOp _op;
-  static std::string toString(CastOp op);
+  static std::string opToString(CastOp op);
 
 public:
   CastInst(std::unique_ptr<Type> targetType, BasicBlock *block, CastOp op,
@@ -88,6 +88,7 @@ public:
   [[nodiscard]] InstKind getInstKind() const override;
   [[nodiscard]] std::string str() const override;
   [[nodiscard]] std::unique_ptr<Instruction> cloneEmpty() const override;
+  [[nodiscard]] bool isTerminator() const override;
 };
 
 class BranchInst : public Instruction {

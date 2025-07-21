@@ -30,7 +30,7 @@ std::vector<GlobalVariable *> Module::getGlobals() {
   for (auto &[name, ptr] : globals) {
     result.push_back(ptr.get());
   }
-  return result;
+  return std::move(result);
 }
 
 std::vector<Function *> Module::getFunctions() {
@@ -39,7 +39,7 @@ std::vector<Function *> Module::getFunctions() {
   for (auto &[name, ptr] : functions) {
     result.push_back(ptr.get());
   }
-  return result;
+  return std::move(result);
 }
 
 } // namespace ir

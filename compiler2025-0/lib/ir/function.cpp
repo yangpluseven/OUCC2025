@@ -14,6 +14,11 @@ void Function::addArg(std::unique_ptr<Argument> arg) {
   _args.push_back(std::move(arg));
 }
 
+Argument *Function::getArg(size_t index) const {
+  assert(index < _args.size() && "Arg index out of bounds");
+  return _args[index].get();
+}
+
 std::vector<Argument *> Function::getArgs() const {
   std::vector<Argument *> result;
   result.reserve(_args.size());
@@ -48,6 +53,8 @@ std::unique_ptr<BasicBlock> Function::eraseBlock(size_t index) {
 }
 
 std::string Function::getRawName() const { return _name; }
+
+std::string Function::getSSAName() const { return "@" + _name; }
 
 std::string Function::str() const {
   bool isDeclare = empty();

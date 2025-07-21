@@ -45,10 +45,25 @@ BinaryOp BinaryInst::getOp() const { return _op; }
 InstKind BinaryInst::getInstKind() const { return InstKind::Binary; }
 
 std::string BinaryInst::str() const {
-  std::ostringstream oss;
-  oss << getSSAName() << " = " << opToString(_op) << " " << getType()->str()
-      << " " << getOperand(0)->str() << ", " << getOperand(1)->str();
-  return oss.str();
+  auto lhs = getOperand(0);
+  auto rhs = getOperand(1);
+  if (!Type::isEqual(lhs->getType(), rhs->getType())) {
+    throw std::runtime_error("Unmatched types in binary instruction!");
+  }
+  auto first = lhs->getSSAName();
+  auto second = lhs->getSSAName();
+  switch (_op) {
+  case BinaryOp::ADD:
+  case BinaryOp::FADD:
+  case BinaryOp::MUL:
+  case BinaryOp::FMUL:
+  case BinaryOp::XOR:
+    if (first < second) {
+      std::swap(first, second);
+    }
+  }
+  return getSSAName() + " = " + opToString(_op) + " " + lhs->getType()->str() +
+         " " + first + ", " + second;
 }
 
 std::unique_ptr<Instruction> BinaryInst::cloneEmpty() const {
@@ -122,11 +137,13 @@ CmpOp CmpInst::getOp() const { return _op; }
 InstKind CmpInst::getInstKind() const { return InstKind::ICmp; }
 
 std::string CmpInst::str() const {
-  std::ostringstream oss;
-  oss << getSSAName() << " = " << opToString(_op) << " "
-      << getOperand(0)->getType()->str() << " " << getOperand(0)->str() << ", "
-      << getOperand(1)->str();
-  return oss.str();
+  auto lhs = getOperand(0);
+  auto rhs = getOperand(1);
+  if (!Type::isEqual(lhs->getType(), rhs->getType())) {
+    throw std::runtime_error("Unmatched types in binary instruction!");
+  }
+  return getSSAName() + " = " + opToString(_op) + " " + lhs->getType()->str() +
+         " " + lhs->getSSAName() + ", " + rhs->getSSAName();
 }
 
 std::unique_ptr<Instruction> CmpInst::cloneEmpty() const {
@@ -138,7 +155,7 @@ std::unique_ptr<Instruction> CmpInst::cloneEmpty() const {
 
 //===---------------- Cast ----------------===//
 
-std::string CastInst::toString(CastOp op) {
+std::string CastInst::opToString(CastOp op) {
   switch (op) {
   case CastOp::BitCast:
     return "bitcast";
@@ -180,8 +197,8 @@ InstKind CastInst::getInstKind() const {
 
 std::string CastInst::str() const {
   std::ostringstream oss;
-  oss << getSSAName() << " = " << toString(_op) << " "
-      << getOperand(0)->getType()->str() << " " << getOperand(0)->str()
+  oss << getSSAName() << " = " << opToString(_op) << " "
+      << getOperand(0)->getType()->str() << " " << getOperand(0)->getSSAName()
       << " to " << getType()->str();
   return oss.str();
 }
@@ -206,7 +223,11 @@ RetInst::RetInst(BasicBlock *block)
 InstKind RetInst::getInstKind() const { return InstKind::Ret; }
 
 std::string RetInst::str() const {
-  return "ret " + getOperand(0)->getType()->str() + " " + getOperand(0)->str();
+  if (empty()) {
+    return "ret void";
+  }
+  auto retVal = getOperand(0);
+  return "ret " + retVal->getType()->str() + " " + retVal->getSSAName();
 }
 
 std::unique_ptr<Instruction> RetInst::cloneEmpty() const {
@@ -215,6 +236,8 @@ std::unique_ptr<Instruction> RetInst::cloneEmpty() const {
   cloned->_notRemapped = true;
   return cloned;
 }
+
+bool RetInst::isTerminator() const { return true; }
 
 BranchInst::BranchInst(BasicBlock *block, Value *cond, BasicBlock *trueBlock,
                        BasicBlock *falseBlock)
@@ -232,10 +255,14 @@ InstKind BranchInst::getInstKind() const { return InstKind::Branch; }
 
 std::string BranchInst::str() const {
   if (getNumOperands() == 1) {
-    return "br label " + getOperand(0)->str();
+    auto nextBlock = static_cast<BasicBlock *>(getOperand(0));
+    return "br label " + nextBlock->getSSAName();
   } else {
-    return "br i1 " + getOperand(0)->str() + ", label " + getOperand(1)->str() +
-           ", label " + getOperand(2)->str();
+    auto condBlock = static_cast<BasicBlock *>(getOperand(0));
+    auto trueBlock = static_cast<BasicBlock *>(getOperand(1));
+    auto falseBlock = static_cast<BasicBlock *>(getOperand(2));
+    return "br i1 " + condBlock->getSSAName() + ", label " +
+           trueBlock->getSSAName() + ", label " + falseBlock->getSSAName();
   }
 }
 
@@ -279,8 +306,13 @@ LoadInst::LoadInst(std::unique_ptr<Type> loadedType, BasicBlock *block,
 InstKind LoadInst::getInstKind() const { return InstKind::Load; }
 
 std::string LoadInst::str() const {
+  auto ptr = getOperand(0);
+  if (ptr->isGlobal()) {
+    return getSSAName() + " = load " + getType()->str() + ", " +
+           ptr->getType()->str() + "* " + ptr->getSSAName();
+  }
   return getSSAName() + " = load " + getType()->str() + ", " +
-         getOperand(0)->getType()->str() + " " + getOperand(0)->str();
+         ptr->getType()->str() + " " + ptr->getSSAName();
 }
 
 std::unique_ptr<Instruction> LoadInst::cloneEmpty() const {
@@ -297,10 +329,16 @@ StoreInst::StoreInst(BasicBlock *block, Value *val, Value *ptr)
 
 InstKind StoreInst::getInstKind() const { return InstKind::Store; }
 
+// Not sure (ATTENTION)
 std::string StoreInst::str() const {
-  return "store " + getOperand(0)->getType()->str() + " " +
-         getOperand(0)->str() + ", " + getOperand(1)->getType()->str() + " " +
-         getOperand(1)->str();
+  auto val = getOperand(0);
+  auto ptr = getOperand(1);
+  if (ptr->isGlobal()) {
+    return "store " + val->getType()->str() + " " + val->getSSAName() + ", " +
+           ptr->getType()->str() + "* " + ptr->getSSAName();
+  }
+  return "store " + val->getType()->str() + " " + val->getSSAName() + ", " +
+         ptr->getType()->str() + " " + ptr->getSSAName();
 }
 
 std::unique_ptr<Instruction> StoreInst::cloneEmpty() const {
@@ -339,13 +377,22 @@ InstKind GetElementPtrInst::getInstKind() const { return InstKind::GEP; }
 
 std::string GetElementPtrInst::str() const {
   std::ostringstream oss;
-  oss << getSSAName() << " = getelementptr inbounds "
-      << getOperand(0)->getType()->str() << ", "
-      << getOperand(0)->getType()->str() << " " << getOperand(0)->str();
-  for (size_t i = 1; i < getNumOperands(); ++i) {
-    oss << ", " << getOperand(i)->getType()->str() << " "
-        << getOperand(i)->str();
+
+  auto ptr = getOperand(0);
+  if (ptr->isGlobal()) {
+    oss << getSSAName() << " = getelementptr " << ptr->getType()->str() << ", "
+        << ptr->getType()->str() << "*" << " " << ptr->getSSAName();
+  } else {
+    oss << getSSAName() << " = getelementptr "
+        << ptr->getType()->getBaseType()->str() << ", " << ptr->getType()->str()
+        << " " << ptr->getSSAName();
   }
+
+  for (int i = 1; i < getNumOperands(); i++) {
+    auto operand = getOperand(i);
+    oss << ", " << operand->getType()->str() << " " << operand->getSSAName();
+  }
+
   return oss.str();
 }
 
@@ -367,15 +414,22 @@ InstKind CallInst::getInstKind() const { return InstKind::Call; }
 
 std::string CallInst::str() const {
   std::ostringstream oss;
-  oss << getSSAName() << " = call " << getType()->str() << " "
-      << getOperand(getNumOperands() - 1)->str() << "(";
-  for (size_t i = 0; i < getNumOperands() - 1; ++i) {
+  oss << "(";
+  for (size_t i = 1; i < getNumOperands(); i++) {
     if (i > 0)
       oss << ", ";
-    oss << getOperand(i)->getType()->str() << " " << getOperand(i)->str();
+    oss << getOperand(i)->getType()->str() << " "
+        << getOperand(i)->getSSAName();
   }
   oss << ")";
-  return oss.str();
+  auto type = getOperand(0)->getType();
+  if (type->isBasic() &&
+      static_cast<BasicType *>(type)->getBasicKind() == BasicKind::VOID) {
+    return "call " + type->str() + " " + getOperand(0)->getSSAName() +
+           oss.str();
+  }
+  return getSSAName() + " = call " + type->str() + " " +
+         getOperand(0)->getSSAName() + oss.str();
 }
 
 std::unique_ptr<Instruction> CallInst::cloneEmpty() const {

@@ -36,6 +36,7 @@ public:
 
   // Get the LLVM like block label
   [[nodiscard]] std::string getLabel() const;
+  std::string getSSAName() const { return "%" + getLabel(); }
   // Form the .ll IR string for the whole block, including the label and string
   // for all instructions
   [[nodiscard]] std::string str() const override;

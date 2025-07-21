@@ -4,28 +4,67 @@
 #include <algorithm>
 using namespace ir;
 
-BasicKind _curTypeKind;
-bool _isConst;
-// bool _useConst = false;
-// std::vector<std::unique_ptr<Argument>> _arguments;
-Value *_retVal;
-BasicBlock *_retBlock;
-// bool _isNewFunction = false;
-bool _isRealLVal = false;
-Function *_curFunction = nullptr;
-Value *_curVal = nullptr;
-BasicBlock *_entryBlock = nullptr;
-BasicBlock *_condBlock = nullptr;
-BasicBlock *_trueBlock = nullptr;
-BasicBlock *_falseBlock = nullptr;
-BasicBlock *_breakBlock = nullptr;
-// // continue, break, return stmt should set this to true;
-// bool _hasBranch = false;
+#define MAKE_I32 std::make_unique<BasicType>(BasicKind::I32)
+#define MAKE_F32 std::make_unique<BasicType>(BasicKind::F32)
+#define MAKE_VOID std::make_unique<BasicType>(BasicKind::VOID)
 
-Module *_module;
-BasicBlock *_curBlock;
-SymbolTable *_symbolTable;
-std::unordered_map<Argument *, AllocaInst *> _argToAllocaMap;
+void GenerateIR::initBuiltInFuncs() {
+  _module->addFunction(_symbolTable->makeFunction(MAKE_I32, "getint"));
+  _module->addFunction(_symbolTable->makeFunction(MAKE_I32, "getch"));
+  _module->addFunction(_symbolTable->makeFunction(MAKE_F32, "getfloat"));
+  auto func = _symbolTable->makeFunction(MAKE_I32, "getarray");
+  func->addArg(
+      std::make_unique<Argument>(std::make_unique<PointerType>(MAKE_I32), "a"));
+  _module->addFunction(std::move(func));
+  func = _symbolTable->makeFunction(MAKE_I32, "getfarray");
+  func->addArg(
+      std::make_unique<Argument>(std::make_unique<PointerType>(MAKE_F32), "a"));
+  _module->addFunction(std::move(func));
+  func = _symbolTable->makeFunction(MAKE_VOID, "putint");
+  func->addArg(std::make_unique<Argument>(MAKE_I32, "a"));
+  _module->addFunction(std::move(func));
+  func = _symbolTable->makeFunction(MAKE_VOID, "putch");
+  func->addArg(std::make_unique<Argument>(MAKE_I32, "a"));
+  _module->addFunction(std::move(func));
+  func = _symbolTable->makeFunction(MAKE_VOID, "putarray");
+  func->addArg(std::make_unique<Argument>(MAKE_I32, "n"));
+  func->addArg(std::make_unique<Argument>(MAKE_I32, "a"));
+  _module->addFunction(std::move(func));
+  func = _symbolTable->makeFunction(MAKE_VOID, "putfloat");
+  func->addArg(std::make_unique<Argument>(MAKE_F32, "a"));
+  _module->addFunction(std::move(func));
+  func = _symbolTable->makeFunction(MAKE_VOID, "putfarray");
+  func->addArg(std::make_unique<Argument>(MAKE_I32, "n"));
+  func->addArg(std::make_unique<Argument>(MAKE_F32, "a"));
+  _module->addFunction(std::move(func));
+  func = _symbolTable->makeFunction(MAKE_VOID, "_sysy_starttime");
+  func->addArg(std::make_unique<Argument>(MAKE_I32, "lineno"));
+  _module->addFunction(std::move(func));
+  func = _symbolTable->makeFunction(MAKE_VOID, "_sysy_stoptime");
+  func->addArg(std::make_unique<Argument>(MAKE_I32, "lineno"));
+  _module->addFunction(std::move(func));
+}
+
+void GenerateIR::initSysCalls() {
+  auto func = _symbolTable->makeFunction(MAKE_VOID, "memset");
+  func->addArg(std::make_unique<Argument>(
+      std::make_unique<PointerType>(MAKE_I32), "addr"));
+  func->addArg(std::make_unique<Argument>(MAKE_I32, "value"));
+  func->addArg(std::make_unique<Argument>(MAKE_I32, "size"));
+  _module->addFunction(std::move(func));
+}
+
+void GenerateIR::checkTerminator() {
+  for (const auto &func : _module->getFunctions()) {
+    for (int i = 0; i < func->size() - 1; i++) {
+      auto block = func->getBlock(i);
+      if (!block->hasTerminator()) {
+        block->pushInstruction(
+            std::make_unique<BranchInst>(block, func->getBlock(i + 1)));
+      }
+    }
+  }
+}
 
 void GenerateIR::processCond(Value *value) {
   if (!value) {
@@ -89,7 +128,7 @@ BasicKind GenerateIR::autoTypePromotion(BasicKind type1, BasicKind type2) {
 // pointer or deleted
 Value *GenerateIR::typeConversion(Value *value, BasicKind targetType) {
   if (!value->getType()->isBasic()) {
-    throw std::runtime_error("Not a basic type in typeConversion");
+    return value;
   }
   auto type = static_cast<BasicType *>(value->getType())->getBasicKind();
   if (type == targetType) {
@@ -146,8 +185,11 @@ Value *GenerateIR::typeConversion(Value *value, BasicKind targetType) {
       return value;
     }
   }
-  _curBlock->pushInstruction(std::unique_ptr<Instruction>(inst));
-  return inst;
+  if (inst) {
+    _curBlock->pushInstruction(std::unique_ptr<Instruction>(inst));
+    return inst;
+  }
+  return value;
 }
 
 void GenerateIR::visit(CompUnit &ast) {
@@ -311,6 +353,7 @@ void GenerateIR::visit(FuncDef &ast) {
   _symbolTable->in();
   auto entry = std::make_unique<BasicBlock>(_curFunction);
   _entryBlock = entry.get();
+  _curFunction->pushBlock(std::move(entry));
   auto ret = std::make_unique<BasicBlock>(_curFunction);
   _retBlock = ret.get();
 
@@ -352,11 +395,34 @@ void GenerateIR::visit(FuncDef &ast) {
         std::make_unique<StoreInst>(_entryBlock, retVal, _retVal));
   }
 
+  _curFunction->pushBlock(std::move(ret));
   _entryBlock->pushInstruction(
       std::make_unique<BranchInst>(_entryBlock, _curFunction->getBlock(1)));
-  _curFunction->pushBlock(std::move(ret));
   _module->addFunction(std::move(func));
   _symbolTable->out();
+}
+
+void GenerateIR::visit(Call &ast) {
+  auto func = _symbolTable->getFunction(*ast.id);
+  std::vector<Value *> args;
+  for (auto &exp : ast.funcCParamList) {
+    exp->accept(*this);
+    auto arg = func->getArg(args.size());
+    if (arg->getType()->isBasic()) {
+      auto type = static_cast<BasicType *>(arg->getType());
+      BasicKind typeKind;
+      if (type->getBasicKind() == BasicKind::F32) {
+        typeKind = BasicKind::F32;
+      } else {
+        typeKind = BasicKind::I32;
+      }
+      typeConversion(arg, typeKind);
+    }
+    args.push_back(arg);
+  }
+  auto callInst = std::make_unique<CallInst>(_curBlock, func, args);
+  _curVal = callInst.get();
+  _curBlock->pushInstruction(std::move(callInst));
 }
 
 void GenerateIR::visit(FuncFParam &ast) {
@@ -397,6 +463,7 @@ void GenerateIR::visit(Block &ast) {
     //   _hasBranch = false;
     //   break;
     // }
+    item->accept(*this);
     if (item->stmt) {
       bool hasBranch = false;
       switch (item->stmt->sType) {
@@ -410,7 +477,6 @@ void GenerateIR::visit(Block &ast) {
         break;
       }
     }
-    item->accept(*this);
   }
   _symbolTable->out();
 }
@@ -432,6 +498,7 @@ void GenerateIR::handleAssignStmt(Stmt &ast) {
   auto type = lVal->getType();
   ast.exp->accept(*this);
   auto rVal = _curVal;
+  // Theoretically, type should not be a basic type (ATTENTION)
   if (type->isBasic()) {
     rVal = typeConversion(rVal, static_cast<BasicType *>(type)->getBasicKind());
   } else {
@@ -589,7 +656,8 @@ void GenerateIR::visit(WhileStmt &ast) {
   _curBlock = rawLoopBlock;
   ast.stmt->accept(*this);
   if (!_curBlock->hasTerminator()) {
-    _curBlock->pushInstruction(std::make_unique<BranchInst>(_curBlock, rawCondBlock));
+    _curBlock->pushInstruction(
+        std::make_unique<BranchInst>(_curBlock, rawCondBlock));
   }
 
   _curBlock = rawBreakBlock;
@@ -1020,6 +1088,7 @@ void GenerateIR::visit(LVal &ast) {
     }
     return;
   }
+  _isRealLVal = false;
   // Handle real left value
   auto ptr = _symbolTable->getData(*ast.id);
   bool isArg = false;
@@ -1062,8 +1131,8 @@ void GenerateIR::visit(LVal &ast) {
 
 void GenerateIR::visit(NumberNode &ast) {
   if (ast.isInt) {
-    _curVal = new ConstantNumber(ast.intval);
+    _curVal = new ConstantNumber(Number(ast.intval));
     return;
   }
-  _curVal = new ConstantNumber(ast.floatval);
+  _curVal = new ConstantNumber(Number(ast.floatval));
 }

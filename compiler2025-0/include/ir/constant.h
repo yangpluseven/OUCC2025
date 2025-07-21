@@ -28,7 +28,7 @@ private:
   Number _value;
 
   static std::unique_ptr<BasicType> determineType(const Number &num);
-  BasicKind getBasicKind() const;
+  // BasicKind getBasicKind() const;
 
 public:
   explicit ConstantNumber(bool value);
@@ -57,6 +57,7 @@ public:
   ConstantNumber operator<=(const ConstantNumber &rhs) const;
 
   std::string getLiteralStr() const;
+  std::string getSSAName() const override;
   std::string str() const override;
 };
 
@@ -66,6 +67,7 @@ public:
 
   ConstantKind getConstantKind() const override { return ConstantKind::Zero; }
 
+  std::string getSSAName() const override;
   std::string str() const override;
 };
 
@@ -82,6 +84,7 @@ public:
 
   Constant *getValue(size_t index) const;
 
+  std::string getSSAName() const override;
   std::string str() const override;
 };
 

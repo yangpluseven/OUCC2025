@@ -66,7 +66,7 @@ std::string BasicType::str() const {
   case BasicKind::I32:
     return "i32";
   case BasicKind::F32:
-    return "f32";
+    return "float";
   case BasicKind::VOID:
     return "void";
   default:
@@ -84,7 +84,7 @@ std::unique_ptr<Type> BasicType::clone() const {
 
 ArrayType::ArrayType(std::unique_ptr<Type> elementType, size_t arraySize)
     : _elementType(std::move(elementType)), _arrayLength(arraySize) {
-  assert(elementType && "Element type cannot be null");
+  assert(_elementType && "Element type cannot be null");
 }
 
 size_t ArrayType::getSize() const {
@@ -128,7 +128,7 @@ std::unique_ptr<Type> ArrayType::clone() const {
 
 PointerType::PointerType(std::unique_ptr<Type> pointeeType)
     : _pointeeType(std::move(pointeeType)) {
-  assert(pointeeType && "Pointee type cannot be null");
+  assert(_pointeeType && "Pointee type cannot be null");
 }
 
 size_t PointerType::getSize() const {

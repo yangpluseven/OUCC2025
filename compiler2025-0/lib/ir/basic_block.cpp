@@ -18,6 +18,9 @@ bool BasicBlock::hasTerminator() const {
 
 void BasicBlock::pushInstruction(std::unique_ptr<Instruction> inst) {
   assert(inst && "Cannot insert nullptr instruction");
+  // Maybe need assert here? (ATTENTION)
+  if (hasTerminator())
+    return;
   _instructions.push_back(std::move(inst));
 }
 
@@ -48,7 +51,7 @@ std::unique_ptr<Instruction> BasicBlock::eraseInstruction(size_t index) {
 
 std::string BasicBlock::getLabel() const {
   std::ostringstream oss;
-  oss << "%bb" << _id;
+  oss << "bb" << _id;
   return oss.str();
 }
 

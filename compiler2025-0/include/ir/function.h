@@ -37,9 +37,11 @@ public:
 
   ValueKind getValueKind() const { return ValueKind::Function; }
 
+  size_t size() const { return _blocks.size(); }
   [[nodiscard]] bool empty() const { return _blocks.empty(); }
 
   void addArg(std::unique_ptr<Argument> arg);
+  Argument *getArg(size_t index) const;
   // Return a viewport instead of the actual ownership
   [[nodiscard]] std::vector<Argument *> getArgs() const;
 
@@ -48,10 +50,11 @@ public:
 
   [[nodiscard]] BasicBlock *getBlock(size_t index) const;
   [[nodiscard]] BasicBlock *getEntryBlock() const;
-  [[nodiscard]] size_t size() const { return _blocks.size(); }
 
   // Get the function's name
   std::string getRawName() const;
+  // Get the LLVM like SSA name
+  std::string getSSAName() const override;
   // Form the .ll IR string for the whole block, call block->str() for the
   // block's .ll IR string including the label and all instructions
   std::string str() const override;
