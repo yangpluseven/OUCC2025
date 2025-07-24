@@ -304,7 +304,7 @@ void GenerateIR::handleArrayDef(Def &ast) {
         }
         int idx = index / num % dimensions[j];
         vector<Value *> indices{new ConstantNumber(Number(0)),
-                                new ConstantNumber(Number(0))};
+                                new ConstantNumber(Number(idx))};
         auto gepInst =
             std::make_unique<GetElementPtrInst>(_curBlock, ptr, indices);
         ptr = gepInst.get();
@@ -408,6 +408,7 @@ void GenerateIR::visit(Call &ast) {
   for (auto &exp : ast.funcCParamList) {
     exp->accept(*this);
     auto arg = func->getArg(args.size());
+    auto param = _curVal;
     if (arg->getType()->isBasic()) {
       auto type = static_cast<BasicType *>(arg->getType());
       BasicKind typeKind;
@@ -416,9 +417,9 @@ void GenerateIR::visit(Call &ast) {
       } else {
         typeKind = BasicKind::I32;
       }
-      typeConversion(arg, typeKind);
+      typeConversion(param, typeKind);
     }
-    args.push_back(arg);
+    args.push_back(param);
   }
   auto callInst = std::make_unique<CallInst>(_curBlock, func, args);
   _curVal = callInst.get();
@@ -1041,6 +1042,7 @@ void GenerateIR::handleScalarVar(LVal &ast) {
     auto gepInst = std::make_unique<GetElementPtrInst>(_curBlock, ptr, indices);
     _curVal = gepInst.get();
     _curBlock->pushInstruction(std::move(gepInst));
+    return;
   }
   auto loadInst = std::make_unique<LoadInst>(_curBlock, ptr);
   _curVal = loadInst.get();

@@ -51,7 +51,7 @@ std::string BinaryInst::str() const {
     throw std::runtime_error("Unmatched types in binary instruction!");
   }
   auto first = lhs->getSSAName();
-  auto second = lhs->getSSAName();
+  auto second = rhs->getSSAName();
   switch (_op) {
   case BinaryOp::ADD:
   case BinaryOp::FADD:
@@ -406,8 +406,11 @@ std::unique_ptr<Instruction> GetElementPtrInst::cloneEmpty() const {
 
 CallInst::CallInst(BasicBlock *block, Function *func,
                    const std::vector<Value *> &args)
-    : Instruction(func->getType()->clone(), args, block) {
+    : Instruction(func->getType()->clone(), block) {
   addOperand(func);
+  for (auto arg : args) {
+    addOperand(arg);
+  }
 }
 
 InstKind CallInst::getInstKind() const { return InstKind::Call; }
@@ -416,7 +419,7 @@ std::string CallInst::str() const {
   std::ostringstream oss;
   oss << "(";
   for (size_t i = 1; i < getNumOperands(); i++) {
-    if (i > 0)
+    if (i > 1)
       oss << ", ";
     oss << getOperand(i)->getType()->str() << " "
         << getOperand(i)->getSSAName();
