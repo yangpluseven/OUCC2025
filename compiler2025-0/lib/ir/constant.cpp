@@ -64,7 +64,7 @@ std::string ConstantNumber::str() const {
   return getType()->str() + " " + getLiteralStr();
 }
 
-std::string ConstantNumber::getSSAName() const { return getLiteralStr(); }
+std::string ConstantNumber::getName() const { return getLiteralStr(); }
 
 // General operators for integer/float
 
@@ -146,10 +146,10 @@ ConstantNumber ConstantNumber::operator!() const {
   }
 }
 
-std::string ConstantZero::getSSAName() const { return "zeroinitializer"; }
+std::string ConstantZero::getName() const { return "zeroinitializer"; }
 
 std::string ConstantZero::str() const {
-  return getType()->str() + " " + getSSAName();
+  return getType()->str() + " " + getName();
 }
 
 Constant *ConstantArray::getValue(size_t index) const {
@@ -157,7 +157,7 @@ Constant *ConstantArray::getValue(size_t index) const {
   return _values[index].get();
 }
 
-std::string ConstantArray::getSSAName() const {
+std::string ConstantArray::getName() const {
   std::ostringstream oss;
   oss << "[";
   for (size_t i = 0; i < _values.size(); ++i) {
@@ -170,7 +170,7 @@ std::string ConstantArray::getSSAName() const {
 }
 
 std::string ConstantArray::str() const {
-  return getType()->str() + " " + getSSAName();
+  return getType()->str() + " " + getName();
 }
 
 } // namespace ir

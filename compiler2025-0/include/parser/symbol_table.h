@@ -19,12 +19,12 @@ private:
 
   ir::Value *getItem(const std::string &name) const;
 
-  static std::map<int, ir::Number> submap(const std::map<int, ir::Number> &values,
-                                      int fromKey, int toKey);
+  static std::map<int, ir::Number>
+  submap(const std::map<int, ir::Number> &values, int fromKey, int toKey);
 
   static std::unique_ptr<ir::Constant>
-  fuseConst(std::unique_ptr<ir::Type> type, const std::map<int, ir::Number> &values,
-            int base);
+  fuseConst(std::unique_ptr<ir::Type> type,
+            const std::map<int, ir::Number> &values, int base);
 
 public:
   size_t size() const { return _table.size(); }
@@ -33,33 +33,28 @@ public:
 
   void in() { _table.emplace_front(); }
 
-  ir::Value *getData(const std::string &name) const {
-    return getItem(name);
-  }
+  ir::Value *getData(const std::string &name) const { return getItem(name); }
 
   bool isGlobal() const { return _table.size() == 1; }
 
   ir::Function *getFunction(const std::string &name) const;
 
   std::unique_ptr<ir::Function> makeFunction(std::unique_ptr<ir::Type> type,
-                                         const std::string &name);
+                                             const std::string &name);
 
   std::unique_ptr<ir::GlobalVariable> makeGlobal(bool isConst,
                                                  std::unique_ptr<ir::Type> type,
                                                  const std::string &name,
                                                  ir::Number value);
 
-  std::unique_ptr<ir::GlobalVariable> makeGlobal(bool isConst,
-                                                 std::unique_ptr<ir::Type> type,
-                                                 const std::string &name,
-                                                 std::map<int, ir::Number> &values);
+  std::unique_ptr<ir::GlobalVariable>
+  makeGlobal(bool isConst, std::unique_ptr<ir::Type> type,
+             const std::string &name, std::map<int, ir::Number> &values);
 
-  std::unique_ptr<ir::AllocaInst> makeLocal(ir::BasicBlock *block,
-                                            std::unique_ptr<ir::Type> type,
+  std::unique_ptr<ir::AllocaInst> makeLocal(std::unique_ptr<ir::Type> type,
                                             const std::string &name);
 
-  std::unique_ptr<ir::AllocaInst> makeLocal(ir::BasicBlock *block,
-                                            std::unique_ptr<ir::Type> type,
+  std::unique_ptr<ir::AllocaInst> makeLocal(std::unique_ptr<ir::Type> type,
                                             const std::string &name,
                                             const std::vector<int> &dimensions);
 

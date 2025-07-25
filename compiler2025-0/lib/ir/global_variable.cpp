@@ -92,10 +92,10 @@ float GlobalVariable::getFloat(size_t index) const {
 
 std::string GlobalVariable::getRawName() const { return _name; }
 
-std::string GlobalVariable::getSSAName() const { return "@" + _name; }
+std::string GlobalVariable::getName() const { return "@" + _name; }
 
 std::string GlobalVariable::str() const {
-  return getSSAName() + " = global " + _value->str();
+  return getName() + " = global " + _value->str();
 }
 
 } // namespace ir

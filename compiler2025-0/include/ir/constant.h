@@ -57,7 +57,7 @@ public:
   ConstantNumber operator<=(const ConstantNumber &rhs) const;
 
   std::string getLiteralStr() const;
-  std::string getSSAName() const override;
+  std::string getName() const override;
   std::string str() const override;
 };
 
@@ -67,7 +67,7 @@ public:
 
   ConstantKind getConstantKind() const override { return ConstantKind::Zero; }
 
-  std::string getSSAName() const override;
+  std::string getName() const override;
   std::string str() const override;
 };
 
@@ -84,7 +84,7 @@ public:
 
   Constant *getValue(size_t index) const;
 
-  std::string getSSAName() const override;
+  std::string getName() const override;
   std::string str() const override;
 };
 

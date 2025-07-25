@@ -20,7 +20,7 @@ public:
   ValueKind getValueKind() const override { return ValueKind::Arg; }
   std::string getRawName() const { return _name; }
   // Get the LLVM like SSA name, example: %a
-  std::string getSSAName() const;
+  std::string getName() const;
   // Get the LLVM like full name, example: i32 %a
   std::string str() const override;
 };
@@ -54,7 +54,7 @@ public:
   // Get the function's name
   std::string getRawName() const;
   // Get the LLVM like SSA name
-  std::string getSSAName() const override;
+  std::string getName() const override;
   // Form the .ll IR string for the whole block, call block->str() for the
   // block's .ll IR string including the label and all instructions
   std::string str() const override;

@@ -6,21 +6,25 @@ namespace ir {
 
 int Instruction::_counter = 0;
 
-Instruction::Instruction(std::unique_ptr<Type> type, BasicBlock *block)
-    : User(std::move(type)), _block(block), _id(_counter++) {}
+InstBase::InstBase(std::unique_ptr<Type> type, int id)
+    : User(std::move(type)), _id(id) {}
+
+InstBase::InstBase(std::unique_ptr<Type> type,
+                   const std::vector<Value *> &useOperands, int id)
+    : User(std::move(type), useOperands), _id(id) {}
+
+Instruction::Instruction(std::unique_ptr<Type> type)
+    : InstBase(std::move(type), _counter++) {}
 
 Instruction::Instruction(std::unique_ptr<Type> type,
-                         const std::vector<Value *> &useOperands,
-                         BasicBlock *block)
-    : User(std::move(type), useOperands), _block(block), _id(_counter++) {}
+                         const std::vector<Value *> &useOperands)
+    : InstBase(std::move(type), useOperands, _counter++) {}
 
-std::string Instruction::getSSAName() const {
+std::string Instruction::getName() const {
   return "%v" + std::to_string(getID());
 }
 
-std::string Instruction::str() const { return "Unknown instruction."; }
-
-void Instruction::remapValues(const ValueMap &map) {
+void InstBase::remapValues(const ValueMap &map) {
   auto it = map.find(_cloneTarget->getBlock());
   if (it != map.end()) {
     // Dangerous operation, no type check (ATTENTION)

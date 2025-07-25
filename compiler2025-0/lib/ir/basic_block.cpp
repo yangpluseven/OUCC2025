@@ -16,35 +16,40 @@ bool BasicBlock::hasTerminator() const {
   return !empty() && _instructions.back()->isTerminator();
 }
 
-void BasicBlock::pushInstruction(std::unique_ptr<Instruction> inst) {
+void BasicBlock::pushInstruction(std::unique_ptr<InstBase> inst) {
   assert(inst && "Cannot insert nullptr instruction");
   // Maybe need assert here? (ATTENTION)
   if (hasTerminator())
     return;
+  inst->setBlock(this);
   _instructions.push_back(std::move(inst));
 }
 
-Instruction *BasicBlock::getTerminator() const {
+InstBase *BasicBlock::getTerminator() const {
   if (hasTerminator())
     return _instructions.back().get();
   return nullptr;
 }
 
-Instruction *BasicBlock::getInstruction(size_t index) const {
+InstBase *BasicBlock::getInstruction(size_t index) const {
   assert(index < _instructions.size());
   return _instructions[index].get();
 }
 
 void BasicBlock::insertInstruction(size_t index,
-                                   std::unique_ptr<Instruction> inst) {
+                                   std::unique_ptr<InstBase> inst) {
   assert(index <= _instructions.size());
+  inst->setBlock(this);
   _instructions.insert(_instructions.begin() + index, std::move(inst));
 }
 
-std::unique_ptr<Instruction> BasicBlock::eraseInstruction(size_t index) {
+std::unique_ptr<InstBase> BasicBlock::eraseInstruction(size_t index) {
   assert(index < _instructions.size());
   auto it = _instructions.begin() + index;
-  std::unique_ptr<Instruction> erased = std::move(*it);
+  std::unique_ptr<InstBase> erased = std::move(*it);
+  if (erased->getBlock() == this) {
+    erased->setBlock(nullptr);
+  }
   _instructions.erase(it);
   return erased;
 }
@@ -64,17 +69,19 @@ std::string BasicBlock::str() const {
   return oss.str();
 }
 
-Instruction *BasicBlock::getInstruction(iterator pos) const {
-  return pos->get();
-}
+InstBase *BasicBlock::getInstruction(iterator pos) const { return pos->get(); }
 
 BasicBlock::iterator
-BasicBlock::insertInstruction(iterator pos, std::unique_ptr<Instruction> inst) {
+BasicBlock::insertInstruction(iterator pos, std::unique_ptr<InstBase> inst) {
+  inst->setBlock(this);
   return _instructions.insert(pos, std::move(inst));
 }
 
-std::unique_ptr<Instruction> BasicBlock::eraseInstruction(iterator pos) {
-  std::unique_ptr<Instruction> erased = std::move(*pos);
+std::unique_ptr<InstBase> BasicBlock::eraseInstruction(iterator pos) {
+  std::unique_ptr<InstBase> erased = std::move(*pos);
+  if (erased->getBlock() == this) {
+    erased->setBlock(nullptr);
+  }
   _instructions.erase(pos);
   return erased;
 }

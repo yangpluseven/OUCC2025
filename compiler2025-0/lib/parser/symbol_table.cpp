@@ -48,8 +48,7 @@ SymbolTable::fuseConst(std::unique_ptr<ir::Type> type,
   return std::make_unique<ir::ConstantArray>(std::move(type), std::move(array));
 }
 
-ir::Function *
-SymbolTable::getFunction(const std::string &name) const {
+ir::Function *SymbolTable::getFunction(const std::string &name) const {
   auto symbol = getItem(name);
   if (auto func = dynamic_cast<ir::Function *>(symbol))
     return func;
@@ -57,7 +56,8 @@ SymbolTable::getFunction(const std::string &name) const {
 }
 
 std::unique_ptr<ir::Function>
-SymbolTable::makeFunction(std::unique_ptr<ir::Type> type, const std::string &name) {
+SymbolTable::makeFunction(std::unique_ptr<ir::Type> type,
+                          const std::string &name) {
   auto func = std::make_unique<ir::Function>(std::move(type), name);
   _table.back()[name] = func.get();
   return std::move(func);
@@ -121,21 +121,20 @@ SymbolTable::makeGlobal(bool isConst, std::unique_ptr<ir::Type> type,
 }
 
 std::unique_ptr<ir::AllocaInst>
-SymbolTable::makeLocal(ir::BasicBlock *block, std::unique_ptr<ir::Type> type,
+SymbolTable::makeLocal(std::unique_ptr<ir::Type> type,
                        const std::string &name) {
-  auto symbol = std::make_unique<ir::AllocaInst>(std::move(type), block);
+  auto symbol = std::make_unique<ir::AllocaInst>(std::move(type));
   _table.front()[name] = symbol.get();
   return std::move(symbol);
 }
 
 std::unique_ptr<ir::AllocaInst>
-SymbolTable::makeLocal(ir::BasicBlock *block, std::unique_ptr<ir::Type> type,
-                       const std::string &name,
+SymbolTable::makeLocal(std::unique_ptr<ir::Type> type, const std::string &name,
                        const std::vector<int> &dimensions) {
   for (int i = static_cast<int>(dimensions.size() - 1); i >= 0; i--)
     type = std::make_unique<ir::ArrayType>(std::move(type), dimensions[i]);
 
-  auto allocaInst = std::make_unique<ir::AllocaInst>(std::move(type), block);
+  auto allocaInst = std::make_unique<ir::AllocaInst>(std::move(type));
   _table.front()[name] = allocaInst.get();
   return std::move(allocaInst);
 }

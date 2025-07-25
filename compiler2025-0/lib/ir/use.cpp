@@ -4,8 +4,11 @@
 namespace ir {
 
 Use::Use(User *user, Value *value) : _user(user), _value(value) {
-  assert(user && value);
-  value->addUse(this);
+  // Maybe value can be nullptr as a placeholder (ATTENTION)
+  // assert(user && value);
+  assert(user);
+  if (value)
+    value->addUse(this);
 }
 
 Use::~Use() {

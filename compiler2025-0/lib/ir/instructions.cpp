@@ -34,8 +34,8 @@ std::string BinaryInst::opToString(BinaryOp op) {
   }
 }
 
-BinaryInst::BinaryInst(BasicBlock *block, BinaryOp op, Value *lhs, Value *rhs)
-    : Instruction(lhs->getType()->clone(), {lhs, rhs}, block), _op(op) {
+BinaryInst::BinaryInst(BinaryOp op, Value *lhs, Value *rhs)
+    : Instruction(lhs->getType()->clone(), {lhs, rhs}), _op(op) {
   assert(*lhs->getType() == *rhs->getType() &&
          "Operands must have the same type");
 }
@@ -50,8 +50,8 @@ std::string BinaryInst::str() const {
   if (!Type::isEqual(lhs->getType(), rhs->getType())) {
     throw std::runtime_error("Unmatched types in binary instruction!");
   }
-  auto first = lhs->getSSAName();
-  auto second = rhs->getSSAName();
+  auto first = lhs->getName();
+  auto second = rhs->getName();
   switch (_op) {
   case BinaryOp::ADD:
   case BinaryOp::FADD:
@@ -62,12 +62,12 @@ std::string BinaryInst::str() const {
       std::swap(first, second);
     }
   }
-  return getSSAName() + " = " + opToString(_op) + " " + lhs->getType()->str() +
+  return getName() + " = " + opToString(_op) + " " + lhs->getType()->str() +
          " " + first + ", " + second;
 }
 
 std::unique_ptr<Instruction> BinaryInst::cloneEmpty() const {
-  auto cloned = std::make_unique<BinaryInst>(getType()->clone(), nullptr, _op);
+  auto cloned = std::make_unique<BinaryInst>(getType()->clone(), _op);
   cloned->_cloneTarget = const_cast<BinaryInst *>(this);
   cloned->_notRemapped = true;
   return cloned;
@@ -106,9 +106,8 @@ std::string CmpInst::opToString(CmpOp op) {
   }
 }
 
-CmpInst::CmpInst(BasicBlock *block, CmpOp op, Value *lhs, Value *rhs)
-    : Instruction(std::make_unique<BasicType>(BasicKind::I1), {lhs, rhs},
-                  block),
+CmpInst::CmpInst(CmpOp op, Value *lhs, Value *rhs)
+    : Instruction(std::make_unique<BasicType>(BasicKind::I1), {lhs, rhs}),
       _op(op) {}
 
 bool CmpInst::isICmpInst() const {
@@ -142,12 +141,12 @@ std::string CmpInst::str() const {
   if (!Type::isEqual(lhs->getType(), rhs->getType())) {
     throw std::runtime_error("Unmatched types in binary instruction!");
   }
-  return getSSAName() + " = " + opToString(_op) + " " + lhs->getType()->str() +
-         " " + lhs->getSSAName() + ", " + rhs->getSSAName();
+  return getName() + " = " + opToString(_op) + " " + lhs->getType()->str() +
+         " " + lhs->getName() + ", " + rhs->getName();
 }
 
 std::unique_ptr<Instruction> CmpInst::cloneEmpty() const {
-  auto cloned = std::make_unique<CmpInst>(nullptr, _op, nullptr, nullptr);
+  auto cloned = std::make_unique<CmpInst>(_op, nullptr, nullptr);
   cloned->_cloneTarget = const_cast<CmpInst *>(this);
   cloned->_notRemapped = true;
   return cloned;
@@ -172,9 +171,8 @@ std::string CastInst::opToString(CastOp op) {
   }
 }
 
-CastInst::CastInst(std::unique_ptr<Type> targetType, BasicBlock *block,
-                   CastOp op, Value *val)
-    : Instruction(std::move(targetType), {val}, block), _op(op) {}
+CastInst::CastInst(std::unique_ptr<Type> targetType, CastOp op, Value *val)
+    : Instruction(std::move(targetType), {val}), _op(op) {}
 
 CastOp CastInst::getCastOp() const { return _op; }
 
@@ -197,15 +195,14 @@ InstKind CastInst::getInstKind() const {
 
 std::string CastInst::str() const {
   std::ostringstream oss;
-  oss << getSSAName() << " = " << opToString(_op) << " "
-      << getOperand(0)->getType()->str() << " " << getOperand(0)->getSSAName()
+  oss << getName() << " = " << opToString(_op) << " "
+      << getOperand(0)->getType()->str() << " " << getOperand(0)->getName()
       << " to " << getType()->str();
   return oss.str();
 }
 
 std::unique_ptr<Instruction> CastInst::cloneEmpty() const {
-  auto cloned =
-      std::make_unique<CastInst>(getType()->clone(), nullptr, _op, nullptr);
+  auto cloned = std::make_unique<CastInst>(getType()->clone(), _op, nullptr);
   cloned->_cloneTarget = const_cast<CastInst *>(this);
   cloned->_notRemapped = true;
   return cloned;
@@ -213,12 +210,11 @@ std::unique_ptr<Instruction> CastInst::cloneEmpty() const {
 
 //===---------------- Terminator ----------------===//
 
-RetInst::RetInst(BasicBlock *block, Value *retVal)
-    : Instruction(std::make_unique<BasicType>(BasicKind::VOID), {retVal},
-                  block) {}
+RetInst::RetInst(Value *retVal)
+    : Instruction(std::make_unique<BasicType>(BasicKind::VOID), {retVal}) {}
 
-RetInst::RetInst(BasicBlock *block)
-    : Instruction(std::make_unique<BasicType>(BasicKind::VOID), block) {}
+RetInst::RetInst()
+    : Instruction(std::make_unique<BasicType>(BasicKind::VOID)) {}
 
 InstKind RetInst::getInstKind() const { return InstKind::Ret; }
 
@@ -227,11 +223,11 @@ std::string RetInst::str() const {
     return "ret void";
   }
   auto retVal = getOperand(0);
-  return "ret " + retVal->getType()->str() + " " + retVal->getSSAName();
+  return "ret " + retVal->getType()->str() + " " + retVal->getName();
 }
 
 std::unique_ptr<Instruction> RetInst::cloneEmpty() const {
-  auto cloned = std::make_unique<RetInst>(nullptr, nullptr);
+  auto cloned = std::make_unique<RetInst>(nullptr);
   cloned->_cloneTarget = const_cast<RetInst *>(this);
   cloned->_notRemapped = true;
   return cloned;
@@ -239,15 +235,15 @@ std::unique_ptr<Instruction> RetInst::cloneEmpty() const {
 
 bool RetInst::isTerminator() const { return true; }
 
-BranchInst::BranchInst(BasicBlock *block, Value *cond, BasicBlock *trueBlock,
+BranchInst::BranchInst(Value *cond, BasicBlock *trueBlock,
                        BasicBlock *falseBlock)
-    : Instruction(std::make_unique<BasicType>(BasicKind::VOID), {cond}, block) {
+    : Instruction(std::make_unique<BasicType>(BasicKind::VOID), {cond}) {
   addOperand(trueBlock);
   addOperand(falseBlock);
 }
 
-BranchInst::BranchInst(BasicBlock *block, BasicBlock *target)
-    : Instruction(std::make_unique<BasicType>(BasicKind::VOID), block) {
+BranchInst::BranchInst(BasicBlock *target)
+    : Instruction(std::make_unique<BasicType>(BasicKind::VOID)) {
   addOperand(target);
 }
 
@@ -256,18 +252,20 @@ InstKind BranchInst::getInstKind() const { return InstKind::Branch; }
 std::string BranchInst::str() const {
   if (getNumOperands() == 1) {
     auto nextBlock = static_cast<BasicBlock *>(getOperand(0));
-    return "br label " + nextBlock->getSSAName();
+    return "br label " + nextBlock->getName();
   } else {
     auto condBlock = static_cast<BasicBlock *>(getOperand(0));
     auto trueBlock = static_cast<BasicBlock *>(getOperand(1));
     auto falseBlock = static_cast<BasicBlock *>(getOperand(2));
-    return "br i1 " + condBlock->getSSAName() + ", label " +
-           trueBlock->getSSAName() + ", label " + falseBlock->getSSAName();
+    return "br i1 " + condBlock->getName() + ", label " + trueBlock->getName() +
+           ", label " + falseBlock->getName();
   }
 }
 
 std::unique_ptr<Instruction> BranchInst::cloneEmpty() const {
-  auto cloned = std::make_unique<BranchInst>(nullptr, nullptr);
+  auto cloned = getNumOperands() > 1
+                    ? std::make_unique<BranchInst>(nullptr, nullptr, nullptr)
+                    : std::make_unique<BranchInst>(nullptr);
   cloned->_cloneTarget = const_cast<BranchInst *>(this);
   cloned->_notRemapped = true;
   return cloned;
@@ -277,55 +275,52 @@ bool BranchInst::isTerminator() const { return true; }
 
 //===---------------- Other Instructions ----------------===//
 
-AllocaInst::AllocaInst(std::unique_ptr<Type> allocType, BasicBlock *block)
-    : Instruction(std::make_unique<PointerType>(std::move(allocType)), block) {}
+AllocaInst::AllocaInst(std::unique_ptr<Type> allocType)
+    : Instruction(std::make_unique<PointerType>(std::move(allocType))) {}
 
 InstKind AllocaInst::getInstKind() const { return InstKind::Alloca; }
 
 std::string AllocaInst::str() const {
   assert(getType()->isArray() || getType()->isPointer());
-  return getSSAName() + " = alloca " + getType()->getBaseType()->str();
+  return getName() + " = alloca " + getType()->getBaseType()->str();
 }
 
 std::unique_ptr<Instruction> AllocaInst::cloneEmpty() const {
-  auto cloned = std::make_unique<AllocaInst>(getType()->clone(), nullptr);
+  auto cloned = std::make_unique<AllocaInst>(getType()->clone());
   cloned->_cloneTarget = const_cast<AllocaInst *>(this);
   cloned->_notRemapped = true;
   return cloned;
 }
 
-LoadInst::LoadInst(BasicBlock *block, Value *ptr)
+LoadInst::LoadInst(Value *ptr)
     : Instruction(ptr->isGlobal() ? ptr->getType()->clone()
                                   : ptr->getType()->getBaseType()->clone(),
-                  {ptr}, block) {}
+                  {ptr}) {}
 
-LoadInst::LoadInst(std::unique_ptr<Type> loadedType, BasicBlock *block,
-                   Value *ptr)
-    : Instruction(std::move(loadedType), {ptr}, block) {}
+LoadInst::LoadInst(std::unique_ptr<Type> loadedType, Value *ptr)
+    : Instruction(std::move(loadedType), {ptr}) {}
 
 InstKind LoadInst::getInstKind() const { return InstKind::Load; }
 
 std::string LoadInst::str() const {
   auto ptr = getOperand(0);
   if (ptr->isGlobal()) {
-    return getSSAName() + " = load " + getType()->str() + ", " +
-           ptr->getType()->str() + "* " + ptr->getSSAName();
+    return getName() + " = load " + getType()->str() + ", " +
+           ptr->getType()->str() + "* " + ptr->getName();
   }
-  return getSSAName() + " = load " + getType()->str() + ", " +
-         ptr->getType()->str() + " " + ptr->getSSAName();
+  return getName() + " = load " + getType()->str() + ", " +
+         ptr->getType()->str() + " " + ptr->getName();
 }
 
 std::unique_ptr<Instruction> LoadInst::cloneEmpty() const {
-  auto cloned =
-      std::make_unique<LoadInst>(getType()->clone(), nullptr, nullptr);
+  auto cloned = std::make_unique<LoadInst>(getType()->clone(), nullptr);
   cloned->_cloneTarget = const_cast<LoadInst *>(this);
   cloned->_notRemapped = true;
   return cloned;
 }
 
-StoreInst::StoreInst(BasicBlock *block, Value *val, Value *ptr)
-    : Instruction(std::make_unique<BasicType>(BasicKind::VOID), {val, ptr},
-                  block) {}
+StoreInst::StoreInst(Value *val, Value *ptr)
+    : Instruction(std::make_unique<BasicType>(BasicKind::VOID), {val, ptr}) {}
 
 InstKind StoreInst::getInstKind() const { return InstKind::Store; }
 
@@ -334,15 +329,15 @@ std::string StoreInst::str() const {
   auto val = getOperand(0);
   auto ptr = getOperand(1);
   if (ptr->isGlobal()) {
-    return "store " + val->getType()->str() + " " + val->getSSAName() + ", " +
-           ptr->getType()->str() + "* " + ptr->getSSAName();
+    return "store " + val->getType()->str() + " " + val->getName() + ", " +
+           ptr->getType()->str() + "* " + ptr->getName();
   }
-  return "store " + val->getType()->str() + " " + val->getSSAName() + ", " +
-         ptr->getType()->str() + " " + ptr->getSSAName();
+  return "store " + val->getType()->str() + " " + val->getName() + ", " +
+         ptr->getType()->str() + " " + ptr->getName();
 }
 
 std::unique_ptr<Instruction> StoreInst::cloneEmpty() const {
-  auto cloned = std::make_unique<StoreInst>(nullptr, nullptr, nullptr);
+  auto cloned = std::make_unique<StoreInst>(nullptr, nullptr);
   cloned->_cloneTarget = const_cast<StoreInst *>(this);
   cloned->_notRemapped = true;
   return cloned;
@@ -361,17 +356,16 @@ std::unique_ptr<Type> GetElementPtrInst::calcType(Value *value,
   return std::make_unique<PointerType>(type->clone());
 }
 
-GetElementPtrInst::GetElementPtrInst(BasicBlock *block, Value *base,
+GetElementPtrInst::GetElementPtrInst(Value *base,
                                      const std::vector<Value *> &indices)
-    : Instruction(calcType(base, indices.size()), {base}, block) {
+    : Instruction(calcType(base, indices.size()), {base}) {
   for (auto *idx : indices) {
     addOperand(idx);
   }
 }
 
-GetElementPtrInst::GetElementPtrInst(std::unique_ptr<Type> targetType,
-                                     BasicBlock *block)
-    : Instruction(std::move(targetType), block) {}
+GetElementPtrInst::GetElementPtrInst(std::unique_ptr<Type> targetType)
+    : Instruction(std::move(targetType)) {}
 
 InstKind GetElementPtrInst::getInstKind() const { return InstKind::GEP; }
 
@@ -380,33 +374,31 @@ std::string GetElementPtrInst::str() const {
 
   auto ptr = getOperand(0);
   if (ptr->isGlobal()) {
-    oss << getSSAName() << " = getelementptr " << ptr->getType()->str() << ", "
-        << ptr->getType()->str() << "*" << " " << ptr->getSSAName();
+    oss << getName() << " = getelementptr " << ptr->getType()->str() << ", "
+        << ptr->getType()->str() << "*" << " " << ptr->getName();
   } else {
-    oss << getSSAName() << " = getelementptr "
+    oss << getName() << " = getelementptr "
         << ptr->getType()->getBaseType()->str() << ", " << ptr->getType()->str()
-        << " " << ptr->getSSAName();
+        << " " << ptr->getName();
   }
 
   for (int i = 1; i < getNumOperands(); i++) {
     auto operand = getOperand(i);
-    oss << ", " << operand->getType()->str() << " " << operand->getSSAName();
+    oss << ", " << operand->getType()->str() << " " << operand->getName();
   }
 
   return oss.str();
 }
 
 std::unique_ptr<Instruction> GetElementPtrInst::cloneEmpty() const {
-  auto cloned =
-      std::make_unique<GetElementPtrInst>(getType()->clone(), nullptr);
+  auto cloned = std::make_unique<GetElementPtrInst>(getType()->clone());
   cloned->_cloneTarget = const_cast<GetElementPtrInst *>(this);
   cloned->_notRemapped = true;
   return cloned;
 }
 
-CallInst::CallInst(BasicBlock *block, Function *func,
-                   const std::vector<Value *> &args)
-    : Instruction(func->getType()->clone(), block) {
+CallInst::CallInst(Function *func, const std::vector<Value *> &args)
+    : Instruction(func->getType()->clone()) {
   addOperand(func);
   for (auto arg : args) {
     addOperand(arg);
@@ -421,23 +413,20 @@ std::string CallInst::str() const {
   for (size_t i = 1; i < getNumOperands(); i++) {
     if (i > 1)
       oss << ", ";
-    oss << getOperand(i)->getType()->str() << " "
-        << getOperand(i)->getSSAName();
+    oss << getOperand(i)->getType()->str() << " " << getOperand(i)->getName();
   }
   oss << ")";
   auto type = getOperand(0)->getType();
   if (type->isBasic() &&
       static_cast<BasicType *>(type)->getBasicKind() == BasicKind::VOID) {
-    return "call " + type->str() + " " + getOperand(0)->getSSAName() +
-           oss.str();
+    return "call " + type->str() + " " + getOperand(0)->getName() + oss.str();
   }
-  return getSSAName() + " = call " + type->str() + " " +
-         getOperand(0)->getSSAName() + oss.str();
+  return getName() + " = call " + type->str() + " " + getOperand(0)->getName() +
+         oss.str();
 }
 
 std::unique_ptr<Instruction> CallInst::cloneEmpty() const {
-  auto cloned =
-      std::make_unique<CallInst>(nullptr, nullptr, std::vector<Value *>{});
+  auto cloned = std::make_unique<CallInst>(nullptr, std::vector<Value *>{});
   cloned->_cloneTarget = const_cast<CallInst *>(this);
   cloned->_notRemapped = true;
   return cloned;

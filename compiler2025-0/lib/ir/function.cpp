@@ -5,9 +5,9 @@
 
 namespace ir {
 
-std::string Argument::getSSAName() const { return "%" + _name; }
+std::string Argument::getName() const { return "%" + _name; }
 
-std::string Argument::str() const { return getType()->str() + getSSAName(); }
+std::string Argument::str() const { return getType()->str() + getName(); }
 
 void Function::addArg(std::unique_ptr<Argument> arg) {
   assert(arg && "Cannot add nullptr argument");
@@ -54,7 +54,7 @@ std::unique_ptr<BasicBlock> Function::eraseBlock(size_t index) {
 
 std::string Function::getRawName() const { return _name; }
 
-std::string Function::getSSAName() const { return "@" + _name; }
+std::string Function::getName() const { return "@" + _name; }
 
 std::string Function::str() const {
   bool isDeclare = empty();

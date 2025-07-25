@@ -41,7 +41,7 @@ public:
   }
 
   virtual std::string str() const { return "Unknown"; }
-  virtual std::string getSSAName() const = 0;
+  virtual std::string getName() const = 0;
 };
 
 } // namespace ir

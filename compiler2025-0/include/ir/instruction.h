@@ -11,6 +11,40 @@ namespace ir {
 
 class BasicBlock;
 
+class InstBase : public User {
+private:
+  int _id;
+  int _indexInBlock = -1;
+  BasicBlock *_block;
+
+protected:
+  // Only used during clone process
+  InstBase *_cloneTarget = nullptr;
+  bool _notRemapped = false;
+  InstBase(std::unique_ptr<Type> type, int id);
+  InstBase(std::unique_ptr<Type> type, const std::vector<Value *> &useOperands,
+           int id);
+
+public:
+  virtual ~InstBase() = default;
+
+  BasicBlock *getBlock() const { return _block; }
+  // Used in optimization mostly
+  void setBlock(BasicBlock *block) { _block = block; }
+
+  int getID() const { return _id; }
+
+  using ValueMap = std::unordered_map<ir::Value *, ir::Value *>;
+
+  // Use _cloneTarget to find the old instruction, use the map oldVal -> newVal
+  // to map the operands. Set _cloneTarget to nullptr after the process
+  // and set notRemapped to false
+  void remapValues(const ValueMap &map);
+  bool isRemapped() const { return !_notRemapped; }
+
+  virtual bool isTerminator() const { return false; }
+};
+
 enum class InstKind {
   Alloca,
   Binary,
@@ -30,50 +64,24 @@ enum class InstKind {
   ZExt,
 };
 
-class Instruction : public User {
+class Instruction : public InstBase {
 private:
   static int _counter;
-  int _id;
-  int _indexInBlock = -1;
-  BasicBlock *_block;
-
-protected:
-  // Only used during clone process
-  Instruction *_cloneTarget = nullptr;
-  bool _notRemapped = false;
-  Instruction(std::unique_ptr<Type> type, BasicBlock *block);
-  Instruction(std::unique_ptr<Type> type,
-              const std::vector<Value *> &useOperands, BasicBlock *block);
 
 public:
+  Instruction(std::unique_ptr<Type> type);
+  Instruction(std::unique_ptr<Type> type,
+              const std::vector<Value *> &useOperands);
+
   virtual ~Instruction() = default;
 
-  ValueKind getValueKind() const override { return ValueKind::Inst; }
-
-  BasicBlock *getBlock() const { return _block; }
-  // Used in optimization mostly
-  void setBlock(BasicBlock *block) { _block = block; }
-
-  int getID() const { return _id; }
   // Get the SSA name like %v1, %v2
-  std::string getSSAName() const override;
-  // Get the LLVM .ll format instruction string
-  std::string str() const;
-
-  virtual InstKind getInstKind() const = 0;
-
-  using ValueMap = std::unordered_map<ir::Value *, ir::Value *>;
-
+  std::string getName() const override;
+  ValueKind getValueKind() const override { return ValueKind::Inst; }
   // Create a empty copy without operands, set notRemapped to true. Other part
   // should be the same as the clone target
   virtual std::unique_ptr<Instruction> cloneEmpty() const = 0;
-  // Use _cloneTarget to find the old instruction, use the map oldVal -> newVal
-  // to map the operands. Set _cloneTarget to nullptr after the process
-  // and set notRemapped to false
-  void remapValues(const ValueMap &map);
-
-  bool isRemapped() const { return !_notRemapped; }
-  virtual bool isTerminator() const { return false; }
+  virtual InstKind getInstKind() const = 0;
 };
 
 } // namespace ir

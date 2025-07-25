@@ -18,9 +18,9 @@ private:
   static std::string opToString(BinaryOp op);
 
 public:
-  BinaryInst(BasicBlock *block, BinaryOp op, Value *lhs, Value *rhs);
-  BinaryInst(std::unique_ptr<Type> type, BasicBlock *block, BinaryOp op)
-      : Instruction(std::move(type), block) {}
+  BinaryInst(BinaryOp op, Value *lhs, Value *rhs);
+  BinaryInst(std::unique_ptr<Type> type, BinaryOp op)
+      : Instruction(std::move(type)) {}
 
   BinaryOp getOp() const;
   InstKind getInstKind() const override;
@@ -51,7 +51,7 @@ private:
   static std::string opToString(CmpOp op);
 
 public:
-  CmpInst(BasicBlock *block, CmpOp op, Value *lhs, Value *rhs);
+  CmpInst(CmpOp op, Value *lhs, Value *rhs);
 
   bool isICmpInst() const;
   CmpOp getOp() const;
@@ -70,8 +70,7 @@ private:
   static std::string opToString(CastOp op);
 
 public:
-  CastInst(std::unique_ptr<Type> targetType, BasicBlock *block, CastOp op,
-           Value *val);
+  CastInst(std::unique_ptr<Type> targetType, CastOp op, Value *val);
 
   CastOp getCastOp() const;
   InstKind getInstKind() const override;
@@ -83,8 +82,8 @@ public:
 
 class RetInst : public Instruction {
 public:
-  RetInst(BasicBlock *block, Value *retVal);
-  RetInst(BasicBlock *block);
+  RetInst(Value *retVal);
+  RetInst();
   InstKind getInstKind() const override;
   std::string str() const override;
   std::unique_ptr<Instruction> cloneEmpty() const override;
@@ -93,9 +92,8 @@ public:
 
 class BranchInst : public Instruction {
 public:
-  BranchInst(BasicBlock *block, Value *cond, BasicBlock *trueBlock,
-             BasicBlock *falseBlock);
-  BranchInst(BasicBlock *block, BasicBlock *target); // unconditional branch
+  BranchInst(Value *cond, BasicBlock *trueBlock, BasicBlock *falseBlock);
+  BranchInst(BasicBlock *target); // unconditional branch
 
   InstKind getInstKind() const override;
   std::string str() const override;
@@ -107,7 +105,7 @@ public:
 
 class AllocaInst : public Instruction {
 public:
-  AllocaInst(std::unique_ptr<Type> allocType, BasicBlock *block);
+  AllocaInst(std::unique_ptr<Type> allocType);
   InstKind getInstKind() const override;
   std::string str() const override;
   std::unique_ptr<Instruction> cloneEmpty() const override;
@@ -116,8 +114,8 @@ public:
 class LoadInst : public Instruction {
 public:
   using Instruction::Instruction;
-  LoadInst(BasicBlock *block, Value *ptr);
-  LoadInst(std::unique_ptr<Type> loadedType, BasicBlock *block, Value *ptr);
+  LoadInst(Value *ptr);
+  LoadInst(std::unique_ptr<Type> loadedType, Value *ptr);
   InstKind getInstKind() const override;
   std::string str() const override;
   std::unique_ptr<Instruction> cloneEmpty() const override;
@@ -125,7 +123,7 @@ public:
 
 class StoreInst : public Instruction {
 public:
-  StoreInst(BasicBlock *block, Value *val, Value *ptr);
+  StoreInst(Value *val, Value *ptr);
   InstKind getInstKind() const override;
   std::string str() const override;
   std::unique_ptr<Instruction> cloneEmpty() const override;
@@ -136,9 +134,8 @@ private:
   static std::unique_ptr<Type> calcType(Value *value, size_t indexSize);
 
 public:
-  GetElementPtrInst(BasicBlock *block, Value *base,
-                    const std::vector<Value *> &indices);
-  GetElementPtrInst(std::unique_ptr<Type> targetType, BasicBlock *block);
+  GetElementPtrInst(Value *base, const std::vector<Value *> &indices);
+  GetElementPtrInst(std::unique_ptr<Type> targetType);
   InstKind getInstKind() const override;
   std::string str() const override;
   std::unique_ptr<Instruction> cloneEmpty() const override;
@@ -146,7 +143,7 @@ public:
 
 class CallInst : public Instruction {
 public:
-  CallInst(BasicBlock *block, Function *func, const std::vector<Value *> &args);
+  CallInst(Function *func, const std::vector<Value *> &args);
   InstKind getInstKind() const override;
   std::string str() const override;
   std::unique_ptr<Instruction> cloneEmpty() const override;

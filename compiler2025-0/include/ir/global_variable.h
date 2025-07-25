@@ -33,7 +33,7 @@ public:
   float getFloat(size_t index) const;
 
   std::string getRawName() const;
-  std::string getSSAName() const;
+  std::string getName() const;
 
   std::string str() const override;
 };
