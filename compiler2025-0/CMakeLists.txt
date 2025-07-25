@@ -22,6 +22,8 @@ file(GLOB_RECURSE LIB_SOURCES
     ${CMAKE_SOURCE_DIR}/lib/*.cpp
     ${CMAKE_SOURCE_DIR}/lib/ir/*.cpp
     ${CMAKE_SOURCE_DIR}/lib/parser/*.cpp
+    ${CMAKE_SOURCE_DIR}/lib/reg/*.cpp
+    ${CMAKE_SOURCE_DIR}/lib/riscv/*.cpp
 )
 
 message(STATUS "LIB_SOURCES: ${LIB_SOURCES}")

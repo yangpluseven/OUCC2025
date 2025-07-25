@@ -162,25 +162,20 @@ Value *GenerateIR::typeConversion(Value *value, BasicKind targetType) {
   case BasicKind::I32:
     switch (type) {
     case BasicKind::I1:
-      inst = new CastInst(std::make_unique<BasicType>(BasicKind::I32),
-                          _curBlock, CastOp::ZExt, value);
+      inst = new CastInst(MAKE_I32, _curBlock, CastOp::ZExt, value);
     case BasicKind::I32:
       return value;
     case BasicKind::F32:
-      inst = new CastInst(std::make_unique<BasicType>(BasicKind::I32),
-                          _curBlock, CastOp::FPToSI, value);
+      inst = new CastInst(MAKE_I32, _curBlock, CastOp::FPToSI, value);
     }
   case BasicKind::F32:
     switch (type) {
     case BasicKind::I1:
-      inst = new CastInst(std::make_unique<BasicType>(BasicKind::I32),
-                          _curBlock, CastOp::ZExt, value);
+      inst = new CastInst(MAKE_I32, _curBlock, CastOp::ZExt, value);
       _curBlock->pushInstruction(std::unique_ptr<Instruction>(inst));
-      inst = new CastInst(std::make_unique<BasicType>(BasicKind::F32),
-                          _curBlock, CastOp::SIToFP, value);
+      inst = new CastInst(MAKE_F32, _curBlock, CastOp::SIToFP, value);
     case BasicKind::I32:
-      inst = new CastInst(std::make_unique<BasicType>(BasicKind::F32),
-                          _curBlock, CastOp::SIToFP, value);
+      inst = new CastInst(MAKE_F32, _curBlock, CastOp::SIToFP, value);
     case BasicKind::F32:
       return value;
     }
@@ -277,10 +272,9 @@ void GenerateIR::handleArrayDef(Def &ast) {
   if (ast.initVal) {
     std::map<int, AddExp *> exps;
     makeInitVal(dimensions, exps, 0, ast.initVal.get());
-    auto castInst = std::make_unique<CastInst>(
-        std::make_unique<PointerType>(
-            std::make_unique<BasicType>(BasicKind::I32)),
-        _curBlock, CastOp::BitCast, rawAllocaInst);
+    auto castInst =
+        std::make_unique<CastInst>(std::make_unique<PointerType>(MAKE_I32),
+                                   _curBlock, CastOp::BitCast, rawAllocaInst);
     auto rawCastInst = castInst.get();
     _curBlock->pushInstruction(std::move(castInst));
     int x = 4;
@@ -334,11 +328,11 @@ void GenerateIR::visit(InitVal &ast) {
 std::unique_ptr<BasicType> GenerateIR::handleType(BType &type) {
   switch (type) {
   case BType::INT:
-    return std::make_unique<BasicType>(BasicKind::I32);
+    return MAKE_I32;
   case BType::FLOAT:
-    return std::make_unique<BasicType>(BasicKind::F32);
+    return MAKE_F32;
   case BType::VOID:
-    return std::make_unique<BasicType>(BasicKind::VOID);
+    return MAKE_VOID;
   default:
     throw std::runtime_error("Unsupported type in handleType");
   }
@@ -971,8 +965,7 @@ void GenerateIR::visit(UnaryExp &ast) {
   case UnaryOp::MINUS:
     switch (type) {
     case BasicKind::I1:
-      inst = new CastInst(std::make_unique<BasicType>(BasicKind::I32),
-                          _curBlock, CastOp::SExt, val);
+      inst = new CastInst(MAKE_I32, _curBlock, CastOp::SExt, val);
       break;
     case BasicKind::I32:
       inst = new BinaryInst(_curBlock, BinaryOp::SUB,
@@ -1138,3 +1131,7 @@ void GenerateIR::visit(NumberNode &ast) {
   }
   _curVal = new ConstantNumber(Number(ast.floatval));
 }
+
+#undef MAKE_I32
+#undef MAKE_F32
+#undef MAKE_VOID
