@@ -15,7 +15,7 @@ public:
   using Value::Value;
   ~Constant() override;
 
-  [[nodiscard]] virtual ConstantKind getConstantKind() const = 0;
+  virtual ConstantKind getConstantKind() const = 0;
   ValueKind getValueKind() const override { return ValueKind::Const; }
 
   bool isNumber() const { return getConstantKind() == ConstantKind::Number; }

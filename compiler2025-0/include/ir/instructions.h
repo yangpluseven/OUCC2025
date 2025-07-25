@@ -22,10 +22,10 @@ public:
   BinaryInst(std::unique_ptr<Type> type, BasicBlock *block, BinaryOp op)
       : Instruction(std::move(type), block) {}
 
-  [[nodiscard]] BinaryOp getOp() const;
-  [[nodiscard]] InstKind getInstKind() const override;
-  [[nodiscard]] std::string str() const override;
-  [[nodiscard]] std::unique_ptr<Instruction> cloneEmpty() const override;
+  BinaryOp getOp() const;
+  InstKind getInstKind() const override;
+  std::string str() const override;
+  std::unique_ptr<Instruction> cloneEmpty() const override;
 };
 
 //===---------------- Cmp ----------------===//
@@ -53,11 +53,11 @@ private:
 public:
   CmpInst(BasicBlock *block, CmpOp op, Value *lhs, Value *rhs);
 
-  [[nodiscard]] bool isICmpInst() const;
-  [[nodiscard]] CmpOp getOp() const;
-  [[nodiscard]] InstKind getInstKind() const override;
-  [[nodiscard]] std::string str() const override;
-  [[nodiscard]] std::unique_ptr<Instruction> cloneEmpty() const override;
+  bool isICmpInst() const;
+  CmpOp getOp() const;
+  InstKind getInstKind() const override;
+  std::string str() const override;
+  std::unique_ptr<Instruction> cloneEmpty() const override;
 };
 
 //===---------------- Cast ----------------===//
@@ -73,10 +73,10 @@ public:
   CastInst(std::unique_ptr<Type> targetType, BasicBlock *block, CastOp op,
            Value *val);
 
-  [[nodiscard]] CastOp getCastOp() const;
-  [[nodiscard]] InstKind getInstKind() const override;
-  [[nodiscard]] std::string str() const override;
-  [[nodiscard]] std::unique_ptr<Instruction> cloneEmpty() const override;
+  CastOp getCastOp() const;
+  InstKind getInstKind() const override;
+  std::string str() const override;
+  std::unique_ptr<Instruction> cloneEmpty() const override;
 };
 
 //===---------------- Terminator ----------------===//
@@ -85,10 +85,10 @@ class RetInst : public Instruction {
 public:
   RetInst(BasicBlock *block, Value *retVal);
   RetInst(BasicBlock *block);
-  [[nodiscard]] InstKind getInstKind() const override;
-  [[nodiscard]] std::string str() const override;
-  [[nodiscard]] std::unique_ptr<Instruction> cloneEmpty() const override;
-  [[nodiscard]] bool isTerminator() const override;
+  InstKind getInstKind() const override;
+  std::string str() const override;
+  std::unique_ptr<Instruction> cloneEmpty() const override;
+  bool isTerminator() const override;
 };
 
 class BranchInst : public Instruction {
@@ -97,10 +97,10 @@ public:
              BasicBlock *falseBlock);
   BranchInst(BasicBlock *block, BasicBlock *target); // unconditional branch
 
-  [[nodiscard]] InstKind getInstKind() const override;
-  [[nodiscard]] std::string str() const override;
-  [[nodiscard]] std::unique_ptr<Instruction> cloneEmpty() const override;
-  [[nodiscard]] bool isTerminator() const override;
+  InstKind getInstKind() const override;
+  std::string str() const override;
+  std::unique_ptr<Instruction> cloneEmpty() const override;
+  bool isTerminator() const override;
 };
 
 //===---------------- Other Instructions ----------------===//
@@ -108,9 +108,9 @@ public:
 class AllocaInst : public Instruction {
 public:
   AllocaInst(std::unique_ptr<Type> allocType, BasicBlock *block);
-  [[nodiscard]] InstKind getInstKind() const override;
-  [[nodiscard]] std::string str() const override;
-  [[nodiscard]] std::unique_ptr<Instruction> cloneEmpty() const override;
+  InstKind getInstKind() const override;
+  std::string str() const override;
+  std::unique_ptr<Instruction> cloneEmpty() const override;
 };
 
 class LoadInst : public Instruction {
@@ -118,17 +118,17 @@ public:
   using Instruction::Instruction;
   LoadInst(BasicBlock *block, Value *ptr);
   LoadInst(std::unique_ptr<Type> loadedType, BasicBlock *block, Value *ptr);
-  [[nodiscard]] InstKind getInstKind() const override;
-  [[nodiscard]] std::string str() const override;
-  [[nodiscard]] std::unique_ptr<Instruction> cloneEmpty() const override;
+  InstKind getInstKind() const override;
+  std::string str() const override;
+  std::unique_ptr<Instruction> cloneEmpty() const override;
 };
 
 class StoreInst : public Instruction {
 public:
   StoreInst(BasicBlock *block, Value *val, Value *ptr);
-  [[nodiscard]] InstKind getInstKind() const override;
-  [[nodiscard]] std::string str() const override;
-  [[nodiscard]] std::unique_ptr<Instruction> cloneEmpty() const override;
+  InstKind getInstKind() const override;
+  std::string str() const override;
+  std::unique_ptr<Instruction> cloneEmpty() const override;
 };
 
 class GetElementPtrInst : public Instruction {
@@ -139,17 +139,17 @@ public:
   GetElementPtrInst(BasicBlock *block, Value *base,
                     const std::vector<Value *> &indices);
   GetElementPtrInst(std::unique_ptr<Type> targetType, BasicBlock *block);
-  [[nodiscard]] InstKind getInstKind() const override;
-  [[nodiscard]] std::string str() const override;
-  [[nodiscard]] std::unique_ptr<Instruction> cloneEmpty() const override;
+  InstKind getInstKind() const override;
+  std::string str() const override;
+  std::unique_ptr<Instruction> cloneEmpty() const override;
 };
 
 class CallInst : public Instruction {
 public:
   CallInst(BasicBlock *block, Function *func, const std::vector<Value *> &args);
-  [[nodiscard]] InstKind getInstKind() const override;
-  [[nodiscard]] std::string str() const override;
-  [[nodiscard]] std::unique_ptr<Instruction> cloneEmpty() const override;
+  InstKind getInstKind() const override;
+  std::string str() const override;
+  std::unique_ptr<Instruction> cloneEmpty() const override;
 };
 
 } // namespace ir

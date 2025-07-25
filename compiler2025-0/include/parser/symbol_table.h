@@ -17,7 +17,7 @@ class SymbolTable {
 private:
   std::list<std::unordered_map<std::string, ir::Value *>> _table;
 
-  [[nodiscard]] ir::Value *getItem(const std::string &name) const;
+  ir::Value *getItem(const std::string &name) const;
 
   static std::map<int, ir::Number> submap(const std::map<int, ir::Number> &values,
                                       int fromKey, int toKey);
@@ -27,19 +27,19 @@ private:
             int base);
 
 public:
-  [[nodiscard]] size_t size() const { return _table.size(); }
+  size_t size() const { return _table.size(); }
 
   void out() { _table.pop_front(); }
 
   void in() { _table.emplace_front(); }
 
-  [[nodiscard]] ir::Value *getData(const std::string &name) const {
+  ir::Value *getData(const std::string &name) const {
     return getItem(name);
   }
 
   bool isGlobal() const { return _table.size() == 1; }
 
-  [[nodiscard]] ir::Function *getFunction(const std::string &name) const;
+  ir::Function *getFunction(const std::string &name) const;
 
   std::unique_ptr<ir::Function> makeFunction(std::unique_ptr<ir::Type> type,
                                          const std::string &name);

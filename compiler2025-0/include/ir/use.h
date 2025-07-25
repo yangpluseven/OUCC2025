@@ -17,8 +17,8 @@ public:
   Use(User *user, Value *value);
   ~Use();
 
-  [[nodiscard]] User *getUser() const { return _user; }
-  [[nodiscard]] Value *getValue() const { return _value; }
+  User *getUser() const { return _user; }
+  Value *getValue() const { return _value; }
 
   void setValue(Value *newValue);
 };

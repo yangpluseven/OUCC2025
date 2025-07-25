@@ -1,6 +1,6 @@
 #include "parser/symbol_table.h"
 
-[[nodiscard]] ir::Value *SymbolTable::getItem(const std::string &name) const {
+ir::Value *SymbolTable::getItem(const std::string &name) const {
   for (auto item : _table) {
     if (item.find(name) != item.end())
       return item[name];
@@ -48,7 +48,7 @@ SymbolTable::fuseConst(std::unique_ptr<ir::Type> type,
   return std::make_unique<ir::ConstantArray>(std::move(type), std::move(array));
 }
 
-[[nodiscard]] ir::Function *
+ir::Function *
 SymbolTable::getFunction(const std::string &name) const {
   auto symbol = getItem(name);
   if (auto func = dynamic_cast<ir::Function *>(symbol))

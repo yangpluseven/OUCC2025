@@ -38,18 +38,18 @@ public:
   ValueKind getValueKind() const { return ValueKind::Function; }
 
   size_t size() const { return _blocks.size(); }
-  [[nodiscard]] bool empty() const { return _blocks.empty(); }
+  bool empty() const { return _blocks.empty(); }
 
   void addArg(std::unique_ptr<Argument> arg);
   Argument *getArg(size_t index) const;
   // Return a viewport instead of the actual ownership
-  [[nodiscard]] std::vector<Argument *> getArgs() const;
+  std::vector<Argument *> getArgs() const;
 
   void pushBlock(std::unique_ptr<BasicBlock> block);
   std::unique_ptr<BasicBlock> eraseBlock(size_t index);
 
-  [[nodiscard]] BasicBlock *getBlock(size_t index) const;
-  [[nodiscard]] BasicBlock *getEntryBlock() const;
+  BasicBlock *getBlock(size_t index) const;
+  BasicBlock *getEntryBlock() const;
 
   // Get the function's name
   std::string getRawName() const;

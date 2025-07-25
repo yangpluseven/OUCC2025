@@ -1,9 +1,7 @@
 #include "riscv/registers.h"
 
-#define DECLARE_INT_REG(name)                                                  \
-  MReg *const MReg::name = new MReg(RegType::INT, #name)
-#define DECLARE_FLOAT_REG(name)                                                \
-  MReg *const MReg::name = new MReg(RegType::FLOAT, #name)
+#define DECLARE_INT_REG(name) MReg *const MReg::name = new MReg(#name)
+#define DECLARE_FLOAT_REG(name) MReg *const MReg::name = new MReg(#name)
 
 namespace riscv {
 

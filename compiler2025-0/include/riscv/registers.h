@@ -1,13 +1,12 @@
 #ifndef RISCV_REGISTERS_H
 #define RISCV_REGISTERS_H
 
-#include "reg/register.h"
 #include <string>
 #include <vector>
 
 namespace riscv {
 
-class MReg : public Reg {
+class MReg {
 private:
   std::string _name;
 
@@ -84,9 +83,8 @@ public:
   static const std::vector<MReg *> iCalleeRegs;
   static const std::vector<MReg *> fCalleeRegs;
 
-  MReg(RegType type, std::string name) : Reg(type), _name(std::move(name)) {}
-  RegKind getRegKind() const { return RegKind::Machine; }
-  std::string str() const override { return _name; }
+  MReg(std::string name) : _name(std::move(name)) {}
+  std::string str() const { return _name; }
 };
 
 } // namespace riscv

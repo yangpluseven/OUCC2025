@@ -22,30 +22,30 @@ private:
 public:
   explicit BasicBlock(Function *func);
   ValueKind getValueKind() const override { return ValueKind::Block; }
-  [[nodiscard]] Function *getFunction() const { return _function; }
+  Function *getFunction() const { return _function; }
 
-  [[nodiscard]] bool empty() const { return _instructions.empty(); }
+  bool empty() const { return _instructions.empty(); }
   // Check the last instruction
-  [[nodiscard]] bool hasTerminator() const;
+  bool hasTerminator() const;
   void pushInstruction(std::unique_ptr<Instruction> inst);
-  [[nodiscard]] Instruction *getTerminator() const;
-  [[nodiscard]] Instruction *getInstruction(size_t index) const;
+  Instruction *getTerminator() const;
+  Instruction *getInstruction(size_t index) const;
   void insertInstruction(size_t index, std::unique_ptr<Instruction> inst);
   std::unique_ptr<Instruction> eraseInstruction(size_t index);
-  [[nodiscard]] size_t size() const { return _instructions.size(); }
+  size_t size() const { return _instructions.size(); }
 
   // Get the LLVM like block label
-  [[nodiscard]] std::string getLabel() const;
+  std::string getLabel() const;
   std::string getSSAName() const { return "%" + getLabel(); }
   // Form the .ll IR string for the whole block, including the label and string
   // for all instructions
-  [[nodiscard]] std::string str() const override;
+  std::string str() const override;
 
   using iterator = std::vector<std::unique_ptr<Instruction>>::iterator;
   using const_iterator =
       std::vector<std::unique_ptr<Instruction>>::const_iterator;
 
-  [[nodiscard]] Instruction *getInstruction(iterator pos) const;
+  Instruction *getInstruction(iterator pos) const;
   // Insert using iterator, can be used in other insert functions
   iterator insertInstruction(iterator pos, std::unique_ptr<Instruction> inst);
   // Erase using iterator, move out the ownership

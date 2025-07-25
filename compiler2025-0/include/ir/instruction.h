@@ -50,17 +50,17 @@ public:
 
   ValueKind getValueKind() const override { return ValueKind::Inst; }
 
-  [[nodiscard]] BasicBlock *getBlock() const { return _block; }
+  BasicBlock *getBlock() const { return _block; }
   // Used in optimization mostly
   void setBlock(BasicBlock *block) { _block = block; }
 
-  [[nodiscard]] int getID() const { return _id; }
+  int getID() const { return _id; }
   // Get the SSA name like %v1, %v2
-  [[nodiscard]] std::string getSSAName() const override;
+  std::string getSSAName() const override;
   // Get the LLVM .ll format instruction string
-  [[nodiscard]] std::string str() const;
+  std::string str() const;
 
-  [[nodiscard]] virtual InstKind getInstKind() const = 0;
+  virtual InstKind getInstKind() const = 0;
 
   using ValueMap = std::unordered_map<ir::Value *, ir::Value *>;
 
@@ -72,8 +72,8 @@ public:
   // and set notRemapped to false
   void remapValues(const ValueMap &map);
 
-  [[nodiscard]] bool isRemapped() const { return !_notRemapped; }
-  [[nodiscard]] virtual bool isTerminator() const { return false; }
+  bool isRemapped() const { return !_notRemapped; }
+  virtual bool isTerminator() const { return false; }
 };
 
 } // namespace ir

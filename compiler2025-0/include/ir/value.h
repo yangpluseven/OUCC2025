@@ -21,27 +21,27 @@ public:
   virtual ~Value();
 
   // Return a viewport instead of the actual ownership
-  [[nodiscard]] Type *getType() const { return _type.get(); }
-  [[nodiscard]] size_t getSize() const { return _type->getSize(); }
-  [[nodiscard]] virtual ValueKind getValueKind() const = 0;
-  [[nodiscard]] bool isConst() const {
+  Type *getType() const { return _type.get(); }
+  size_t getSize() const { return _type->getSize(); }
+  virtual ValueKind getValueKind() const = 0;
+  bool isConst() const {
     return getValueKind() == ValueKind::Const;
   }
-  [[nodiscard]] bool isGlobal() const {
+  bool isGlobal() const {
     return getValueKind() == ValueKind::Global;
   }
-  [[nodiscard]] bool isArg() const { return getValueKind() == ValueKind::Arg; }
+  bool isArg() const { return getValueKind() == ValueKind::Arg; }
 
   void addUse(Use *use);
   void removeUse(Use *use);
   void replaceAllUsesWith(Value *newValue);
 
-  [[nodiscard]] const std::unordered_set<Use *> &getUses() const {
+  const std::unordered_set<Use *> &getUses() const {
     return _uses;
   }
 
-  [[nodiscard]] virtual std::string str() const { return "Unknown"; }
-  [[nodiscard]] virtual std::string getSSAName() const = 0;
+  virtual std::string str() const { return "Unknown"; }
+  virtual std::string getSSAName() const = 0;
 };
 
 } // namespace ir
