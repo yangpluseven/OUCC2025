@@ -1,9 +1,17 @@
 #include "riscv/registers.h"
+#include "ir/type.h"
 
-#define DECLARE_INT_REG(name) MReg *const MReg::name = new MReg(#name)
-#define DECLARE_FLOAT_REG(name) MReg *const MReg::name = new MReg(#name)
+#define DECLARE_INT_REG(name)                                                  \
+  MReg *const MReg::name = new MReg(MReg::i32_t.get(), #name)
+#define DECLARE_FLOAT_REG(name)                                                \
+  MReg *const MReg::name = new MReg(MReg::f32_t.get(), #name)
 
 namespace riscv {
+
+std::unique_ptr<ir::BasicType> MReg::i32_t =
+    std::make_unique<ir::BasicType>(ir::BasicKind::I32);
+std::unique_ptr<ir::BasicType> MReg::f32_t =
+    std::make_unique<ir::BasicType>(ir::BasicKind::F32);
 
 // int
 DECLARE_INT_REG(zero);
@@ -72,6 +80,12 @@ DECLARE_FLOAT_REG(ft8);
 DECLARE_FLOAT_REG(ft9);
 DECLARE_FLOAT_REG(ft10);
 DECLARE_FLOAT_REG(ft11);
+
+MachineInst *const MReg::zeroInst = new MachineInst(MReg::zero);
+MachineInst *const MReg::raInst = new MachineInst(MReg::ra);
+MachineInst *const MReg::spInst = new MachineInst(MReg::sp);
+MachineInst *const MReg::gpInst = new MachineInst(MReg::gp);
+MachineInst *const MReg::tpInst = new MachineInst(MReg::tp);
 
 const std::vector<MReg *> MReg::iRegs = {
     MReg::a0, MReg::a1, MReg::a2, MReg::a3, MReg::a4,  MReg::a5, MReg::a6,

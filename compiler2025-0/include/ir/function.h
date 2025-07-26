@@ -9,7 +9,7 @@
 
 namespace ir {
 
-class BasicBlock;
+class BlockBase;
 class Argument : public Value {
 private:
   const std::string _name;
@@ -25,51 +25,38 @@ public:
   std::string str() const override;
 };
 
-class Function : public Value {
+class FuncBase : public Value {
 private:
   std::string _name;
-  std::vector<std::unique_ptr<Argument>> _args;
-  std::vector<std::unique_ptr<BasicBlock>> _blocks;
+  std::vector<std::unique_ptr<BlockBase>> _blocks;
 
 public:
-  Function(std::unique_ptr<Type> type, std::string name)
+  FuncBase(std::unique_ptr<Type> type, std::string name)
       : Value(std::move(type)), _name(std::move(name)) {}
-
-  ValueKind getValueKind() const { return ValueKind::Function; }
 
   size_t size() const { return _blocks.size(); }
   bool empty() const { return _blocks.empty(); }
 
-  void addArg(std::unique_ptr<Argument> arg);
-  Argument *getArg(size_t index) const;
-  // Return a viewport instead of the actual ownership
-  std::vector<Argument *> getArgs() const;
+  void pushBlock(std::unique_ptr<BlockBase> block);
+  std::unique_ptr<BlockBase> eraseBlock(size_t index);
 
-  void pushBlock(std::unique_ptr<BasicBlock> block);
-  std::unique_ptr<BasicBlock> eraseBlock(size_t index);
-
-  BasicBlock *getBlock(size_t index) const;
-  BasicBlock *getEntryBlock() const;
+  BlockBase *getBlock(size_t index) const;
+  BlockBase *getEntryBlock() const;
 
   // Get the function's name
   std::string getRawName() const;
-  // Get the LLVM like SSA name
-  std::string getName() const override;
-  // Form the .ll IR string for the whole block, call block->str() for the
-  // block's .ll IR string including the label and all instructions
-  std::string str() const override;
 
-  using iterator = std::vector<std::unique_ptr<BasicBlock>>::iterator;
+  using iterator = std::vector<std::unique_ptr<BlockBase>>::iterator;
   using const_iterator =
-      std::vector<std::unique_ptr<BasicBlock>>::const_iterator;
+      std::vector<std::unique_ptr<BlockBase>>::const_iterator;
 
-  BasicBlock *getBlock(iterator pos) const;
+  BlockBase *getBlock(iterator pos) const;
   // Insert using iterator, can be used in other insert functions
-  iterator insertBlock(iterator pos, std::unique_ptr<BasicBlock> block);
+  iterator insertBlock(iterator pos, std::unique_ptr<BlockBase> block);
   // Erase using iterator, move out the ownership
-  std::unique_ptr<BasicBlock> eraseBlock(iterator pos);
+  std::unique_ptr<BlockBase> eraseBlock(iterator pos);
 
-  void insertBlockAfter(BasicBlock *target, std::unique_ptr<BasicBlock> block);
+  void insertBlockAfter(BlockBase *target, std::unique_ptr<BlockBase> block);
 
   iterator begin();
   iterator end();
@@ -77,6 +64,24 @@ public:
   const_iterator end() const;
   const_iterator cbegin() const;
   const_iterator cend() const;
+};
+
+class Function : public FuncBase {
+private:
+  std::vector<std::unique_ptr<Argument>> _args;
+
+public:
+  using FuncBase::FuncBase;
+  ValueKind getValueKind() const override{ return ValueKind::Function; }
+  void addArg(std::unique_ptr<Argument> arg);
+  Argument *getArg(size_t index) const;
+  // Return a viewport instead of the actual ownership
+  std::vector<Argument *> getArgs() const;
+  // Get the LLVM like SSA name
+  std::string getName() const override;
+  // Form the .ll IR string for the whole block, call block->str() for the
+  // block's .ll IR string including the label and all instructions
+  std::string str() const override;
 };
 
 } // namespace ir

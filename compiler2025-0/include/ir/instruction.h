@@ -9,13 +9,13 @@
 
 namespace ir {
 
-class BasicBlock;
+class BlockBase;
 
 class InstBase : public User {
 private:
   int _id;
   int _indexInBlock = -1;
-  BasicBlock *_block;
+  BlockBase *_block = nullptr;
 
 protected:
   // Only used during clone process
@@ -28,9 +28,9 @@ protected:
 public:
   virtual ~InstBase() = default;
 
-  BasicBlock *getBlock() const { return _block; }
+  BlockBase *getBlock() const { return _block; }
   // Used in optimization mostly
-  void setBlock(BasicBlock *block) { _block = block; }
+  void setBlock(BlockBase *block) { _block = block; }
 
   int getID() const { return _id; }
 

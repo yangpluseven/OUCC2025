@@ -9,7 +9,17 @@
 
 namespace ir {
 
-enum class ValueKind { Const, Inst, Global, Block, Function, Arg };
+enum class ValueKind {
+  Const,
+  Inst,
+  Global,
+  Block,
+  Function,
+  Arg,
+  MachineInst,
+  MachineBlock,
+  MachineFunc
+};
 
 class Value {
 private:
@@ -22,23 +32,17 @@ public:
 
   // Return a viewport instead of the actual ownership
   Type *getType() const { return _type.get(); }
-  size_t getSize() const { return _type->getSize(); }
+  size_t getTypeSize() const { return _type->getSize(); }
   virtual ValueKind getValueKind() const = 0;
-  bool isConst() const {
-    return getValueKind() == ValueKind::Const;
-  }
-  bool isGlobal() const {
-    return getValueKind() == ValueKind::Global;
-  }
+  bool isConst() const { return getValueKind() == ValueKind::Const; }
+  bool isGlobal() const { return getValueKind() == ValueKind::Global; }
   bool isArg() const { return getValueKind() == ValueKind::Arg; }
 
   void addUse(Use *use);
   void removeUse(Use *use);
   void replaceAllUsesWith(Value *newValue);
 
-  const std::unordered_set<Use *> &getUses() const {
-    return _uses;
-  }
+  const std::unordered_set<Use *> &getUses() const { return _uses; }
 
   virtual std::string str() const { return "Unknown"; }
   virtual std::string getName() const = 0;

@@ -173,4 +173,5 @@ std::string ConstantArray::str() const {
   return getType()->str() + " " + getName();
 }
 
+#undef DEFINE_BINARY_OP
 } // namespace ir

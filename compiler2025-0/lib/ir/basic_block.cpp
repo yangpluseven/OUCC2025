@@ -6,17 +6,16 @@
 
 namespace ir {
 
-int BasicBlock::_counter = 0;
+BlockBase::BlockBase(int id)
+    : Value(std::make_unique<BasicType>(BasicKind::VOID)), _id(id) {}
 
-BasicBlock::BasicBlock(Function *func)
-    : Value(std::make_unique<BasicType>(BasicKind::VOID)), _id(_counter++),
-      _function(func) {}
+BasicBlock::BasicBlock() : BlockBase(_counter++) {}
 
-bool BasicBlock::hasTerminator() const {
+bool BlockBase::hasTerminator() const {
   return !empty() && _instructions.back()->isTerminator();
 }
 
-void BasicBlock::pushInstruction(std::unique_ptr<InstBase> inst) {
+void BlockBase::pushInstruction(std::unique_ptr<InstBase> inst) {
   assert(inst && "Cannot insert nullptr instruction");
   // Maybe need assert here? (ATTENTION)
   if (hasTerminator())
@@ -25,25 +24,25 @@ void BasicBlock::pushInstruction(std::unique_ptr<InstBase> inst) {
   _instructions.push_back(std::move(inst));
 }
 
-InstBase *BasicBlock::getTerminator() const {
+InstBase *BlockBase::getTerminator() const {
   if (hasTerminator())
     return _instructions.back().get();
   return nullptr;
 }
 
-InstBase *BasicBlock::getInstruction(size_t index) const {
+InstBase *BlockBase::getInstruction(size_t index) const {
   assert(index < _instructions.size());
   return _instructions[index].get();
 }
 
-void BasicBlock::insertInstruction(size_t index,
-                                   std::unique_ptr<InstBase> inst) {
+void BlockBase::insertInstruction(size_t index,
+                                  std::unique_ptr<InstBase> inst) {
   assert(index <= _instructions.size());
   inst->setBlock(this);
   _instructions.insert(_instructions.begin() + index, std::move(inst));
 }
 
-std::unique_ptr<InstBase> BasicBlock::eraseInstruction(size_t index) {
+std::unique_ptr<InstBase> BlockBase::eraseInstruction(size_t index) {
   assert(index < _instructions.size());
   auto it = _instructions.begin() + index;
   std::unique_ptr<InstBase> erased = std::move(*it);
@@ -54,30 +53,15 @@ std::unique_ptr<InstBase> BasicBlock::eraseInstruction(size_t index) {
   return erased;
 }
 
-std::string BasicBlock::getLabel() const {
-  std::ostringstream oss;
-  oss << "bb" << _id;
-  return oss.str();
-}
+InstBase *BlockBase::getInstruction(iterator pos) const { return pos->get(); }
 
-std::string BasicBlock::str() const {
-  std::ostringstream oss;
-  oss << getLabel() << ":\n";
-  for (const auto &instPtr : _instructions) {
-    oss << "  " << instPtr->str() << "\n";
-  }
-  return oss.str();
-}
-
-InstBase *BasicBlock::getInstruction(iterator pos) const { return pos->get(); }
-
-BasicBlock::iterator
-BasicBlock::insertInstruction(iterator pos, std::unique_ptr<InstBase> inst) {
+BlockBase::iterator
+BlockBase::insertInstruction(iterator pos, std::unique_ptr<InstBase> inst) {
   inst->setBlock(this);
   return _instructions.insert(pos, std::move(inst));
 }
 
-std::unique_ptr<InstBase> BasicBlock::eraseInstruction(iterator pos) {
+std::unique_ptr<InstBase> BlockBase::eraseInstruction(iterator pos) {
   std::unique_ptr<InstBase> erased = std::move(*pos);
   if (erased->getBlock() == this) {
     erased->setBlock(nullptr);
@@ -86,24 +70,39 @@ std::unique_ptr<InstBase> BasicBlock::eraseInstruction(iterator pos) {
   return erased;
 }
 
-BasicBlock::iterator BasicBlock::begin() { return _instructions.begin(); }
+BlockBase::iterator BlockBase::begin() { return _instructions.begin(); }
 
-BasicBlock::iterator BasicBlock::end() { return _instructions.end(); }
+BlockBase::iterator BlockBase::end() { return _instructions.end(); }
 
-BasicBlock::const_iterator BasicBlock::begin() const {
+BlockBase::const_iterator BlockBase::begin() const {
   return _instructions.begin();
 }
 
-BasicBlock::const_iterator BasicBlock::end() const {
-  return _instructions.end();
-}
+BlockBase::const_iterator BlockBase::end() const { return _instructions.end(); }
 
-BasicBlock::const_iterator BasicBlock::cbegin() const {
+BlockBase::const_iterator BlockBase::cbegin() const {
   return _instructions.cbegin();
 }
 
-BasicBlock::const_iterator BasicBlock::cend() const {
+BlockBase::const_iterator BlockBase::cend() const {
   return _instructions.cend();
+}
+
+int BasicBlock::_counter = 0;
+
+std::string BasicBlock::getLabel() const {
+  std::ostringstream oss;
+  oss << "bb" << getID();
+  return oss.str();
+}
+
+std::string BlockBase::str() const {
+  std::ostringstream oss;
+  oss << getLabel() << ":\n";
+  for (auto &instPtr : *this) {
+    oss << "  " << instPtr->str() << "\n";
+  }
+  return oss.str();
 }
 
 } // namespace ir

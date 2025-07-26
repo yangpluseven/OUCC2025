@@ -9,20 +9,25 @@
 
 namespace ir {
 
+class FuncBase;
 class Function;
 class InstBase;
 
-class BasicBlock : public Value {
+class BlockBase : public Value {
 private:
-  static int _counter;
   int _id;
-  Function *_function;
+  FuncBase *_function;
   std::vector<std::unique_ptr<InstBase>> _instructions;
 
 public:
-  explicit BasicBlock(Function *func);
-  ValueKind getValueKind() const override { return ValueKind::Block; }
-  Function *getFunction() const { return _function; }
+  explicit BlockBase(int id);
+  void setFunction(FuncBase *func) { _function = func; }
+  FuncBase *getFunction() const { return _function; }
+  int getID() const { return _id; }
+  virtual std::string getLabel() const = 0;
+  // Form the .ll IR string for the whole block, including the label and string
+  // for all instructions
+  std::string str() const override;
 
   bool empty() const { return _instructions.empty(); }
   // Check the last instruction
@@ -33,13 +38,6 @@ public:
   void insertInstruction(size_t index, std::unique_ptr<InstBase> inst);
   std::unique_ptr<InstBase> eraseInstruction(size_t index);
   size_t size() const { return _instructions.size(); }
-
-  // Get the LLVM like block label, example: bb0 bb1
-  std::string getLabel() const;
-  std::string getName() const { return "%" + getLabel(); }
-  // Form the .ll IR string for the whole block, including the label and string
-  // for all instructions
-  std::string str() const override;
 
   using iterator = std::vector<std::unique_ptr<InstBase>>::iterator;
   using const_iterator = std::vector<std::unique_ptr<InstBase>>::const_iterator;
@@ -56,6 +54,18 @@ public:
   const_iterator end() const;
   const_iterator cbegin() const;
   const_iterator cend() const;
+};
+
+class BasicBlock : public BlockBase {
+private:
+  static int _counter;
+
+public:
+  explicit BasicBlock();
+  ValueKind getValueKind() const override { return ValueKind::Block; }
+  // Get the LLVM like block label, example: bb0 bb1
+  std::string getLabel() const override;
+  std::string getName() const override { return "%" + getLabel(); }
 };
 
 } // namespace ir

@@ -28,33 +28,34 @@ std::vector<Argument *> Function::getArgs() const {
   return result;
 }
 
-void Function::pushBlock(std::unique_ptr<BasicBlock> block) {
+void FuncBase::pushBlock(std::unique_ptr<BlockBase> block) {
   assert(block && "Cannot push nullptr block");
+  block->setFunction(this);
   _blocks.push_back(std::move(block));
 }
 
-BasicBlock *Function::getBlock(size_t index) const {
+BlockBase *FuncBase::getBlock(size_t index) const {
   assert(index < _blocks.size() && "Block index out of bounds");
   return _blocks[index].get();
 }
 
-BasicBlock *Function::getEntryBlock() const {
+BlockBase *FuncBase::getEntryBlock() const {
   if (_blocks.empty())
     return nullptr;
   return _blocks.front().get();
 }
 
-std::unique_ptr<BasicBlock> Function::eraseBlock(size_t index) {
+std::unique_ptr<BlockBase> FuncBase::eraseBlock(size_t index) {
   assert(index < _blocks.size() && "Block index out of bounds");
   auto it = _blocks.begin() + index;
-  std::unique_ptr<BasicBlock> removed = std::move(*it);
+  std::unique_ptr<BlockBase> removed = std::move(*it);
   _blocks.erase(it);
   return removed;
 }
 
-std::string Function::getRawName() const { return _name; }
+std::string FuncBase::getRawName() const { return _name; }
 
-std::string Function::getName() const { return "@" + _name; }
+std::string Function::getName() const { return "@" + getRawName(); }
 
 std::string Function::str() const {
   bool isDeclare = empty();
@@ -77,13 +78,13 @@ std::string Function::str() const {
   else
     oss << "define ";
 
-  oss << getType()->str() << " @" << _name << args.str();
+  oss << getType()->str() << " @" << getRawName() << args.str();
 
   if (isDeclare)
     return oss.str() + "\n";
 
   oss << " {\n";
-  for (const auto &block : _blocks) {
+  for (const auto &block : *this) {
     oss << block->str();
   }
   oss << "}\n";
@@ -91,28 +92,30 @@ std::string Function::str() const {
   return oss.str();
 }
 
-Function::iterator Function::begin() { return _blocks.begin(); }
+FuncBase::iterator FuncBase::begin() { return _blocks.begin(); }
 
-Function::iterator Function::end() { return _blocks.end(); }
+FuncBase::iterator FuncBase::end() { return _blocks.end(); }
 
-Function::const_iterator Function::begin() const { return _blocks.begin(); }
+FuncBase::const_iterator FuncBase::begin() const { return _blocks.begin(); }
 
-Function::const_iterator Function::end() const { return _blocks.end(); }
+FuncBase::const_iterator FuncBase::end() const { return _blocks.end(); }
 
-Function::const_iterator Function::cbegin() const { return _blocks.cbegin(); }
+FuncBase::const_iterator FuncBase::cbegin() const { return _blocks.cbegin(); }
 
-Function::const_iterator Function::cend() const { return _blocks.cend(); }
+FuncBase::const_iterator FuncBase::cend() const { return _blocks.cend(); }
 
-Function::iterator Function::insertBlock(iterator pos,
-                                         std::unique_ptr<BasicBlock> block) {
+FuncBase::iterator FuncBase::insertBlock(iterator pos,
+                                         std::unique_ptr<BlockBase> block) {
   assert(block && "Cannot insert nullptr block");
+  block->setFunction(this);
   return _blocks.insert(pos, std::move(block));
 }
 
-void ir::Function::insertBlockAfter(BasicBlock *target,
-                                    std::unique_ptr<BasicBlock> block) {
+void ir::FuncBase::insertBlockAfter(BlockBase *target,
+                                    std::unique_ptr<BlockBase> block) {
   for (auto it = _blocks.begin(); it != _blocks.end(); ++it) {
     if (it->get() == target) {
+      block->setFunction(this);
       insertBlock(std::next(it), std::move(block));
       return;
     }
@@ -120,12 +123,12 @@ void ir::Function::insertBlockAfter(BasicBlock *target,
   throw std::runtime_error("Target not found!");
 }
 
-std::unique_ptr<BasicBlock> Function::eraseBlock(iterator pos) {
-  std::unique_ptr<BasicBlock> removed = std::move(*pos);
+std::unique_ptr<BlockBase> FuncBase::eraseBlock(iterator pos) {
+  std::unique_ptr<BlockBase> removed = std::move(*pos);
   _blocks.erase(pos);
   return removed;
 }
 
-BasicBlock *Function::getBlock(iterator pos) const { return pos->get(); }
+BlockBase *FuncBase::getBlock(iterator pos) const { return pos->get(); }
 
 } // namespace ir

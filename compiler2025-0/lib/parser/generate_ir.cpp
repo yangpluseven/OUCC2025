@@ -59,8 +59,8 @@ void GenerateIR::checkTerminator() {
     for (int i = 0; i < func->size() - 1; i++) {
       auto block = func->getBlock(i);
       if (!block->hasTerminator()) {
-        block->pushInstruction(
-            std::make_unique<BranchInst>(func->getBlock(i + 1)));
+        block->pushInstruction(std::make_unique<BranchInst>(
+            static_cast<BasicBlock *>(func->getBlock(i + 1))));
       }
     }
   }
@@ -339,10 +339,10 @@ void GenerateIR::visit(FuncDef &ast) {
   auto func = _symbolTable->makeFunction(std::move(retType), *ast.id);
   _curFunction = func.get();
   _symbolTable->in();
-  auto entry = std::make_unique<BasicBlock>(_curFunction);
+  auto entry = std::make_unique<BasicBlock>();
   _entryBlock = entry.get();
   _curFunction->pushBlock(std::move(entry));
-  auto ret = std::make_unique<BasicBlock>(_curFunction);
+  auto ret = std::make_unique<BasicBlock>();
   _retBlock = ret.get();
 
   if (type->getBasicKind() == BasicKind::VOID) {
@@ -359,7 +359,7 @@ void GenerateIR::visit(FuncDef &ast) {
     _retBlock->pushInstruction(std::make_unique<RetInst>(rawLoadInst));
   }
 
-  auto block = std::make_unique<BasicBlock>(_curFunction);
+  auto block = std::make_unique<BasicBlock>();
   _curBlock = block.get();
   _curFunction->pushBlock(std::move(block));
 
@@ -382,8 +382,8 @@ void GenerateIR::visit(FuncDef &ast) {
   }
 
   _curFunction->pushBlock(std::move(ret));
-  _entryBlock->pushInstruction(
-      std::make_unique<BranchInst>(_curFunction->getBlock(1)));
+  _entryBlock->pushInstruction(std::make_unique<BranchInst>(
+      static_cast<BasicBlock *>(_curFunction->getBlock(1))));
   _module->addFunction(std::move(func));
   _symbolTable->out();
 }
@@ -511,7 +511,7 @@ void GenerateIR::visit(ReturnStmt &ast) {
 
 void GenerateIR::visit(LAndExp &ast) {
   if (ast.lAndExp) {
-    auto block = std::make_unique<BasicBlock>(_curFunction);
+    auto block = std::make_unique<BasicBlock>();
     BasicBlock *rawBlock = block.get();
     _curFunction->insertBlockAfter(_curBlock, std::move(block));
 
@@ -533,7 +533,7 @@ void GenerateIR::visit(LAndExp &ast) {
 
 void GenerateIR::visit(LOrExp &ast) {
   if (ast.lOrExp) {
-    auto block = std::make_unique<BasicBlock>(_curFunction);
+    auto block = std::make_unique<BasicBlock>();
     BasicBlock *rawBlock = block.get();
     _curFunction->insertBlockAfter(_curBlock, std::move(block));
 
@@ -554,9 +554,9 @@ void GenerateIR::visit(LOrExp &ast) {
 }
 
 void GenerateIR::handleIfElseStmt(IfStmt &ast) {
-  auto trueBlock = std::make_unique<BasicBlock>(_curFunction);
-  auto falseBlock = std::make_unique<BasicBlock>(_curFunction);
-  auto ifEndBlock = std::make_unique<BasicBlock>(_curFunction);
+  auto trueBlock = std::make_unique<BasicBlock>();
+  auto falseBlock = std::make_unique<BasicBlock>();
+  auto ifEndBlock = std::make_unique<BasicBlock>();
   auto rawTrueBlock = trueBlock.get();
   auto rawFalseBlock = falseBlock.get();
   auto rawIfEndBlock = ifEndBlock.get();
@@ -586,8 +586,8 @@ void GenerateIR::visit(IfStmt &ast) {
     handleIfElseStmt(ast);
     return;
   }
-  auto trueBlock = std::make_unique<BasicBlock>(_curFunction);
-  auto falseBlock = std::make_unique<BasicBlock>(_curFunction);
+  auto trueBlock = std::make_unique<BasicBlock>();
+  auto falseBlock = std::make_unique<BasicBlock>();
   auto rawTrueBlock = trueBlock.get();
   auto rawFalseBlock = falseBlock.get();
   _trueBlock = rawTrueBlock;
@@ -610,9 +610,9 @@ void GenerateIR::visit(WhileStmt &ast) {
   auto tmpCondBlock = _condBlock;
   auto tmpBreakBlock = _breakBlock;
 
-  auto condBlock = std::make_unique<BasicBlock>(_curFunction);
-  auto loopBlock = std::make_unique<BasicBlock>(_curFunction);
-  auto breakBlock = std::make_unique<BasicBlock>(_curFunction);
+  auto condBlock = std::make_unique<BasicBlock>();
+  auto loopBlock = std::make_unique<BasicBlock>();
+  auto breakBlock = std::make_unique<BasicBlock>();
   auto rawCondBlock = condBlock.get();
   auto rawLoopBlock = loopBlock.get();
   auto rawBreakBlock = breakBlock.get();

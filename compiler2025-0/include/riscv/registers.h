@@ -1,16 +1,22 @@
 #ifndef RISCV_REGISTERS_H
 #define RISCV_REGISTERS_H
 
+#include "ir/register.h"
+#include "ir/type.h"
+#include "riscv/machine_insts.h"
 #include <string>
 #include <vector>
 
 namespace riscv {
 
-class MReg {
+class MReg : ir::Reg {
 private:
   std::string _name;
 
 public:
+  static std::unique_ptr<ir::BasicType> i32_t;
+  static std::unique_ptr<ir::BasicType> f32_t;
+
   static MReg *const zero;
   static MReg *const ra;
   static MReg *const sp;
@@ -76,6 +82,12 @@ public:
   static MReg *const ft10;
   static MReg *const ft11;
 
+  static MachineInst *const zeroInst;
+  static MachineInst *const raInst;
+  static MachineInst *const spInst;
+  static MachineInst *const gpInst;
+  static MachineInst *const tpInst;
+
   static const std::vector<MReg *> iRegs;
   static const std::vector<MReg *> fRegs;
   static const std::vector<MReg *> iCallerRegs;
@@ -83,7 +95,8 @@ public:
   static const std::vector<MReg *> iCalleeRegs;
   static const std::vector<MReg *> fCalleeRegs;
 
-  MReg(std::string name) : _name(std::move(name)) {}
+  MReg(ir::BasicType *type, std::string name)
+      : Reg(type), _name(std::move(name)) {}
   std::string str() const { return _name; }
 };
 
