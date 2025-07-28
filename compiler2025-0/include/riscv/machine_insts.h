@@ -36,8 +36,12 @@ public:
   MachineInst(std::unique_ptr<ir::Type> type);
   MachineInst(std::unique_ptr<ir::Type> type,
               const std::vector<Value *> &useOperands);
-  MachineInst(ir::Reg *dest);
-  MachineInst();
+  MachineInst(ir::Reg *dest)
+      : InstBase(dest->getRegType()->clone(), _counter++), _dest(dest) {}
+  MachineInst(ir::Reg *dest, const std::vector<Value *> &useOperands)
+      : InstBase(dest->getRegType()->clone(), useOperands, _counter++),
+        _dest(dest) {}
+  MachineInst() : InstBase(MAKE_VOID, _counter++) {}
 
   virtual ~MachineInst() = default;
   // Get the dest register's name, virtual or real
@@ -87,13 +91,20 @@ public:
           const std::vector<Value *> &useOperands, int imm)
       : MachineInst(std::move(type), useOperands), _imm(imm) {}
 
+  ImmInst(ir::Reg *dest, int imm) : MachineInst(dest), _imm(imm) {}
+
+  ImmInst(ir::Reg *dest, const std::vector<Value *> &useOperands, int imm)
+      : MachineInst(dest, useOperands), _imm(imm) {}
+
   int getImm() const { return _imm; }
 };
 
 class LEA : public ImmInst {
-
 public:
-  using ImmInst::ImmInst;
+  LEA(std::unique_ptr<ir::Type> type, int imm)
+      : ImmInst(std::move(type), imm) {}
+  LEA(ir::Reg *dest, int imm) : ImmInst(dest, imm) {}
+
   MInstKind getMInstKind() const override { return MInstKind::LEA; }
   void spill(ir::Reg *spilledReg, int offset, ir::BlockBase *block) override;
   std::string str() const override {
@@ -161,7 +172,10 @@ public:
 };
 
 class LI : public ImmInst {
-  using ImmInst::ImmInst;
+public:
+  LI(std::unique_ptr<ir::Type> type, int imm) : ImmInst(std::move(type), imm) {}
+  LI(ir::Reg *dest, int imm) : ImmInst(dest, imm) {}
+
   void spill(ir::Reg *spilledReg, int offset, ir::BlockBase *block) override;
   std::string str() const override {
     return "li\t" + getDest()->str() + ", " + std::to_string(getImm());
@@ -175,6 +189,8 @@ private:
 public:
   LLA(std::unique_ptr<ir::Type> type, ir::GlobalVariable *global)
       : MachineInst(std::move(type)), _global(global) {}
+  LLA(ir::Reg *dest, ir::GlobalVariable *global)
+      : MachineInst(dest), _global(global) {}
 
   void spill(ir::Reg *spilledReg, int offset, ir::BlockBase *block) override;
   std::string str() const override {
@@ -196,6 +212,8 @@ private:
 public:
   LoadFrom(LoadItem item, std::unique_ptr<ir::Type> type, int imm)
       : ImmInst(std::move(type), imm), _item(item) {}
+  LoadFrom(LoadItem item, ir::Reg *dest, int imm)
+      : ImmInst(dest, imm), _item(item) {}
 
   void spill(ir::Reg *spilledReg, int offset, ir::BlockBase *block) override;
   std::string str() const override {
@@ -211,6 +229,8 @@ private:
 public:
   Load(std::unique_ptr<ir::Type> type, MachineInst *src, int imm, int size)
       : ImmInst(std::move(type), {src}, imm), _size(size) {}
+  Load(ir::Reg *dest, MachineInst *src, int imm, int size)
+      : ImmInst(dest, {src}, imm), _size(size) {}
 
   void spill(ir::Reg *spilledReg, int offset, ir::BlockBase *block) override;
   std::string str() const override;
@@ -229,6 +249,8 @@ private:
 public:
   RR(RROp op, std::unique_ptr<ir::Type> type, MachineInst *src)
       : MachineInst(std::move(type), {src}), _op(op) {}
+  RR(RROp op, ir::Reg *dest, MachineInst *src)
+      : MachineInst(dest, {src}), _op(op) {}
 
   void spill(ir::Reg *spilledReg, int offset, ir::BlockBase *block) override;
   std::string str() const override;
@@ -247,6 +269,8 @@ private:
 public:
   RRI(RRIOp op, std::unique_ptr<ir::Type> type, MachineInst *src, int imm)
       : ImmInst(std::move(type), {src}, imm), _op(op) {}
+  RRI(RRIOp op, ir::Reg *dest, MachineInst *src, int imm)
+      : ImmInst(dest, {src}, imm), _op(op) {}
 
   void spill(ir::Reg *spilledReg, int offset, ir::BlockBase *block) override;
   std::string str() const override {
@@ -288,6 +312,8 @@ public:
   RRR(RRROp op, std::unique_ptr<ir::Type> type, MachineInst *src0,
       MachineInst *src1)
       : MachineInst(std::move(type), {src0, src1}), _op(op) {}
+  RRR(RRROp op, ir::Reg *dest, MachineInst *src0, MachineInst *src1)
+      : MachineInst(dest, {src0, src1}), _op(op) {}
 
   void spill(ir::Reg *spilledReg, int offset, ir::BlockBase *block) override;
   std::string str() const override;

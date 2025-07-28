@@ -32,11 +32,6 @@ MachineInst::MachineInst(std::unique_ptr<Type> type,
   }
 }
 
-MachineInst::MachineInst(Reg *dest)
-    : InstBase(dest->getRegType()->clone(), _counter++), _dest(dest) {}
-
-MachineInst::MachineInst() : InstBase(MAKE_VOID, _counter++) {}
-
 std::string MachineInst::getName() const {
   if (_dest) {
     return _dest->str();
