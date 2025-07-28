@@ -154,15 +154,8 @@ private:
 public:
   Call(ir::Function *func) : _func(func) {}
 
-  std::vector<Reg *> getRead() const override {
-    // TODO
-    return {};
-  }
-
-  std::vector<Reg *> getWrite() const override {
-    // TODO
-    return {};
-  }
+  std::vector<ir::Reg *> getRead() const override;
+  std::vector<ir::Reg *> getWrite() const override;
 
   std::string str() const override { return "call\t" + _func->getRawName(); }
 };
@@ -248,7 +241,7 @@ private:
   RRIOp _op;
   std::string opToString() const {
     // TODO
-    return " ";
+    return "";
   }
 
 public:

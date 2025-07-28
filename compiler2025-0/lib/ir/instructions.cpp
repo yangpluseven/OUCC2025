@@ -432,4 +432,7 @@ std::unique_ptr<Instruction> CallInst::cloneEmpty() const {
   return cloned;
 }
 
+MoveInst::MoveInst(PhiInst *target, Value *src)
+    : Instruction(target->getType()->clone(), {src}), _target(target) {}
+
 } // namespace ir

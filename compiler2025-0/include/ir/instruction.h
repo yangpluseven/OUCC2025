@@ -46,6 +46,7 @@ public:
 };
 
 enum class InstKind {
+  Fake,
   Alloca,
   Binary,
   BitCast,
@@ -78,10 +79,11 @@ public:
   // Get the SSA name like %v1, %v2
   std::string getName() const override;
   ValueKind getValueKind() const override { return ValueKind::Inst; }
+  bool isAlloca() { return getInstKind() == InstKind::Alloca; }
   // Create a empty copy without operands, set notRemapped to true. Other part
   // should be the same as the clone target
   virtual std::unique_ptr<Instruction> cloneEmpty() const = 0;
-  virtual InstKind getInstKind() const = 0;
+  virtual InstKind getInstKind() const { return InstKind::Fake; }
 };
 
 } // namespace ir

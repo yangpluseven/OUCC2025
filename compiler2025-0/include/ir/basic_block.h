@@ -32,10 +32,10 @@ public:
   bool empty() const { return _instructions.empty(); }
   // Check the last instruction
   bool hasTerminator() const;
-  void pushInstruction(std::unique_ptr<InstBase> inst);
+  InstBase *pushInstruction(std::unique_ptr<InstBase> inst);
+  InstBase *insertInstruction(size_t index, std::unique_ptr<InstBase> inst);
   InstBase *getTerminator() const;
   InstBase *getInstruction(size_t index) const;
-  void insertInstruction(size_t index, std::unique_ptr<InstBase> inst);
   std::unique_ptr<InstBase> eraseInstruction(size_t index);
   size_t size() const { return _instructions.size(); }
 

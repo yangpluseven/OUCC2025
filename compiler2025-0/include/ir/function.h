@@ -57,6 +57,7 @@ public:
   std::unique_ptr<BlockBase> eraseBlock(iterator pos);
 
   void insertBlockAfter(BlockBase *target, std::unique_ptr<BlockBase> block);
+  BlockBase *getFirstBlock() const { return _blocks.front().get(); }
 
   iterator begin();
   iterator end();
@@ -72,7 +73,7 @@ private:
 
 public:
   using FuncBase::FuncBase;
-  ValueKind getValueKind() const override{ return ValueKind::Function; }
+  ValueKind getValueKind() const override { return ValueKind::Function; }
   void addArg(std::unique_ptr<Argument> arg);
   Argument *getArg(size_t index) const;
   // Return a viewport instead of the actual ownership

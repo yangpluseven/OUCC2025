@@ -51,9 +51,9 @@ size_t BasicType::getSize() const {
   case BasicKind::I1:
     return 1;
   case BasicKind::I32:
-    return 4;
+    return 32;
   case BasicKind::F32:
-    return 4;
+    return 32;
   default:
     return 0;
   }
@@ -132,7 +132,7 @@ PointerType::PointerType(std::unique_ptr<Type> pointeeType)
 }
 
 size_t PointerType::getSize() const {
-  return 8; // 64-bit pointer (ATTENTION)
+  return 64; // 64-bit pointer (ATTENTION)
 }
 
 std::string PointerType::str() const { return _pointeeType->str() + "*"; }

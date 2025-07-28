@@ -2,8 +2,6 @@
 #include <stdexcept>
 using namespace ir;
 
-#define MAKE_I32 std::make_unique<BasicType>(BasicKind::I32)
-#define MAKE_F32 std::make_unique<BasicType>(BasicKind::F32)
 #define MAKE_VOID std::make_unique<BasicType>(BasicKind::VOID)
 
 namespace riscv {
@@ -35,10 +33,7 @@ MachineInst::MachineInst(std::unique_ptr<Type> type,
 }
 
 MachineInst::MachineInst(Reg *dest)
-    : InstBase(dest->getRegType()->getBasicKind() == BasicKind::I32 ? MAKE_I32
-                                                                    : MAKE_F32,
-               _counter++),
-      _dest(dest) {}
+    : InstBase(dest->getRegType()->clone(), _counter++), _dest(dest) {}
 
 MachineInst::MachineInst() : InstBase(MAKE_VOID, _counter++) {}
 
@@ -60,6 +55,4 @@ std::vector<ir::Reg *> MachineInst::getRegs() const {
 }
 } // namespace riscv
 
-#undef MAKE_I32
-#undef MAKE_F32
 #undef MAKE_VOID

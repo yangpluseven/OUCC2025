@@ -149,6 +149,29 @@ public:
   std::unique_ptr<Instruction> cloneEmpty() const override;
 };
 
+//===---------------- Fake Instructions ----------------===//
+
+class PhiInst : public Instruction {};
+
+// Used to eliminate Phi Inst
+class MoveInst : public Instruction {
+private:
+  PhiInst *_target;
+
+public:
+  MoveInst(PhiInst *target, Value *src);
+  PhiInst *getTarget() const { return _target; }
+  // TODO
+  std::string str() const override {
+    // TODO
+    return "";
+  }
+  std::unique_ptr<Instruction> cloneEmpty() const override {
+    // TODO
+    return nullptr;
+  }
+};
+
 } // namespace ir
 
 #endif // IR_INSTRUCTIONS_H

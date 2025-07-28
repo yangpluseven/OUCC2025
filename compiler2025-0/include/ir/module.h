@@ -10,28 +10,34 @@ namespace ir {
 
 class Module {
 private:
-  std::unordered_map<std::string, std::unique_ptr<GlobalVariable>> globals;
-  std::unordered_map<std::string, std::unique_ptr<Function>> functions;
+  std::unordered_map<std::string, std::unique_ptr<GlobalVariable>> _globals;
+  std::unordered_map<std::string, std::unique_ptr<Function>> _functions;
+  std::vector<std::unique_ptr<FuncBase>> _mFuncs;
 
 public:
   Module() = default;
 
   void addGlobal(std::unique_ptr<GlobalVariable> global);
   void addFunction(std::unique_ptr<Function> function);
+  void addMFunction(std::unique_ptr<FuncBase> mfunc);
 
   bool hasGlobal() const;
   bool hasFunction() const;
 
   GlobalVariable *getGlobal(const std::string &name);
   Function *getFunction(const std::string &name);
+  FuncBase *getMFunction(size_t index);
 
-  size_t numGlobals() const { return globals.size(); }
-  size_t numFunctions() const { return functions.size(); }
+  size_t numGlobals() const { return _globals.size(); }
+  size_t numFunctions() const { return _functions.size(); }
+  size_t numMFuncs() const { return _mFuncs.size(); }
 
   // Return a viewport instead of the actual ownership
   std::vector<GlobalVariable *> getGlobals();
   // Return a viewport instead of the actual ownership
   std::vector<Function *> getFunctions();
+  // Return a viewport instead of the actual ownership
+  std::vector<FuncBase *> getMFuncs();
 };
 
 } // namespace ir

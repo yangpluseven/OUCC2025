@@ -2,6 +2,7 @@
 #define RISCV_MACHINE_BLOCK_H
 
 #include "ir/basic_block.h"
+#include "ir/instructions.h"
 #include "ir/type.h"
 
 namespace riscv {
@@ -14,7 +15,7 @@ private:
 
 public:
   MachineBlock();
-  explicit  MachineBlock(int id);
+  explicit MachineBlock(int id);
 
   ir::ValueKind getValueKind() const override {
     return ir::ValueKind::MachineBlock;
@@ -27,14 +28,19 @@ public:
 class MachineFunc : public ir::FuncBase {
 private:
   ir::Function *_origin;
-  const int _localSize, _iCallerNum, _fCallerNum;
+  int _localSize, _iCallerNum, _fCallerNum;
+  std::unordered_map<ir::AllocaInst *, int> _localOffsets;
+  std::unordered_map<ir::Argument *, std::pair<bool, int>> _argOffsets;
+
+  void initCallerNums();
+  void initLocalOffsets();
+  void initArgOffsets();
 
 public:
   int maxFuncParamNum = 0;
 
   // Not sure about the type but I guess it's fine (ATTENTION)
-  MachineFunc(ir::Function *func, int localSize, int iCallerNum,
-              int fCallerNum);
+  MachineFunc(ir::Function *func);
 
   [[nodiscard]] int getFCallerNum() const { return _fCallerNum; }
   [[nodiscard]] int getICallerNum() const { return _iCallerNum; }

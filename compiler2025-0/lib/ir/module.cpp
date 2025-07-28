@@ -3,43 +3,61 @@
 namespace ir {
 
 void Module::addGlobal(std::unique_ptr<GlobalVariable> global) {
-  globals.emplace(global->getRawName(), std::move(global));
+  _globals.emplace(global->getRawName(), std::move(global));
 }
 
 void Module::addFunction(std::unique_ptr<Function> function) {
-  functions.emplace(function->getRawName(), std::move(function));
+  _functions.emplace(function->getRawName(), std::move(function));
 }
 
-bool Module::hasGlobal() const { return !globals.empty(); }
+void Module::addMFunction(std::unique_ptr<FuncBase> mFunc) {
+  _mFuncs.push_back(std::move(mFunc));
+}
 
-bool Module::hasFunction() const { return !functions.empty(); }
+bool Module::hasGlobal() const { return !_globals.empty(); }
+
+bool Module::hasFunction() const { return !_functions.empty(); }
 
 GlobalVariable *Module::getGlobal(const std::string &name) {
-  auto it = globals.find(name);
-  return it != globals.end() ? it->second.get() : nullptr;
+  auto it = _globals.find(name);
+  return it != _globals.end() ? it->second.get() : nullptr;
 }
 
 Function *Module::getFunction(const std::string &name) {
-  auto it = functions.find(name);
-  return it != functions.end() ? it->second.get() : nullptr;
+  auto it = _functions.find(name);
+  return it != _functions.end() ? it->second.get() : nullptr;
+}
+
+FuncBase *Module::getMFunction(size_t index) {
+  assert(index < _mFuncs.size() && "Index out of bounds");
+  return _mFuncs.at(index).get();
 }
 
 std::vector<GlobalVariable *> Module::getGlobals() {
   std::vector<GlobalVariable *> result;
-  result.reserve(globals.size());
-  for (auto &[name, ptr] : globals) {
+  result.reserve(_globals.size());
+  for (auto &[name, ptr] : _globals) {
     result.push_back(ptr.get());
   }
-  return std::move(result);
+  return result;
 }
 
 std::vector<Function *> Module::getFunctions() {
   std::vector<Function *> result;
-  result.reserve(functions.size());
-  for (auto &[name, ptr] : functions) {
+  result.reserve(_functions.size());
+  for (auto &[name, ptr] : _functions) {
     result.push_back(ptr.get());
   }
-  return std::move(result);
+  return result;
+}
+
+std::vector<FuncBase *> Module::getMFuncs() {
+  std::vector<FuncBase *> result;
+  result.reserve(_mFuncs.size());
+  for (auto &ptr : _mFuncs) {
+    result.push_back(ptr.get());
+  }
+  return result;
 }
 
 } // namespace ir
