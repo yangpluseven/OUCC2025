@@ -57,6 +57,20 @@ std::unique_ptr<InstBase> BlockBase::eraseInstruction(size_t index) {
   return erased;
 }
 
+std::unique_ptr<InstBase> BlockBase::eraseInstruction(InstBase *inst) {
+  for (auto it = _instructions.begin(); it != _instructions.end(); ++it) {
+    if (it->get() == inst) {
+      std::unique_ptr<InstBase> erased = std::move(*it);
+      if (erased->getBlock() == this) {
+        erased->setBlock(nullptr);
+      }
+      _instructions.erase(it);
+      return erased;
+    }
+  }
+  return nullptr;
+}
+
 InstBase *BlockBase::getInstruction(iterator pos) const { return pos->get(); }
 
 BlockBase::iterator

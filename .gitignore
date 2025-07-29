@@ -1,6 +1,7 @@
 /build
 /ctest
 /.vscode
+/.idea
 /compiler2024
 /compiler2025-x
 

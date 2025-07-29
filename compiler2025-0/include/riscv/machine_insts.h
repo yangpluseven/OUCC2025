@@ -27,6 +27,30 @@ enum class MInstKind {
   Store
 };
 
+enum class RRIOp { ADDI, ANDI, SLLIW, SRAIW, SRLI, SRLIW, XORI, SLTI };
+enum class RROp { CVT, FABS, MV, NEG, SEQZ, SNEZ };
+enum class RRROp {
+  ADD,
+  ADDW,
+  SUB,
+  SUBW,
+  MUL,
+  MULW,
+  DIV,
+  DIVW,
+  REMW,
+  EQ,
+  GE,
+  GT,
+  LE,
+  LT,
+  AND,
+  XOR,
+  SLT,
+  SGT
+};
+enum class LoadItem { SPILL, INNER, OUTER, LOCAL };
+
 class MachineInst : public ir::InstBase {
 private:
   static int _counter;
@@ -74,9 +98,7 @@ public:
     return {};
   }
   virtual MInstKind getMInstKind() const { return MInstKind::Fake; }
-  virtual void spill(ir::Reg *spilledReg, int offset, ir::BlockBase *block) {
-    return;
-  }
+  virtual void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) {}
 };
 
 class ImmInst : public MachineInst {
@@ -106,7 +128,7 @@ public:
   LEA(ir::Reg *dest, int imm) : ImmInst(dest, imm) {}
 
   MInstKind getMInstKind() const override { return MInstKind::LEA; }
-  void spill(ir::Reg *spilledReg, int offset, ir::BlockBase *block) override;
+  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   std::string str() const override {
     return "add\t" + getDest()->str() + ", $local, #" +
            std::to_string(getImm());
@@ -146,7 +168,7 @@ public:
       : MachineInst(MAKE_VOID, {src0, src1}), _op(op), _target(target) {}
   Jump(ir::BasicBlock *target) : _target(target) {}
 
-  void spill(ir::Reg *spilledReg, int offset, ir::BlockBase *block) override;
+  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
 
   bool hasCond() const { return _op != JumpOp::NUL; }
   std::string str() const override {
@@ -176,7 +198,8 @@ public:
   LI(std::unique_ptr<ir::Type> type, int imm) : ImmInst(std::move(type), imm) {}
   LI(ir::Reg *dest, int imm) : ImmInst(dest, imm) {}
 
-  void spill(ir::Reg *spilledReg, int offset, ir::BlockBase *block) override;
+  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
+
   std::string str() const override {
     return "li\t" + getDest()->str() + ", " + std::to_string(getImm());
   }
@@ -192,13 +215,12 @@ public:
   LLA(ir::Reg *dest, ir::GlobalVariable *global)
       : MachineInst(dest), _global(global) {}
 
-  void spill(ir::Reg *spilledReg, int offset, ir::BlockBase *block) override;
+  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
+
   std::string str() const override {
     return "lla\t" + getDest()->str() + ", " + _global->getRawName();
   }
 };
-
-enum class LoadItem { SPILL, INNER, OUTER, LOCAL };
 
 class LoadFrom : public ImmInst {
 private:
@@ -215,7 +237,7 @@ public:
   LoadFrom(LoadItem item, ir::Reg *dest, int imm)
       : ImmInst(dest, imm), _item(item) {}
 
-  void spill(ir::Reg *spilledReg, int offset, ir::BlockBase *block) override;
+  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   std::string str() const override {
     return "load\t" + getDest()->str() + ", " + std::to_string(getImm()) +
            "($" + itemToString() + ")";
@@ -232,11 +254,9 @@ public:
   Load(ir::Reg *dest, MachineInst *src, int imm, int size)
       : ImmInst(dest, {src}, imm), _size(size) {}
 
-  void spill(ir::Reg *spilledReg, int offset, ir::BlockBase *block) override;
+  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   std::string str() const override;
 };
-
-enum class RROp { CVT, FABS, MV, NEG, SEQZ, SNEZ };
 
 class RR : public MachineInst {
 private:
@@ -252,11 +272,9 @@ public:
   RR(RROp op, ir::Reg *dest, MachineInst *src)
       : MachineInst(dest, {src}), _op(op) {}
 
-  void spill(ir::Reg *spilledReg, int offset, ir::BlockBase *block) override;
+  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   std::string str() const override;
 };
-
-enum class RRIOp { ADDI, ANDI, SLLIW, SRAIW, SRLI, SRLIW, XORI, SLTI };
 
 class RRI : public ImmInst {
 private:
@@ -272,32 +290,11 @@ public:
   RRI(RRIOp op, ir::Reg *dest, MachineInst *src, int imm)
       : ImmInst(dest, {src}, imm), _op(op) {}
 
-  void spill(ir::Reg *spilledReg, int offset, ir::BlockBase *block) override;
+  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   std::string str() const override {
     return opToString() + "\t" + getDest()->str() + ", " + getSrc(0)->str() +
            ", " + std::to_string(getImm());
   }
-};
-
-enum class RRROp {
-  ADD,
-  ADDW,
-  SUB,
-  SUBW,
-  MUL,
-  MULW,
-  DIV,
-  DIVW,
-  REMW,
-  EQ,
-  GE,
-  GT,
-  LE,
-  LT,
-  AND,
-  XOR,
-  SLT,
-  SGT
 };
 
 class RRR : public MachineInst {
@@ -315,7 +312,7 @@ public:
   RRR(RRROp op, ir::Reg *dest, MachineInst *src0, MachineInst *src1)
       : MachineInst(dest, {src0, src1}), _op(op) {}
 
-  void spill(ir::Reg *spilledReg, int offset, ir::BlockBase *block) override;
+  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   std::string str() const override;
 };
 
@@ -333,7 +330,7 @@ public:
   StoreTo(StoreItem item, MachineInst *src, int imm)
       : ImmInst(MAKE_VOID, {src}, imm), _item(item) {}
 
-  void spill(ir::Reg *spilledReg, int offset, ir::BlockBase *block) override;
+  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   std::string str() const override {
     return "store\t" + getSrc(0)->str() + ", " + std::to_string(getImm()) +
            "($" + itemToString() + ")";
@@ -348,7 +345,7 @@ public:
   Store(MachineInst *src0, MachineInst *src1, int imm, int size)
       : ImmInst(MAKE_VOID, {src0, src1}, imm), _size(size) {}
 
-  void spill(ir::Reg *spilledReg, int offset, ir::BlockBase *block) override;
+  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   std::string str() const override;
 };
 
