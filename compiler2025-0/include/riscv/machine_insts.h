@@ -29,9 +29,27 @@ enum class MInstKind
     Store
 };
 
-enum class RRIOp { ADDI, ANDI, SLLIW, SRAIW, SRLI, SRLIW, XORI, SLTI };
+enum class RRIOp
+{
+    ADDI,
+    ANDI,
+    SLLIW,
+    SRAIW,
+    SRLI,
+    SRLIW,
+    XORI,
+    SLTI
+};
 
-enum class RROp { CVT, FABS, MV, NEG, SEQZ, SNEZ };
+enum class RROp
+{
+    CVT,
+    FABS,
+    MV,
+    NEG,
+    SEQZ,
+    SNEZ
+};
 
 enum class RRROp
 {
@@ -55,28 +73,31 @@ enum class RRROp
     SGT
 };
 
-enum class LoadItem { SPILL, INNER, OUTER, LOCAL };
+enum class LoadItem
+{
+    SPILL,
+    INNER,
+    OUTER,
+    LOCAL
+};
 
 class MachineInst : public ir::InstBase
 {
-private:
+  private:
     static int _counter;
     ir::Reg *_dest = nullptr;
 
-public:
+  public:
     MachineInst(std::unique_ptr<ir::Type> type);
 
-    MachineInst(std::unique_ptr<ir::Type> type,
-                const std::vector<Value *> &useOperands);
+    MachineInst(std::unique_ptr<ir::Type> type, const std::vector<Value *> &useOperands);
 
-    MachineInst(ir::Reg *dest)
-        : InstBase(dest->getRegType()->clone(), _counter++), _dest(dest)
+    MachineInst(ir::Reg *dest) : InstBase(dest->getRegType()->clone(), _counter++), _dest(dest)
     {
     }
 
     MachineInst(ir::Reg *dest, const std::vector<Value *> &useOperands)
-        : InstBase(dest->getRegType()->clone(), useOperands, _counter++),
-          _dest(dest)
+        : InstBase(dest->getRegType()->clone(), useOperands, _counter++), _dest(dest)
     {
     }
 
@@ -143,22 +164,21 @@ public:
 
     virtual void spill(ir::Reg *spilledReg, int offset, MachineBlock *block)
     {
+        block->pushInstruction(getBlock()->eraseInstruction(this));
     }
 };
 
 class ImmInst : public MachineInst
 {
-private:
+  private:
     int _imm;
 
-public:
-    ImmInst(std::unique_ptr<ir::Type> type, int imm)
-        : MachineInst(std::move(type)), _imm(imm)
+  public:
+    ImmInst(std::unique_ptr<ir::Type> type, int imm) : MachineInst(std::move(type)), _imm(imm)
     {
     }
 
-    ImmInst(std::unique_ptr<ir::Type> type,
-            const std::vector<Value *> &useOperands, int imm)
+    ImmInst(std::unique_ptr<ir::Type> type, const std::vector<Value *> &useOperands, int imm)
         : MachineInst(std::move(type), useOperands), _imm(imm)
     {
     }
@@ -167,8 +187,7 @@ public:
     {
     }
 
-    ImmInst(ir::Reg *dest, const std::vector<Value *> &useOperands, int imm)
-        : MachineInst(dest, useOperands), _imm(imm)
+    ImmInst(ir::Reg *dest, const std::vector<Value *> &useOperands, int imm) : MachineInst(dest, useOperands), _imm(imm)
     {
     }
 
@@ -180,9 +199,8 @@ public:
 
 class LEA : public ImmInst
 {
-public:
-    LEA(std::unique_ptr<ir::Type> type, int imm)
-        : ImmInst(std::move(type), imm)
+  public:
+    LEA(std::unique_ptr<ir::Type> type, int imm) : ImmInst(std::move(type), imm)
     {
     }
 
@@ -199,16 +217,24 @@ public:
 
     std::string str() const override
     {
-        return "add\t" + getDest()->str() + ", $local, #" +
-               std::to_string(getImm());
+        return "add\t" + getDest()->str() + ", $local, #" + std::to_string(getImm());
     }
 };
 
-enum class JumpOp { NUL, EQ, NE, LT, LE, GT, GE };
+enum class JumpOp
+{
+    NUL,
+    EQ,
+    NE,
+    LT,
+    LE,
+    GT,
+    GE
+};
 
 class Jump : public MachineInst
 {
-private:
+  private:
     JumpOp _op = JumpOp::NUL;
     ir::BasicBlock *_target;
 
@@ -235,7 +261,7 @@ private:
         }
     }
 
-public:
+  public:
     Jump(JumpOp op, MachineInst *src0, MachineInst *src1, ir::BasicBlock *target)
         : MachineInst(MAKE_VOID, {src0, src1}), _op(op), _target(target)
     {
@@ -258,17 +284,16 @@ public:
         {
             return "j\t." + _target->getLabel();
         }
-        return "b" + opToString() + "\t" + getSrc(0)->str() + ", " +
-               getSrc(1)->str() + ", ." + _target->getLabel();
+        return "b" + opToString() + "\t" + getSrc(0)->str() + ", " + getSrc(1)->str() + ", ." + _target->getLabel();
     }
 };
 
 class Call : public MachineInst
 {
-private:
+  private:
     ir::Function *_func;
 
-public:
+  public:
     Call(ir::Function *func) : _func(func)
     {
     }
@@ -285,7 +310,7 @@ public:
 
 class LI : public ImmInst
 {
-public:
+  public:
     LI(std::unique_ptr<ir::Type> type, int imm) : ImmInst(std::move(type), imm)
     {
     }
@@ -304,17 +329,15 @@ public:
 
 class LLA : public MachineInst
 {
-private:
+  private:
     ir::GlobalVariable *_global;
 
-public:
-    LLA(std::unique_ptr<ir::Type> type, ir::GlobalVariable *global)
-        : MachineInst(std::move(type)), _global(global)
+  public:
+    LLA(std::unique_ptr<ir::Type> type, ir::GlobalVariable *global) : MachineInst(std::move(type)), _global(global)
     {
     }
 
-    LLA(ir::Reg *dest, ir::GlobalVariable *global)
-        : MachineInst(dest), _global(global)
+    LLA(ir::Reg *dest, ir::GlobalVariable *global) : MachineInst(dest), _global(global)
     {
     }
 
@@ -328,23 +351,32 @@ public:
 
 class LoadFrom : public ImmInst
 {
-private:
+  private:
     LoadItem _item;
 
-    std::string itemToString() const
+    std::string itemToString() const noexcept
     {
-        // TODO
-        return "";
+        switch (_item)
+        {
+        case LoadItem::SPILL:
+            return "spill";
+        case LoadItem::INNER:
+            return "inner";
+        case LoadItem::OUTER:
+            return "outer";
+        case LoadItem::LOCAL:
+            return "local";
+        default:
+            return "incomplete{LoadFrom.itemToString}";
+        }
     }
 
-public:
-    LoadFrom(LoadItem item, std::unique_ptr<ir::Type> type, int imm)
-        : ImmInst(std::move(type), imm), _item(item)
+  public:
+    LoadFrom(LoadItem item, std::unique_ptr<ir::Type> type, int imm) : ImmInst(std::move(type), imm), _item(item)
     {
     }
 
-    LoadFrom(LoadItem item, ir::Reg *dest, int imm)
-        : ImmInst(dest, imm), _item(item)
+    LoadFrom(LoadItem item, ir::Reg *dest, int imm) : ImmInst(dest, imm), _item(item)
     {
     }
 
@@ -352,24 +384,22 @@ public:
 
     std::string str() const override
     {
-        return "load\t" + getDest()->str() + ", " + std::to_string(getImm()) +
-               "($" + itemToString() + ")";
+        return "load\t" + getDest()->str() + ", " + std::to_string(getImm()) + "($" + itemToString() + ")";
     }
 };
 
 class Load : public ImmInst
 {
-private:
+  private:
     int _size;
 
-public:
+  public:
     Load(std::unique_ptr<ir::Type> type, MachineInst *src, int imm, int size)
         : ImmInst(std::move(type), {src}, imm), _size(size)
     {
     }
 
-    Load(ir::Reg *dest, MachineInst *src, int imm, int size)
-        : ImmInst(dest, {src}, imm), _size(size)
+    Load(ir::Reg *dest, MachineInst *src, int imm, int size) : ImmInst(dest, {src}, imm), _size(size)
     {
     }
 
@@ -380,23 +410,36 @@ public:
 
 class RR : public MachineInst
 {
-private:
+  private:
     RROp _op;
 
-    std::string opToString() const
+    std::string opToString() const noexcept
     {
-        // TODO
-        return "";
+        switch (_op)
+        {
+        case RROp::CVT:
+            return "cvt";
+        case RROp::FABS:
+            return "fabs";
+        case RROp::MV:
+            return "mv";
+        case RROp::NEG:
+            return "neg";
+        case RROp::SEQZ:
+            return "seqz";
+        case RROp::SNEZ:
+            return "snez";
+        default:
+            return "incomplete{RR.opToString}";
+        }
     }
 
-public:
-    RR(RROp op, std::unique_ptr<ir::Type> type, MachineInst *src)
-        : MachineInst(std::move(type), {src}), _op(op)
+  public:
+    RR(RROp op, std::unique_ptr<ir::Type> type, MachineInst *src) : MachineInst(std::move(type), {src}), _op(op)
     {
     }
 
-    RR(RROp op, ir::Reg *dest, MachineInst *src)
-        : MachineInst(dest, {src}), _op(op)
+    RR(RROp op, ir::Reg *dest, MachineInst *src) : MachineInst(dest, {src}), _op(op)
     {
     }
 
@@ -407,23 +450,41 @@ public:
 
 class RRI : public ImmInst
 {
-private:
+  private:
     RRIOp _op;
 
-    std::string opToString() const
+    std::string opToString() const noexcept
     {
-        // TODO
-        return "";
+        switch (_op)
+        {
+        case RRIOp::ADDI:
+            return "addi";
+        case RRIOp::ANDI:
+            return "andi";
+        case RRIOp::SLLIW:
+            return "slliw";
+        case RRIOp::SRAIW:
+            return "sraiw";
+        case RRIOp::SRLIW:
+            return "srliw";
+        case RRIOp::SRLI:
+            return "srli";
+        case RRIOp::XORI:
+            return "xori";
+        case RRIOp::SLTI:
+            return "slti";
+        default:
+            return "incomplete{RRI.opToString}";
+        }
     }
 
-public:
+  public:
     RRI(RRIOp op, std::unique_ptr<ir::Type> type, MachineInst *src, int imm)
         : ImmInst(std::move(type), {src}, imm), _op(op)
     {
     }
 
-    RRI(RRIOp op, ir::Reg *dest, MachineInst *src, int imm)
-        : ImmInst(dest, {src}, imm), _op(op)
+    RRI(RRIOp op, ir::Reg *dest, MachineInst *src, int imm) : ImmInst(dest, {src}, imm), _op(op)
     {
     }
 
@@ -431,31 +492,67 @@ public:
 
     std::string str() const override
     {
-        return opToString() + "\t" + getDest()->str() + ", " + getSrc(0)->str() +
-               ", " + std::to_string(getImm());
+        return opToString() + "\t" + getDest()->str() + ", " + getSrc(0)->str() + ", " + std::to_string(getImm());
     }
 };
 
 class RRR : public MachineInst
 {
-private:
+  private:
     RRROp _op;
 
-    std::string opToString() const
+    std::string opToString() const noexcept
     {
-        // TODO
-        return "";
+        switch (_op)
+        {
+        case RRROp::ADD:
+            return "add";
+        case RRROp::ADDW:
+            return "addw";
+        case RRROp::SUB:
+            return "sub";
+        case RRROp::SUBW:
+            return "subw";
+        case RRROp::MUL:
+            return "mul";
+        case RRROp::MULW:
+            return "mulw";
+        case RRROp::DIV:
+            return "div";
+        case RRROp::DIVW:
+            return "divw";
+        case RRROp::REMW:
+            return "remw";
+        case RRROp::EQ:
+            return "eq";
+        case RRROp::GE:
+            return "ge";
+        case RRROp::GT:
+            return "gt";
+        case RRROp::LE:
+            return "le";
+        case RRROp::LT:
+            return "lt";
+        case RRROp::AND:
+            return "and";
+        case RRROp::XOR:
+            return "xor";
+        case RRROp::SLT:
+            return "slt";
+        case RRROp::SGT:
+            return "sgt";
+        default:
+            return "incomplete{RRR.opToString}";
+        }
     }
 
-public:
-    RRR(RRROp op, std::unique_ptr<ir::Type> type, MachineInst *src0,
-        MachineInst *src1)
+  public:
+    RRR(RRROp op, std::unique_ptr<ir::Type> type, MachineInst *src0, MachineInst *src1)
         : MachineInst(std::move(type), {src0, src1}), _op(op)
     {
     }
 
-    RRR(RRROp op, ir::Reg *dest, MachineInst *src0, MachineInst *src1)
-        : MachineInst(dest, {src0, src1}), _op(op)
+    RRR(RRROp op, ir::Reg *dest, MachineInst *src0, MachineInst *src1) : MachineInst(dest, {src0, src1}), _op(op)
     {
     }
 
@@ -464,22 +561,41 @@ public:
     std::string str() const override;
 };
 
-enum class StoreItem { LOCAL, CALL_PARAM, INNER_PARAM, OUTER_PARAM, SPILL };
+enum class StoreItem
+{
+    LOCAL,
+    CALL_PARAM,
+    INNER_PARAM,
+    OUTER_PARAM,
+    SPILL
+};
 
 class StoreTo : public ImmInst
 {
-private:
+  private:
     StoreItem _item;
 
-    std::string itemToString() const
+    std::string itemToString() const noexcept
     {
-        // TODO
-        return "";
+        switch (_item)
+        {
+        case StoreItem::LOCAL:
+            return "local";
+        case StoreItem::CALL_PARAM:
+            return "param_call";
+        case StoreItem::INNER_PARAM:
+            return "param_inner";
+        case StoreItem::OUTER_PARAM:
+            return "param_outer";
+        case StoreItem::SPILL:
+            return "spill";
+        default:
+            return "incomplete{StoreTo.itemToString}";
+        }
     }
 
-public:
-    StoreTo(StoreItem item, MachineInst *src, int imm)
-        : ImmInst(MAKE_VOID, {src}, imm), _item(item)
+  public:
+    StoreTo(StoreItem item, MachineInst *src, int imm) : ImmInst(MAKE_VOID, {src}, imm), _item(item)
     {
     }
 
@@ -487,19 +603,17 @@ public:
 
     std::string str() const override
     {
-        return "store\t" + getSrc(0)->str() + ", " + std::to_string(getImm()) +
-               "($" + itemToString() + ")";
+        return "store\t" + getSrc(0)->str() + ", " + std::to_string(getImm()) + "($" + itemToString() + ")";
     }
 };
 
 class Store : public ImmInst
 {
-private:
+  private:
     int _size;
 
-public:
-    Store(MachineInst *src0, MachineInst *src1, int imm, int size)
-        : ImmInst(MAKE_VOID, {src0, src1}, imm), _size(size)
+  public:
+    Store(MachineInst *src0, MachineInst *src1, int imm, int size) : ImmInst(MAKE_VOID, {src0, src1}, imm), _size(size)
     {
     }
 
