@@ -6,42 +6,33 @@
 #include "riscv/machine_func.h"
 #include "riscv/registers.h"
 
-namespace riscv
-{
+namespace riscv {
 
-class GenerateMIR
-{
+class GenerateMIR {
 private:
-    ir::Module *_module;
-    bool _isProcessed = false;
+  ir::Module *_module;
+  bool _isProcessed = false;
 
-    std::unique_ptr<MachineFunc> funcToMIR(ir::Function *func);
+  std::unique_ptr<MachineFunc> funcToMIR(ir::Function *func);
 
-    void moduleToMIR()
-    {
-        for (auto func : _module->getFunctions())
-        {
-            if (!func->empty())
-            {
-                _module->addMFunction(funcToMIR(func));
-            }
-        }
+  void moduleToMIR() {
+    for (auto func : _module->getFunctions()) {
+      if (!func->empty()) {
+        _module->addMFunction(funcToMIR(func));
+      }
     }
+  }
 
 public:
-    explicit GenerateMIR(ir::Module *module) : _module(module)
-    {
-    }
+  explicit GenerateMIR(ir::Module *module) : _module(module) {}
 
-    void generate()
-    {
-        if (_isProcessed)
-        {
-            return;
-        }
-        moduleToMIR();
-        _isProcessed = true;
+  void generate() {
+    if (_isProcessed) {
+      return;
     }
+    moduleToMIR();
+    _isProcessed = true;
+  }
 };
 
 } // namespace riscv

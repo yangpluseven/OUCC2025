@@ -1,11 +1,2 @@
 # .clang-format
-Language: Cpp
 BasedOnStyle: LLVM
-Standard: c++17
-
-IndentWidth: 4
-TabWidth: 4
-UseTab: Never
-ColumnLimit: 120
-AllowShortFunctionsOnASingleLine: None
-BreakBeforeBraces: Allman
