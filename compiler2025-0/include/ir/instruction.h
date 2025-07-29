@@ -46,7 +46,7 @@ public:
 };
 
 enum class InstKind {
-  Fake,
+  Move,
   Alloca,
   Binary,
   BitCast,
@@ -83,7 +83,7 @@ public:
   // Create a empty copy without operands, set notRemapped to true. Other part
   // should be the same as the clone target
   virtual std::unique_ptr<Instruction> cloneEmpty() const = 0;
-  virtual InstKind getInstKind() const { return InstKind::Fake; }
+  virtual InstKind getInstKind() const = 0;
 };
 
 } // namespace ir

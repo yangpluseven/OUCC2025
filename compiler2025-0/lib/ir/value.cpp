@@ -17,10 +17,16 @@ Value::~Value()
     // }
 }
 
-void Value::addUse(Use *use)
-{
-    _uses.insert(use);
+
+std::unique_ptr<BasicType> Value::makeRegType() const {
+  if (_type->isBasic() &&
+      static_cast<BasicType *>(_type.get())->getBasicKind() == BasicKind::F32) {
+    return std::make_unique<BasicType>(BasicKind::F32);
+  }
+  return std::make_unique<BasicType>(BasicKind::I32);
 }
+
+void Value::addUse(Use *use) { _uses.insert(use); }
 
 void Value::removeUse(Use *use)
 {

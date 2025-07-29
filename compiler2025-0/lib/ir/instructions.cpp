@@ -157,9 +157,12 @@ CmpOp CmpInst::getOp() const
     return _op;
 }
 
-InstKind CmpInst::getInstKind() const
-{
+InstKind CmpInst::getInstKind() const {
+  if (isICmpInst()) {
     return InstKind::ICmp;
+  } else {
+    return InstKind::FCmp;
+  }
 }
 
 std::string CmpInst::str() const
