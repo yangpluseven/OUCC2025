@@ -98,6 +98,12 @@ public:
   MReg(ir::BasicType *type, std::string name)
       : Reg(type), _name(std::move(name)) {}
   std::string str() const { return _name; }
+
+  static int argsStackOffset(int iSize, int fSize) {
+    return (std::max(iSize - static_cast<int>(iCallerRegs.size()), 0) +
+            std::max(fSize - static_cast<int>(fCallerRegs.size()), 0)) *
+           8;
+  }
 };
 
 } // namespace riscv

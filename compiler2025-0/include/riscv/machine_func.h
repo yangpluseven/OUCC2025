@@ -12,9 +12,12 @@ class MachineFunc;
 class MachineBlock : public ir::BlockBase {
 private:
   static int _counter;
+  ir::BasicBlock *_origin = nullptr;
 
 public:
   MachineBlock();
+  explicit MachineBlock(ir::BasicBlock *origin)
+      : BlockBase(origin->getID()), _origin(origin) {}
   explicit MachineBlock(int id);
 
   ir::ValueKind getValueKind() const override {
@@ -31,10 +34,13 @@ private:
   int _localSize, _iCallerNum, _fCallerNum;
   std::unordered_map<ir::AllocaInst *, int> _localOffsets;
   std::unordered_map<ir::Argument *, std::pair<bool, int>> _argOffsets;
+  std::unordered_map<ir::Instruction *, MachineInst *> _instMap;
 
   void initCallerNums();
   void initLocalOffsets();
   void initArgOffsets();
+
+  MachineInst *handleArg(ir::Argument *arg, MachineBlock *block);
 
 public:
   int maxFuncParamNum = 0;
@@ -42,10 +48,26 @@ public:
   // Not sure about the type but I guess it's fine (ATTENTION)
   MachineFunc(ir::Function *func);
 
-  [[nodiscard]] int getFCallerNum() const { return _fCallerNum; }
-  [[nodiscard]] int getICallerNum() const { return _iCallerNum; }
-  [[nodiscard]] int getLocalSize() const { return _localSize; }
-  [[nodiscard]] std::string getName() const { return getRawName(); }
+  int getFCallerNum() const { return _fCallerNum; }
+  int getICallerNum() const { return _iCallerNum; }
+  int getLocalSize() const { return _localSize; }
+  std::string getName() const { return getRawName(); }
+
+  void binary(ir::BinaryInst *inst, MachineBlock *block);
+  void branch(ir::BranchInst *inst, MachineBlock *block);
+  void call(ir::CallInst *inst, MachineBlock *block);
+  void gep(ir::GetElementPtrInst *inst, MachineBlock *block);
+  void load(ir::LoadInst *inst, MachineBlock *block);
+  void ret(ir::RetInst *inst, MachineBlock *block);
+  void store(ir::StoreInst *inst, MachineBlock *block);
+  void icmp(ir::CmpInst *inst, MachineBlock *block);
+  void fcmp(ir::CmpInst *inst, MachineBlock *block);
+  void bitcast(ir::CastInst *inst, MachineBlock *block);
+  void zext(ir::CastInst *inst, MachineBlock *block);
+  void sext(ir::CastInst *inst, MachineBlock *block);
+  void sitofp(ir::CastInst *inst, MachineBlock *block);
+  void fptosi(ir::CastInst *inst, MachineBlock *block);
+  void move(ir::MoveInst *inst, MachineBlock *block);
 };
 
 } // namespace riscv

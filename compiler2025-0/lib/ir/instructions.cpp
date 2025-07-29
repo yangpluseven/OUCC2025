@@ -133,7 +133,13 @@ bool CmpInst::isICmpInst() const {
 
 CmpOp CmpInst::getOp() const { return _op; }
 
-InstKind CmpInst::getInstKind() const { return InstKind::ICmp; }
+InstKind CmpInst::getInstKind() const {
+  if (isICmpInst()) {
+    return InstKind::ICmp;
+  } else {
+    return InstKind::FCmp;
+  }
+}
 
 std::string CmpInst::str() const {
   auto lhs = getOperand(0);

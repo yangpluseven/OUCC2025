@@ -151,7 +151,10 @@ public:
 
 //===---------------- Fake Instructions ----------------===//
 
-class PhiInst : public Instruction {};
+class PhiInst : public Instruction {
+public:
+  InstKind getInstKind() const override { return InstKind::Phi; }
+};
 
 // Used to eliminate Phi Inst
 class MoveInst : public Instruction {
@@ -160,6 +163,7 @@ private:
 
 public:
   MoveInst(PhiInst *target, Value *src);
+  InstKind getInstKind() const override { return InstKind::Move; }
   PhiInst *getTarget() const { return _target; }
   // TODO
   std::string str() const override {
