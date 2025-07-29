@@ -37,6 +37,7 @@ public:
   InstBase *getTerminator() const;
   InstBase *getInstruction(size_t index) const;
   std::unique_ptr<InstBase> eraseInstruction(size_t index);
+  std::unique_ptr<InstBase> eraseInstruction(InstBase *inst);
   size_t size() const { return _instructions.size(); }
 
   using iterator = std::vector<std::unique_ptr<InstBase>>::iterator;

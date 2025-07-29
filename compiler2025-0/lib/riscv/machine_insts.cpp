@@ -4,50 +4,365 @@ using namespace ir;
 
 #define MAKE_VOID std::make_unique<BasicType>(BasicKind::VOID)
 
-namespace riscv {
+namespace riscv
+{
 int MachineInst::_counter = 1;
 
 MachineInst::MachineInst(std::unique_ptr<Type> type)
-    : InstBase(std::move(type), _counter++) {
-  assert(getType()->isBasic() && "MachineInst can only have a basic type.");
-  switch (getBasicKind()) {
-  case BasicKind::I32:
-  case BasicKind::F32:
-    _dest = new VReg(static_cast<BasicType *>(getType()), getID());
-  default:
-    return;
-  }
+    : InstBase(std::move(type), _counter++)
+{
+    assert(getType()->isBasic() && "MachineInst can only have a basic type.");
+    switch (getBasicKind())
+    {
+    case BasicKind::I32:
+    case BasicKind::F32:
+        _dest = new VReg(static_cast<BasicType *>(getType()), getID());
+    default:
+        return;
+    }
 }
 
 MachineInst::MachineInst(std::unique_ptr<Type> type,
                          const std::vector<Value *> &useOperands)
-    : InstBase(std::move(type), useOperands, _counter++) {
-  assert(getType()->isBasic() && "MachineInst can only have a basic type.");
-  switch (getBasicKind()) {
-  case BasicKind::I32:
-  case BasicKind::F32:
-    _dest = new VReg(static_cast<BasicType *>(getType()), getID());
-  default:
-    return;
-  }
+    : InstBase(std::move(type), useOperands, _counter++)
+{
+    assert(getType()->isBasic() && "MachineInst can only have a basic type.");
+    switch (getBasicKind())
+    {
+    case BasicKind::I32:
+    case BasicKind::F32:
+        _dest = new VReg(static_cast<BasicType *>(getType()), getID());
+    default:
+        return;
+    }
 }
 
-std::string MachineInst::getName() const {
-  if (_dest) {
-    return _dest->str();
-  }
-  throw std::runtime_error("No available reg, getName should not be called");
+std::string MachineInst::getName() const
+{
+    if (_dest)
+    {
+        return _dest->str();
+    }
+    throw std::runtime_error("No available reg, getName should not be called");
 }
 
-std::vector<ir::Reg *> MachineInst::getRegs() const {
-  std::vector<ir::Reg *> regs;
-  auto readRegs = getRead();
-  auto writeRegs = getWrite();
+std::vector<ir::Reg *> MachineInst::getRegs() const
+{
+    std::vector<ir::Reg *> regs;
+    auto readRegs = getRead();
+    auto writeRegs = getWrite();
 
-  regs.insert(regs.end(), readRegs.begin(), readRegs.end());
-  regs.insert(regs.end(), writeRegs.begin(), writeRegs.end());
-  return std::move(regs);
+    regs.insert(regs.end(), readRegs.begin(), readRegs.end());
+    regs.insert(regs.end(), writeRegs.begin(), writeRegs.end());
+    return std::move(regs);
 }
+
+void LEA::spill(ir::Reg *spilledReg, int offset, MachineBlock *block)
+{
+    if (spilledReg != getDest())
+        throw std::runtime_error("in LEA:spill");
+
+    auto ptr = block->pushInstruction(std::make_unique<LEA>(
+        std::make_unique<ir::BasicType>(ir::BasicKind::I32), offset));
+    block->pushInstruction(std::make_unique<StoreTo>(
+        StoreItem::SPILL, static_cast<MachineInst *>(ptr), offset));
+}
+
+void Jump::spill(ir::Reg *spilledReg, int offset, MachineBlock *block)
+{
+    if (getSrc(0) == spilledReg && getSrc(1) == spilledReg)
+    {
+        auto ptr1 = block->pushInstruction(
+            std::make_unique<LoadFrom>(LoadItem::SPILL, getSrc(0), offset));
+        auto ptr2 = block->pushInstruction(
+            std::make_unique<LoadFrom>(LoadItem::SPILL, getSrc(1), offset));
+        block->pushInstruction(
+            std::make_unique<Jump>(_op, static_cast<MachineInst *>(ptr1),
+                                   static_cast<MachineInst *>(ptr2), _target));
+
+    }
+    else if (getSrc(0) == spilledReg)
+    {
+        auto ptr = block->pushInstruction(
+            std::make_unique<LoadFrom>(LoadItem::SPILL, getSrc(0), offset));
+        block->pushInstruction(std::make_unique<Jump>(
+            _op, static_cast<MachineInst *>(ptr), new MachineInst(getSrc(1)), _target));
+
+    }
+    else if (getSrc(1) == spilledReg)
+    {
+        auto ptr = block->pushInstruction(
+            std::make_unique<LoadFrom>(LoadItem::SPILL, getSrc(1), offset));
+        block->pushInstruction(
+            std::make_unique<Jump>(_op, new MachineInst(getSrc(0)),
+                                   static_cast<MachineInst *>(ptr), _target));
+
+    }
+    else
+    {
+        block->pushInstruction(getBlock()->eraseInstruction(this));
+    }
+}
+
+void LI::spill(ir::Reg *spilledReg, int offset, MachineBlock *block)
+{
+    if (spilledReg != getDest())
+        return;
+
+    auto ptr = block->pushInstruction(std::make_unique<LI>(spilledReg, getImm()));
+    block->pushInstruction(std::make_unique<StoreTo>(
+        StoreItem::SPILL, static_cast<MachineInst *>(ptr), offset));
+}
+
+void LLA::spill(ir::Reg *spilledReg, int offset, MachineBlock *block)
+{
+    if (spilledReg != getDest())
+        block->pushInstruction(getBlock()->eraseInstruction(this));
+    else
+    {
+        auto ptr =
+            block->pushInstruction(std::make_unique<LLA>(getDest(), _global));
+        block->pushInstruction(std::make_unique<StoreTo>(
+            StoreItem::SPILL, static_cast<MachineInst *>(ptr), offset));
+    }
+}
+
+void LoadFrom::spill(ir::Reg *spilledReg, int offset, MachineBlock *block)
+{
+    if (spilledReg != getDest())
+        block->pushInstruction(getBlock()->eraseInstruction(this));
+    else
+    {
+        auto ptr = block->pushInstruction(
+            std::make_unique<LoadFrom>(_item, getDest(), getImm()));
+        block->pushInstruction(std::make_unique<StoreTo>(
+            StoreItem::SPILL, static_cast<MachineInst *>(ptr), offset));
+    }
+}
+
+void Load::spill(ir::Reg *spilledReg, int offset, MachineBlock *block)
+{
+    if (getDest() == spilledReg && getSrc(0) == spilledReg)
+    {
+        auto ptr1 = block->pushInstruction(std::make_unique<LoadFrom>(
+            LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
+        auto ptr2 = block->pushInstruction(std::make_unique<Load>(
+            spilledReg->getRegType()->clone(), static_cast<MachineInst *>(ptr1),
+            getImm(), _size));
+        block->pushInstruction(std::make_unique<StoreTo>(
+            StoreItem::SPILL, static_cast<MachineInst *>(ptr2), offset));
+    }
+    else if (getDest() == spilledReg)
+    {
+        auto ptr = block->pushInstruction(std::make_unique<Load>(
+            spilledReg->getRegType()->clone(),
+            new MachineInst(getSrc(0)), getImm(), _size));
+        block->pushInstruction(std::make_unique<StoreTo>(
+            StoreItem::SPILL, static_cast<MachineInst *>(ptr), offset));
+    }
+    else if (getSrc(0) == spilledReg)
+    {
+        auto ptr = block->pushInstruction(std::make_unique<LoadFrom>(
+            LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
+        block->pushInstruction(std::make_unique<Load>(
+            getDest(), static_cast<MachineInst *>(ptr), getImm(), _size));
+    }
+    else
+    {
+        block->pushInstruction(getBlock()->eraseInstruction(this));
+    }
+}
+
+void RR::spill(ir::Reg *spilledReg, int offset, MachineBlock *block)
+{
+    if (getDest() == spilledReg && getSrc(0) == spilledReg)
+    {
+        auto ptr1 = block->pushInstruction(std::make_unique<LoadFrom>(
+            LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
+        auto ptr2 = block->pushInstruction(
+            std::make_unique<RR>(_op, spilledReg->getRegType()->clone(),
+                                 static_cast<MachineInst *>(ptr1)));
+        block->pushInstruction(std::make_unique<StoreTo>(
+            StoreItem::SPILL, static_cast<MachineInst *>(ptr2), offset));
+    }
+    else if (getSrc(0) == spilledReg)
+    {
+        auto ptr = block->pushInstruction(std::make_unique<RR>(
+            _op, spilledReg->getRegType()->clone(),
+            new MachineInst(getSrc(0))));
+        block->pushInstruction(std::make_unique<StoreTo>(
+            StoreItem::SPILL, static_cast<MachineInst *>(ptr), offset));
+    }
+    else if (getDest() == spilledReg)
+    {
+        auto ptr = block->pushInstruction(std::make_unique<LoadFrom>(
+            LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
+        block->pushInstruction(
+            std::make_unique<RR>(_op, getDest(), static_cast<MachineInst *>(ptr)));
+    }
+    else
+    {
+        block->pushInstruction(getBlock()->eraseInstruction(this));
+    }
+}
+
+void RRI::spill(ir::Reg *spilledReg, int offset, MachineBlock *block)
+{
+    if (getDest() == spilledReg && getSrc(0) == spilledReg)
+    {
+        auto ptr1 = block->pushInstruction(std::make_unique<LoadFrom>(
+            LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
+        auto ptr2 = block->pushInstruction(
+            std::make_unique<RRI>(_op, spilledReg->getRegType()->clone(),
+                                  static_cast<MachineInst *>(ptr1), getImm()));
+        block->pushInstruction(std::make_unique<StoreTo>(
+            StoreItem::SPILL, static_cast<MachineInst *>(ptr2), offset));
+    }
+    else if (getDest() == spilledReg)
+    {
+        auto ptr = block->pushInstruction(
+            std::make_unique<RRI>(_op, spilledReg->getRegType()->clone(),
+                                  new MachineInst(getSrc(0)), getImm()));
+        block->pushInstruction(std::make_unique<StoreTo>(
+            StoreItem::SPILL, static_cast<MachineInst *>(ptr), offset));
+    }
+    else if (getSrc(0) == spilledReg)
+    {
+        auto ptr = block->pushInstruction(std::make_unique<LoadFrom>(
+            LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
+        block->pushInstruction(std::make_unique<RRI>(
+            _op, getDest(), static_cast<MachineInst *>(ptr), getImm()));
+    }
+    else
+    {
+        block->pushInstruction(getBlock()->eraseInstruction(this));
+    }
+}
+
+void RRR::spill(ir::Reg *spilledReg, int offset, MachineBlock *block)
+{
+    if (getDest() == spilledReg && getSrc(0) == spilledReg &&
+        getSrc(1) == spilledReg)
+    {
+        auto ptr1 = block->pushInstruction(std::make_unique<LoadFrom>(
+            LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
+        auto ptr2 = block->pushInstruction(std::make_unique<LoadFrom>(
+            LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
+        auto ptr3 = block->pushInstruction(std::make_unique<RRR>(
+            _op, spilledReg->getRegType()->clone(),
+            static_cast<MachineInst *>(ptr1), static_cast<MachineInst *>(ptr2)));
+        block->pushInstruction(std::make_unique<StoreTo>(
+            StoreItem::SPILL, static_cast<MachineInst *>(ptr3), offset));
+    }
+    else if (getDest() == spilledReg && getSrc(0) == spilledReg)
+    {
+        auto ptr1 = block->pushInstruction(std::make_unique<LoadFrom>(
+            LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
+        auto ptr2 = block->pushInstruction(std::make_unique<RRR>(
+            _op, spilledReg->getRegType()->clone(),
+            static_cast<MachineInst *>(ptr1), new MachineInst(getSrc(1))));
+        block->pushInstruction(std::make_unique<StoreTo>(
+            StoreItem::SPILL, static_cast<MachineInst *>(ptr2), offset));
+    }
+    else if (getDest() == spilledReg && getSrc(1) == spilledReg)
+    {
+        auto ptr1 = block->pushInstruction(std::make_unique<LoadFrom>(
+            LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
+        auto ptr2 = block->pushInstruction(std::make_unique<RRR>(
+            _op, spilledReg->getRegType()->clone(), new MachineInst(getSrc(0)),
+            static_cast<MachineInst *>(ptr1)));
+        block->pushInstruction(std::make_unique<StoreTo>(
+            StoreItem::SPILL, static_cast<MachineInst *>(ptr2), offset));
+    }
+    else if (getSrc(0) == spilledReg && getSrc(1) == spilledReg)
+    {
+        auto ptr1 = block->pushInstruction(std::make_unique<LoadFrom>(
+            LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
+        auto ptr2 = block->pushInstruction(std::make_unique<LoadFrom>(
+            LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
+        block->pushInstruction(
+            std::make_unique<RRR>(_op, getDest(), static_cast<MachineInst *>(ptr1),
+                                  static_cast<MachineInst *>(ptr2)));
+    }
+    else if (getDest() == spilledReg)
+    {
+        auto ptr = block->pushInstruction(std::make_unique<RRR>(
+            _op, spilledReg->getRegType()->clone(), new MachineInst(getSrc(0)),
+            new MachineInst(getSrc(1))));
+        block->pushInstruction(std::make_unique<StoreTo>(
+            StoreItem::SPILL, static_cast<MachineInst *>(ptr), offset));
+    }
+    else if (getSrc(0) == spilledReg)
+    {
+        auto ptr = block->pushInstruction(std::make_unique<LoadFrom>(
+            LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
+        block->pushInstruction(
+            std::make_unique<RRR>(_op, getDest(), static_cast<MachineInst *>(ptr),
+                                  new MachineInst(getSrc(1))));
+    }
+    else if (getSrc(1) == spilledReg)
+    {
+        auto ptr = block->pushInstruction(std::make_unique<LoadFrom>(
+            LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
+        block->pushInstruction(
+            std::make_unique<RRR>(_op, getDest(), new MachineInst(getSrc(0)),
+                                  static_cast<MachineInst *>(ptr)));
+    }
+    else
+    {
+        block->pushInstruction(getBlock()->eraseInstruction(this));
+    }
+}
+
+void StoreTo::spill(ir::Reg *spilledReg, int offset, MachineBlock *block)
+{
+    if (getSrc(0) == spilledReg)
+    {
+        auto ptr = block->pushInstruction(std::make_unique<LoadFrom>(
+            LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
+        block->pushInstruction(std::make_unique<StoreTo>(
+            _item, static_cast<MachineInst *>(ptr), getImm()));
+    }
+    else
+    {
+        block->pushInstruction(getBlock()->eraseInstruction(this));
+    }
+}
+
+void Store::spill(ir::Reg *spilledReg, int offset, MachineBlock *block)
+{
+    if (getSrc(0) == spilledReg && getDest() == spilledReg)
+    {
+        auto ptr1 = block->pushInstruction(std::make_unique<LoadFrom>(
+            LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
+        auto ptr2 = block->pushInstruction(std::make_unique<LoadFrom>(
+            LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
+        block->pushInstruction(std::make_unique<Store>(
+            static_cast<MachineInst *>(ptr1), static_cast<MachineInst *>(ptr2),
+            getImm(), _size));
+    }
+    else if (getSrc(0) == spilledReg)
+    {
+        auto ptr = block->pushInstruction(std::make_unique<LoadFrom>(
+            LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
+        block->pushInstruction(
+            std::make_unique<Store>(static_cast<MachineInst *>(ptr),
+                                    new MachineInst(getDest()), getImm(), _size));
+    }
+    else if (getDest() == spilledReg)
+    {
+        auto ptr = block->pushInstruction(std::make_unique<LoadFrom>(
+            LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
+        block->pushInstruction(
+            std::make_unique<Store>(static_cast<MachineInst *>(ptr),
+                                    new MachineInst(getSrc(0)), getImm(), _size));
+    }
+    else
+    {
+        block->pushInstruction(getBlock()->eraseInstruction(this));
+    }
+}
+
 } // namespace riscv
 
 #undef MAKE_VOID

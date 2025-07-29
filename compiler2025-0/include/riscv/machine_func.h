@@ -5,12 +5,15 @@
 #include "ir/instructions.h"
 #include "ir/type.h"
 
-namespace riscv {
+namespace riscv
+{
 
 class MachineFunc;
 
-class MachineBlock : public ir::BlockBase {
+class MachineBlock : public ir::BlockBase
+{
 private:
+
   static int _counter;
   ir::BasicBlock *_origin = nullptr;
 
@@ -20,33 +23,54 @@ public:
       : BlockBase(origin->getID()), _origin(origin) {}
   explicit MachineBlock(int id);
 
-  ir::ValueKind getValueKind() const override {
-    return ir::ValueKind::MachineBlock;
-  }
+    explicit MachineBlock(int id);
 
-  std::string getLabel() const override;
-  std::string getName() const override;
+    ir::ValueKind getValueKind() const override
+    {
+        return ir::ValueKind::MachineBlock;
+    }
+
+    std::string getLabel() const override;
+
+    std::string getName() const override;
 };
 
-class MachineFunc : public ir::FuncBase {
+class MachineFunc : public ir::FuncBase
+{
 private:
-  ir::Function *_origin;
-  int _localSize, _iCallerNum, _fCallerNum;
-  std::unordered_map<ir::AllocaInst *, int> _localOffsets;
-  std::unordered_map<ir::Argument *, std::pair<bool, int>> _argOffsets;
-  std::unordered_map<ir::Instruction *, MachineInst *> _instMap;
+    ir::Function *_origin;
+    int _localSize, _iCallerNum, _fCallerNum;
+    std::unordered_map<ir::AllocaInst *, int> _localOffsets;
+    std::unordered_map<ir::Argument *, std::pair<bool, int> > _argOffsets;
+    std::unordered_map<ir::Instruction *, MachineInst *> _instMap;
 
-  void initCallerNums();
-  void initLocalOffsets();
-  void initArgOffsets();
+    void initCallerNums();
+    void initLocalOffsets();
+    void initArgOffsets();
 
   MachineInst *handleArg(ir::Argument *arg, MachineBlock *block);
 
 public:
-  int maxFuncParamNum = 0;
+    int maxFuncParamNum = 0;
 
-  // Not sure about the type but I guess it's fine (ATTENTION)
-  MachineFunc(ir::Function *func);
+    // Not sure about the type but I guess it's fine (ATTENTION)
+    MachineFunc(ir::Function *func);
+
+    [[nodiscard]] int getFCallerNum() const
+    {
+        return _fCallerNum;
+    }
+
+    [[nodiscard]] int getICallerNum() const
+    {
+        return _iCallerNum;
+    }
+
+    [[nodiscard]] int getLocalSize() const
+    {
+        return _localSize;
+    }
+
 
   int getFCallerNum() const { return _fCallerNum; }
   int getICallerNum() const { return _iCallerNum; }
