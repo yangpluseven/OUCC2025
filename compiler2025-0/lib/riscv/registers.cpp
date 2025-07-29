@@ -6,7 +6,8 @@
 #define DECLARE_FLOAT_REG(name)                                                \
   MReg *const MReg::name = new MReg(MReg::f32_t.get(), #name)
 
-namespace riscv {
+namespace riscv
+{
 
 std::unique_ptr<ir::BasicType> MReg::i32_t =
     std::make_unique<ir::BasicType>(ir::BasicKind::I32);
@@ -88,14 +89,14 @@ MachineInst *const MReg::gpInst = new MachineInst(MReg::gp);
 MachineInst *const MReg::tpInst = new MachineInst(MReg::tp);
 
 const std::vector<MReg *> MReg::iRegs = {
-    MReg::a0, MReg::a1, MReg::a2, MReg::a3, MReg::a4,  MReg::a5, MReg::a6,
-    MReg::a7, MReg::s0, MReg::s1, MReg::s2, MReg::s3,  MReg::s4, MReg::s5,
+    MReg::a0, MReg::a1, MReg::a2, MReg::a3, MReg::a4, MReg::a5, MReg::a6,
+    MReg::a7, MReg::s0, MReg::s1, MReg::s2, MReg::s3, MReg::s4, MReg::s5,
     MReg::s6, MReg::s7, MReg::s8, MReg::s9, MReg::s10, MReg::s11};
 
 const std::vector<MReg *> MReg::fRegs = {
-    MReg::fa0, MReg::fa1, MReg::fa2, MReg::fa3,  MReg::fa4,
-    MReg::fa5, MReg::fa6, MReg::fa7, MReg::fs0,  MReg::fs1,
-    MReg::fs2, MReg::fs3, MReg::fs4, MReg::fs5,  MReg::fs6,
+    MReg::fa0, MReg::fa1, MReg::fa2, MReg::fa3, MReg::fa4,
+    MReg::fa5, MReg::fa6, MReg::fa7, MReg::fs0, MReg::fs1,
+    MReg::fs2, MReg::fs3, MReg::fs4, MReg::fs5, MReg::fs6,
     MReg::fs7, MReg::fs8, MReg::fs9, MReg::fs10, MReg::fs11};
 
 const std::vector<MReg *> MReg::iCallerRegs = {MReg::a0, MReg::a1, MReg::a2,
@@ -107,11 +108,11 @@ const std::vector<MReg *> MReg::fCallerRegs = {MReg::fa0, MReg::fa1, MReg::fa2,
                                                MReg::fa6, MReg::fa7};
 
 const std::vector<MReg *> MReg::iCalleeRegs = {
-    MReg::s0, MReg::s1, MReg::s2, MReg::s3, MReg::s4,  MReg::s5,
+    MReg::s0, MReg::s1, MReg::s2, MReg::s3, MReg::s4, MReg::s5,
     MReg::s6, MReg::s7, MReg::s8, MReg::s9, MReg::s10, MReg::s11};
 
 const std::vector<MReg *> MReg::fCalleeRegs = {
-    MReg::fs0, MReg::fs1, MReg::fs2, MReg::fs3, MReg::fs4,  MReg::fs5,
+    MReg::fs0, MReg::fs1, MReg::fs2, MReg::fs3, MReg::fs4, MReg::fs5,
     MReg::fs6, MReg::fs7, MReg::fs8, MReg::fs9, MReg::fs10, MReg::fs11};
 
 } // namespace riscv
