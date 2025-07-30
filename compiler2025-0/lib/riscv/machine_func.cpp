@@ -3,6 +3,7 @@
 
 namespace riscv {
 
+using ir::ValueKind;
 using std::make_unique;
 using std::unique_ptr;
 
@@ -126,20 +127,45 @@ void MachineFunc::binary(ir::BinaryInst *inst, MachineBlock *block) {
     // TODO
     return;
   }
-  if (src1 && operand2->isConst()) {
+  if (src1 && operand2->isConstNum()) {
     // TODO
     return;
   }
-  if (src2 && operand1->isConst()) {
+  if (src2 && operand1->isConstNum()) {
     // TODO
     return;
   }
-  if (operand1->isConst() && operand2->isConst()) {
+  if (operand1->isConstNum() && operand2->isConstNum()) {
     // TODO
     return;
   }
   // If we reach here, it means we have a problem with the operands
   throw std::runtime_error("Invalid operands for binary instruction");
+}
+
+void MachineFunc::branch(ir::BranchInst *inst, MachineBlock *block) {
+  if (!inst->isConditional()) {
+    auto dest = static_cast<ir::BasicBlock *>(inst->getOperand(0));
+    block->pushInstruction(make_unique<Jump>(dest));
+    return;
+  }
+  auto cond = inst->getOperand(0);
+  auto trueBlock = static_cast<ir::BasicBlock *>(inst->getOperand(1));
+  auto falseBlock = static_cast<ir::BasicBlock *>(inst->getOperand(2));
+  MachineInst *condInst = nullptr;
+  switch (cond->getValueKind()) {
+  case ValueKind::Inst:
+    condInst = _instMap[static_cast<ir::Instruction *>(cond)];
+    break;
+  case ValueKind::ConstNum:
+    // TODO
+    break;
+  default:
+    throw std::runtime_error("Invalid condition for branch instruction");
+  }
+  block->pushInstruction(
+      make_unique<Jump>(condInst, MReg::zeroInst, trueBlock));
+  block->pushInstruction(make_unique<Jump>(falseBlock));
 }
 
 } // namespace riscv

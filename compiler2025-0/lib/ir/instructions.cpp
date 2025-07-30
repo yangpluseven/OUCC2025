@@ -3,159 +3,135 @@
 #include <cassert>
 #include <sstream>
 
-namespace ir
-{
+namespace ir {
 
 //===---------------- Binary ----------------===//
 
-std::string BinaryInst::opToString(BinaryOp op)
-{
-    switch (op)
-    {
-    case BinaryOp::ADD:
-        return "add";
-    case BinaryOp::SUB:
-        return "sub";
-    case BinaryOp::MUL:
-        return "mul";
-    case BinaryOp::SDIV:
-        return "sdiv";
-    case BinaryOp::SREM:
-        return "srem";
-    case BinaryOp::XOR:
-        return "xor";
-    case BinaryOp::FADD:
-        return "fadd";
-    case BinaryOp::FSUB:
-        return "fsub";
-    case BinaryOp::FMUL:
-        return "fmul";
-    case BinaryOp::FDIV:
-        return "fdiv";
-    default:
-        assert(false && "Unknown binary op");
-    }
+std::string BinaryInst::opToString(BinaryOp op) {
+  switch (op) {
+  case BinaryOp::ADD:
+    return "add";
+  case BinaryOp::SUB:
+    return "sub";
+  case BinaryOp::MUL:
+    return "mul";
+  case BinaryOp::SDIV:
+    return "sdiv";
+  case BinaryOp::SREM:
+    return "srem";
+  case BinaryOp::XOR:
+    return "xor";
+  case BinaryOp::FADD:
+    return "fadd";
+  case BinaryOp::FSUB:
+    return "fsub";
+  case BinaryOp::FMUL:
+    return "fmul";
+  case BinaryOp::FDIV:
+    return "fdiv";
+  default:
+    assert(false && "Unknown binary op");
+  }
 }
 
 BinaryInst::BinaryInst(BinaryOp op, Value *lhs, Value *rhs)
-    : Instruction(lhs->getType()->clone(), {lhs, rhs}), _op(op)
-{
-    assert(*lhs->getType() == *rhs->getType() &&
-        "Operands must have the same type");
+    : Instruction(lhs->getType()->clone(), {lhs, rhs}), _op(op) {
+  assert(*lhs->getType() == *rhs->getType() &&
+         "Operands must have the same type");
 }
 
-BinaryOp BinaryInst::getOp() const
-{
-    return _op;
-}
+BinaryOp BinaryInst::getOp() const { return _op; }
 
-InstKind BinaryInst::getInstKind() const
-{
-    return InstKind::Binary;
-}
+InstKind BinaryInst::getInstKind() const { return InstKind::Binary; }
 
-std::string BinaryInst::str() const
-{
-    auto lhs = getOperand(0);
-    auto rhs = getOperand(1);
-    if (!Type::isEqual(lhs->getType(), rhs->getType()))
-    {
-        throw std::runtime_error("Unmatched types in binary instruction!");
+std::string BinaryInst::str() const {
+  auto lhs = getOperand(0);
+  auto rhs = getOperand(1);
+  if (!Type::isEqual(lhs->getType(), rhs->getType())) {
+    throw std::runtime_error("Unmatched types in binary instruction!");
+  }
+  auto first = lhs->getName();
+  auto second = rhs->getName();
+  switch (_op) {
+  case BinaryOp::ADD:
+  case BinaryOp::FADD:
+  case BinaryOp::MUL:
+  case BinaryOp::FMUL:
+  case BinaryOp::XOR:
+    if (first < second) {
+      std::swap(first, second);
     }
-    auto first = lhs->getName();
-    auto second = rhs->getName();
-    switch (_op)
-    {
-    case BinaryOp::ADD:
-    case BinaryOp::FADD:
-    case BinaryOp::MUL:
-    case BinaryOp::FMUL:
-    case BinaryOp::XOR:
-        if (first < second)
-        {
-            std::swap(first, second);
-        }
-    }
-    return getName() + " = " + opToString(_op) + " " + lhs->getType()->str() +
-           " " + first + ", " + second;
+  }
+  return getName() + " = " + opToString(_op) + " " + lhs->getType()->str() +
+         " " + first + ", " + second;
 }
 
-std::unique_ptr<Instruction> BinaryInst::cloneEmpty() const
-{
-    auto cloned = std::make_unique<BinaryInst>(getType()->clone(), _op);
-    cloned->_cloneTarget = const_cast<BinaryInst *>(this);
-    cloned->_notRemapped = true;
-    return cloned;
+std::unique_ptr<Instruction> BinaryInst::cloneEmpty() const {
+  auto cloned = std::make_unique<BinaryInst>(getType()->clone(), _op);
+  cloned->_cloneTarget = const_cast<BinaryInst *>(this);
+  cloned->_notRemapped = true;
+  return cloned;
 }
 
 //===---------------- Cmp ----------------===//
 
-std::string CmpInst::opToString(CmpOp op)
-{
-    switch (op)
-    {
-    case CmpOp::EQ:
-        return "icmp eq";
-    case CmpOp::NE:
-        return "icmp ne";
-    case CmpOp::SLT:
-        return "icmp slt";
-    case CmpOp::SGT:
-        return "icmp sgt";
-    case CmpOp::SLE:
-        return "icmp sle";
-    case CmpOp::SGE:
-        return "icmp sge";
-    case CmpOp::OEQ:
-        return "fcmp oeq";
-    case CmpOp::OLT:
-        return "fcmp olt";
-    case CmpOp::OGT:
-        return "fcmp ogt";
-    case CmpOp::OLE:
-        return "fcmp ole";
-    case CmpOp::OGE:
-        return "fcmp oge";
-    case CmpOp::UNE:
-        return "fcmp une";
-    default:
-        assert(false && "Unknown cmp op");
-    }
+std::string CmpInst::opToString(CmpOp op) {
+  switch (op) {
+  case CmpOp::EQ:
+    return "icmp eq";
+  case CmpOp::NE:
+    return "icmp ne";
+  case CmpOp::SLT:
+    return "icmp slt";
+  case CmpOp::SGT:
+    return "icmp sgt";
+  case CmpOp::SLE:
+    return "icmp sle";
+  case CmpOp::SGE:
+    return "icmp sge";
+  case CmpOp::OEQ:
+    return "fcmp oeq";
+  case CmpOp::OLT:
+    return "fcmp olt";
+  case CmpOp::OGT:
+    return "fcmp ogt";
+  case CmpOp::OLE:
+    return "fcmp ole";
+  case CmpOp::OGE:
+    return "fcmp oge";
+  case CmpOp::UNE:
+    return "fcmp une";
+  default:
+    assert(false && "Unknown cmp op");
+  }
 }
 
 CmpInst::CmpInst(CmpOp op, Value *lhs, Value *rhs)
     : Instruction(std::make_unique<BasicType>(BasicKind::I1), {lhs, rhs}),
-      _op(op)
-{
+      _op(op) {}
+
+bool CmpInst::isICmpInst() const {
+  switch (_op) {
+  case CmpOp::EQ:
+  case CmpOp::NE:
+  case CmpOp::SLT:
+  case CmpOp::SGT:
+  case CmpOp::SLE:
+  case CmpOp::SGE:
+    return true;
+  case CmpOp::OEQ:
+  case CmpOp::OLT:
+  case CmpOp::OGT:
+  case CmpOp::OLE:
+  case CmpOp::OGE:
+  case CmpOp::UNE:
+    return false;
+  default:
+    assert(false && "Unknown cmp op");
+  }
 }
 
-bool CmpInst::isICmpInst() const
-{
-    switch (_op)
-    {
-    case CmpOp::EQ:
-    case CmpOp::NE:
-    case CmpOp::SLT:
-    case CmpOp::SGT:
-    case CmpOp::SLE:
-    case CmpOp::SGE:
-        return true;
-    case CmpOp::OEQ:
-    case CmpOp::OLT:
-    case CmpOp::OGT:
-    case CmpOp::OLE:
-    case CmpOp::OGE:
-    case CmpOp::UNE:
-        return false;
-    default:
-        assert(false && "Unknown cmp op");
-    }
-}
-
-CmpOp CmpInst::getOp() const
-{
-    return _op;
-}
+CmpOp CmpInst::getOp() const { return _op; }
 
 InstKind CmpInst::getInstKind() const {
   if (isICmpInst()) {
@@ -165,397 +141,304 @@ InstKind CmpInst::getInstKind() const {
   }
 }
 
-std::string CmpInst::str() const
-{
-    auto lhs = getOperand(0);
-    auto rhs = getOperand(1);
-    if (!Type::isEqual(lhs->getType(), rhs->getType()))
-    {
-        throw std::runtime_error("Unmatched types in binary instruction!");
-    }
-    return getName() + " = " + opToString(_op) + " " + lhs->getType()->str() +
-           " " + lhs->getName() + ", " + rhs->getName();
+std::string CmpInst::str() const {
+  auto lhs = getOperand(0);
+  auto rhs = getOperand(1);
+  if (!Type::isEqual(lhs->getType(), rhs->getType())) {
+    throw std::runtime_error("Unmatched types in binary instruction!");
+  }
+  return getName() + " = " + opToString(_op) + " " + lhs->getType()->str() +
+         " " + lhs->getName() + ", " + rhs->getName();
 }
 
-std::unique_ptr<Instruction> CmpInst::cloneEmpty() const
-{
-    auto cloned = std::make_unique<CmpInst>(_op, nullptr, nullptr);
-    cloned->_cloneTarget = const_cast<CmpInst *>(this);
-    cloned->_notRemapped = true;
-    return cloned;
+std::unique_ptr<Instruction> CmpInst::cloneEmpty() const {
+  auto cloned = std::make_unique<CmpInst>(_op, nullptr, nullptr);
+  cloned->_cloneTarget = const_cast<CmpInst *>(this);
+  cloned->_notRemapped = true;
+  return cloned;
 }
 
 //===---------------- Cast ----------------===//
 
-std::string CastInst::opToString(CastOp op)
-{
-    switch (op)
-    {
-    case CastOp::BitCast:
-        return "bitcast";
-    case CastOp::FPToSI:
-        return "fptosi";
-    case CastOp::SIToFP:
-        return "sitofp";
-    case CastOp::SExt:
-        return "sext";
-    case CastOp::ZExt:
-        return "zext";
-    default:
-        assert(false && "Unknown cast op");
-    }
+std::string CastInst::opToString(CastOp op) {
+  switch (op) {
+  case CastOp::BitCast:
+    return "bitcast";
+  case CastOp::FPToSI:
+    return "fptosi";
+  case CastOp::SIToFP:
+    return "sitofp";
+  case CastOp::SExt:
+    return "sext";
+  case CastOp::ZExt:
+    return "zext";
+  default:
+    assert(false && "Unknown cast op");
+  }
 }
 
 CastInst::CastInst(std::unique_ptr<Type> targetType, CastOp op, Value *val)
-    : Instruction(std::move(targetType), {val}), _op(op)
-{
+    : Instruction(std::move(targetType), {val}), _op(op) {}
+
+CastOp CastInst::getCastOp() const { return _op; }
+
+InstKind CastInst::getInstKind() const {
+  switch (_op) {
+  case CastOp::BitCast:
+    return InstKind::BitCast;
+  case CastOp::FPToSI:
+    return InstKind::FPToSI;
+  case CastOp::SIToFP:
+    return InstKind::SIToFP;
+  case CastOp::SExt:
+    return InstKind::SExt;
+  case CastOp::ZExt:
+    return InstKind::ZExt;
+  default:
+    assert(false && "Invalid cast op");
+  }
 }
 
-CastOp CastInst::getCastOp() const
-{
-    return _op;
+std::string CastInst::str() const {
+  std::ostringstream oss;
+  oss << getName() << " = " << opToString(_op) << " "
+      << getOperand(0)->getType()->str() << " " << getOperand(0)->getName()
+      << " to " << getType()->str();
+  return oss.str();
 }
 
-InstKind CastInst::getInstKind() const
-{
-    switch (_op)
-    {
-    case CastOp::BitCast:
-        return InstKind::BitCast;
-    case CastOp::FPToSI:
-        return InstKind::FPToSI;
-    case CastOp::SIToFP:
-        return InstKind::SIToFP;
-    case CastOp::SExt:
-        return InstKind::SExt;
-    case CastOp::ZExt:
-        return InstKind::ZExt;
-    default:
-        assert(false && "Invalid cast op");
-    }
-}
-
-std::string CastInst::str() const
-{
-    std::ostringstream oss;
-    oss << getName() << " = " << opToString(_op) << " "
-        << getOperand(0)->getType()->str() << " " << getOperand(0)->getName()
-        << " to " << getType()->str();
-    return oss.str();
-}
-
-std::unique_ptr<Instruction> CastInst::cloneEmpty() const
-{
-    auto cloned = std::make_unique<CastInst>(getType()->clone(), _op, nullptr);
-    cloned->_cloneTarget = const_cast<CastInst *>(this);
-    cloned->_notRemapped = true;
-    return cloned;
+std::unique_ptr<Instruction> CastInst::cloneEmpty() const {
+  auto cloned = std::make_unique<CastInst>(getType()->clone(), _op, nullptr);
+  cloned->_cloneTarget = const_cast<CastInst *>(this);
+  cloned->_notRemapped = true;
+  return cloned;
 }
 
 //===---------------- Terminator ----------------===//
 
 RetInst::RetInst(Value *retVal)
-    : Instruction(std::make_unique<BasicType>(BasicKind::VOID), {retVal})
-{
-}
+    : Instruction(std::make_unique<BasicType>(BasicKind::VOID), {retVal}) {}
 
 RetInst::RetInst()
-    : Instruction(std::make_unique<BasicType>(BasicKind::VOID))
-{
+    : Instruction(std::make_unique<BasicType>(BasicKind::VOID)) {}
+
+InstKind RetInst::getInstKind() const { return InstKind::Ret; }
+
+std::string RetInst::str() const {
+  if (empty()) {
+    return "ret void";
+  }
+  auto retVal = getOperand(0);
+  return "ret " + retVal->getType()->str() + " " + retVal->getName();
 }
 
-InstKind RetInst::getInstKind() const
-{
-    return InstKind::Ret;
+std::unique_ptr<Instruction> RetInst::cloneEmpty() const {
+  auto cloned = std::make_unique<RetInst>(nullptr);
+  cloned->_cloneTarget = const_cast<RetInst *>(this);
+  cloned->_notRemapped = true;
+  return cloned;
 }
 
-std::string RetInst::str() const
-{
-    if (empty())
-    {
-        return "ret void";
-    }
-    auto retVal = getOperand(0);
-    return "ret " + retVal->getType()->str() + " " + retVal->getName();
-}
-
-std::unique_ptr<Instruction> RetInst::cloneEmpty() const
-{
-    auto cloned = std::make_unique<RetInst>(nullptr);
-    cloned->_cloneTarget = const_cast<RetInst *>(this);
-    cloned->_notRemapped = true;
-    return cloned;
-}
-
-bool RetInst::isTerminator() const
-{
-    return true;
-}
+bool RetInst::isTerminator() const { return true; }
 
 BranchInst::BranchInst(Value *cond, BasicBlock *trueBlock,
                        BasicBlock *falseBlock)
-    : Instruction(std::make_unique<BasicType>(BasicKind::VOID), {cond})
-{
-    addOperand(trueBlock);
-    addOperand(falseBlock);
+    : Instruction(std::make_unique<BasicType>(BasicKind::VOID), {cond}) {
+  addOperand(trueBlock);
+  addOperand(falseBlock);
 }
 
 BranchInst::BranchInst(BasicBlock *target)
-    : Instruction(std::make_unique<BasicType>(BasicKind::VOID))
-{
-    addOperand(target);
+    : Instruction(std::make_unique<BasicType>(BasicKind::VOID)) {
+  addOperand(target);
 }
 
-InstKind BranchInst::getInstKind() const
-{
-    return InstKind::Branch;
+InstKind BranchInst::getInstKind() const { return InstKind::Branch; }
+
+std::string BranchInst::str() const {
+  if (getNumOperands() == 1) {
+    auto nextBlock = static_cast<BasicBlock *>(getOperand(0));
+    return "br label " + nextBlock->getName();
+  } else {
+    auto condBlock = static_cast<BasicBlock *>(getOperand(0));
+    auto trueBlock = static_cast<BasicBlock *>(getOperand(1));
+    auto falseBlock = static_cast<BasicBlock *>(getOperand(2));
+    return "br i1 " + condBlock->getName() + ", label " + trueBlock->getName() +
+           ", label " + falseBlock->getName();
+  }
 }
 
-std::string BranchInst::str() const
-{
-    if (getNumOperands() == 1)
-    {
-        auto nextBlock = static_cast<BasicBlock *>(getOperand(0));
-        return "br label " + nextBlock->getName();
-    }
-    else
-    {
-        auto condBlock = static_cast<BasicBlock *>(getOperand(0));
-        auto trueBlock = static_cast<BasicBlock *>(getOperand(1));
-        auto falseBlock = static_cast<BasicBlock *>(getOperand(2));
-        return "br i1 " + condBlock->getName() + ", label " + trueBlock->getName() +
-               ", label " + falseBlock->getName();
-    }
+std::unique_ptr<Instruction> BranchInst::cloneEmpty() const {
+  auto cloned = getNumOperands() > 1
+                    ? std::make_unique<BranchInst>(nullptr, nullptr, nullptr)
+                    : std::make_unique<BranchInst>(nullptr);
+  cloned->_cloneTarget = const_cast<BranchInst *>(this);
+  cloned->_notRemapped = true;
+  return cloned;
 }
 
-std::unique_ptr<Instruction> BranchInst::cloneEmpty() const
-{
-    auto cloned = getNumOperands() > 1
-                      ? std::make_unique<BranchInst>(nullptr, nullptr, nullptr)
-                      : std::make_unique<BranchInst>(nullptr);
-    cloned->_cloneTarget = const_cast<BranchInst *>(this);
-    cloned->_notRemapped = true;
-    return cloned;
-}
-
-bool BranchInst::isTerminator() const
-{
-    return true;
-}
+bool BranchInst::isTerminator() const { return true; }
 
 //===---------------- Other Instructions ----------------===//
 
 AllocaInst::AllocaInst(std::unique_ptr<Type> allocType)
-    : Instruction(std::make_unique<PointerType>(std::move(allocType)))
-{
+    : Instruction(std::make_unique<PointerType>(std::move(allocType))) {}
+
+InstKind AllocaInst::getInstKind() const { return InstKind::Alloca; }
+
+std::string AllocaInst::str() const {
+  assert(getType()->isArray() || getType()->isPointer());
+  return getName() + " = alloca " + getType()->getBaseType()->str();
 }
 
-InstKind AllocaInst::getInstKind() const
-{
-    return InstKind::Alloca;
-}
-
-std::string AllocaInst::str() const
-{
-    assert(getType()->isArray() || getType()->isPointer());
-    return getName() + " = alloca " + getType()->getBaseType()->str();
-}
-
-std::unique_ptr<Instruction> AllocaInst::cloneEmpty() const
-{
-    auto cloned = std::make_unique<AllocaInst>(getType()->clone());
-    cloned->_cloneTarget = const_cast<AllocaInst *>(this);
-    cloned->_notRemapped = true;
-    return cloned;
+std::unique_ptr<Instruction> AllocaInst::cloneEmpty() const {
+  auto cloned = std::make_unique<AllocaInst>(getType()->clone());
+  cloned->_cloneTarget = const_cast<AllocaInst *>(this);
+  cloned->_notRemapped = true;
+  return cloned;
 }
 
 LoadInst::LoadInst(Value *ptr)
-    : Instruction(ptr->isGlobal()
-                      ? ptr->getType()->clone()
-                      : ptr->getType()->getBaseType()->clone(),
-                  {ptr})
-{
-}
+    : Instruction(ptr->isGlobal() ? ptr->getType()->clone()
+                                  : ptr->getType()->getBaseType()->clone(),
+                  {ptr}) {}
 
 LoadInst::LoadInst(std::unique_ptr<Type> loadedType, Value *ptr)
-    : Instruction(std::move(loadedType), {ptr})
-{
-}
+    : Instruction(std::move(loadedType), {ptr}) {}
 
-InstKind LoadInst::getInstKind() const
-{
-    return InstKind::Load;
-}
+InstKind LoadInst::getInstKind() const { return InstKind::Load; }
 
-std::string LoadInst::str() const
-{
-    auto ptr = getOperand(0);
-    if (ptr->isGlobal())
-    {
-        return getName() + " = load " + getType()->str() + ", " +
-               ptr->getType()->str() + "* " + ptr->getName();
-    }
+std::string LoadInst::str() const {
+  auto ptr = getOperand(0);
+  if (ptr->isGlobal()) {
     return getName() + " = load " + getType()->str() + ", " +
-           ptr->getType()->str() + " " + ptr->getName();
+           ptr->getType()->str() + "* " + ptr->getName();
+  }
+  return getName() + " = load " + getType()->str() + ", " +
+         ptr->getType()->str() + " " + ptr->getName();
 }
 
-std::unique_ptr<Instruction> LoadInst::cloneEmpty() const
-{
-    auto cloned = std::make_unique<LoadInst>(getType()->clone(), nullptr);
-    cloned->_cloneTarget = const_cast<LoadInst *>(this);
-    cloned->_notRemapped = true;
-    return cloned;
+std::unique_ptr<Instruction> LoadInst::cloneEmpty() const {
+  auto cloned = std::make_unique<LoadInst>(getType()->clone(), nullptr);
+  cloned->_cloneTarget = const_cast<LoadInst *>(this);
+  cloned->_notRemapped = true;
+  return cloned;
 }
 
 StoreInst::StoreInst(Value *val, Value *ptr)
-    : Instruction(std::make_unique<BasicType>(BasicKind::VOID), {val, ptr})
-{
-}
+    : Instruction(std::make_unique<BasicType>(BasicKind::VOID), {val, ptr}) {}
 
-InstKind StoreInst::getInstKind() const
-{
-    return InstKind::Store;
-}
+InstKind StoreInst::getInstKind() const { return InstKind::Store; }
 
 // Not sure (ATTENTION)
-std::string StoreInst::str() const
-{
-    auto val = getOperand(0);
-    auto ptr = getOperand(1);
-    if (ptr->isGlobal())
-    {
-        return "store " + val->getType()->str() + " " + val->getName() + ", " +
-               ptr->getType()->str() + "* " + ptr->getName();
-    }
+std::string StoreInst::str() const {
+  auto val = getOperand(0);
+  auto ptr = getOperand(1);
+  if (ptr->isGlobal()) {
     return "store " + val->getType()->str() + " " + val->getName() + ", " +
-           ptr->getType()->str() + " " + ptr->getName();
+           ptr->getType()->str() + "* " + ptr->getName();
+  }
+  return "store " + val->getType()->str() + " " + val->getName() + ", " +
+         ptr->getType()->str() + " " + ptr->getName();
 }
 
-std::unique_ptr<Instruction> StoreInst::cloneEmpty() const
-{
-    auto cloned = std::make_unique<StoreInst>(nullptr, nullptr);
-    cloned->_cloneTarget = const_cast<StoreInst *>(this);
-    cloned->_notRemapped = true;
-    return cloned;
+std::unique_ptr<Instruction> StoreInst::cloneEmpty() const {
+  auto cloned = std::make_unique<StoreInst>(nullptr, nullptr);
+  cloned->_cloneTarget = const_cast<StoreInst *>(this);
+  cloned->_notRemapped = true;
+  return cloned;
 }
 
 std::unique_ptr<Type> GetElementPtrInst::calcType(Value *value,
-                                                  size_t indexSize)
-{
-    auto type = value->getType();
-    if (value->isGlobal())
-    {
-        auto bType = std::make_unique<PointerType>(type->clone());
-        type = bType.get();
-    }
-    for (int i = 0; i < indexSize; i++)
-    {
-        type = type->getBaseType();
-    }
-    return std::make_unique<PointerType>(type->clone());
+                                                  size_t indexSize) {
+  auto type = value->getType();
+  if (value->isGlobal()) {
+    auto bType = std::make_unique<PointerType>(type->clone());
+    type = bType.get();
+  }
+  for (int i = 0; i < indexSize; i++) {
+    type = type->getBaseType();
+  }
+  return std::make_unique<PointerType>(type->clone());
 }
 
 GetElementPtrInst::GetElementPtrInst(Value *base,
                                      const std::vector<Value *> &indices)
-    : Instruction(calcType(base, indices.size()), {base})
-{
-    for (auto *idx : indices)
-    {
-        addOperand(idx);
-    }
+    : Instruction(calcType(base, indices.size()), {base}) {
+  for (auto *idx : indices) {
+    addOperand(idx);
+  }
 }
 
 GetElementPtrInst::GetElementPtrInst(std::unique_ptr<Type> targetType)
-    : Instruction(std::move(targetType))
-{
+    : Instruction(std::move(targetType)) {}
+
+InstKind GetElementPtrInst::getInstKind() const { return InstKind::GEP; }
+
+std::string GetElementPtrInst::str() const {
+  std::ostringstream oss;
+
+  auto ptr = getOperand(0);
+  if (ptr->isGlobal()) {
+    oss << getName() << " = getelementptr " << ptr->getType()->str() << ", "
+        << ptr->getType()->str() << "*" << " " << ptr->getName();
+  } else {
+    oss << getName() << " = getelementptr "
+        << ptr->getType()->getBaseType()->str() << ", " << ptr->getType()->str()
+        << " " << ptr->getName();
+  }
+
+  for (int i = 1; i < getNumOperands(); i++) {
+    auto operand = getOperand(i);
+    oss << ", " << operand->getType()->str() << " " << operand->getName();
+  }
+
+  return oss.str();
 }
 
-InstKind GetElementPtrInst::getInstKind() const
-{
-    return InstKind::GEP;
-}
-
-std::string GetElementPtrInst::str() const
-{
-    std::ostringstream oss;
-
-    auto ptr = getOperand(0);
-    if (ptr->isGlobal())
-    {
-        oss << getName() << " = getelementptr " << ptr->getType()->str() << ", "
-            << ptr->getType()->str() << "*" << " " << ptr->getName();
-    }
-    else
-    {
-        oss << getName() << " = getelementptr "
-            << ptr->getType()->getBaseType()->str() << ", " << ptr->getType()->str()
-            << " " << ptr->getName();
-    }
-
-    for (int i = 1; i < getNumOperands(); i++)
-    {
-        auto operand = getOperand(i);
-        oss << ", " << operand->getType()->str() << " " << operand->getName();
-    }
-
-    return oss.str();
-}
-
-std::unique_ptr<Instruction> GetElementPtrInst::cloneEmpty() const
-{
-    auto cloned = std::make_unique<GetElementPtrInst>(getType()->clone());
-    cloned->_cloneTarget = const_cast<GetElementPtrInst *>(this);
-    cloned->_notRemapped = true;
-    return cloned;
+std::unique_ptr<Instruction> GetElementPtrInst::cloneEmpty() const {
+  auto cloned = std::make_unique<GetElementPtrInst>(getType()->clone());
+  cloned->_cloneTarget = const_cast<GetElementPtrInst *>(this);
+  cloned->_notRemapped = true;
+  return cloned;
 }
 
 CallInst::CallInst(Function *func, const std::vector<Value *> &args)
-    : Instruction(func->getType()->clone())
-{
-    addOperand(func);
-    for (auto arg : args)
-    {
-        addOperand(arg);
-    }
+    : Instruction(func->getType()->clone()) {
+  addOperand(func);
+  for (auto arg : args) {
+    addOperand(arg);
+  }
 }
 
-InstKind CallInst::getInstKind() const
-{
-    return InstKind::Call;
+InstKind CallInst::getInstKind() const { return InstKind::Call; }
+
+std::string CallInst::str() const {
+  std::ostringstream oss;
+  oss << "(";
+  for (size_t i = 1; i < getNumOperands(); i++) {
+    if (i > 1)
+      oss << ", ";
+    oss << getOperand(i)->getType()->str() << " " << getOperand(i)->getName();
+  }
+  oss << ")";
+  auto type = getOperand(0)->getType();
+  if (type->isBasic() &&
+      static_cast<BasicType *>(type)->getBasicKind() == BasicKind::VOID) {
+    return "call " + type->str() + " " + getOperand(0)->getName() + oss.str();
+  }
+  return getName() + " = call " + type->str() + " " + getOperand(0)->getName() +
+         oss.str();
 }
 
-std::string CallInst::str() const
-{
-    std::ostringstream oss;
-    oss << "(";
-    for (size_t i = 1; i < getNumOperands(); i++)
-    {
-        if (i > 1)
-            oss << ", ";
-        oss << getOperand(i)->getType()->str() << " " << getOperand(i)->getName();
-    }
-    oss << ")";
-    auto type = getOperand(0)->getType();
-    if (type->isBasic() &&
-        static_cast<BasicType *>(type)->getBasicKind() == BasicKind::VOID)
-    {
-        return "call " + type->str() + " " + getOperand(0)->getName() + oss.str();
-    }
-    return getName() + " = call " + type->str() + " " + getOperand(0)->getName() +
-           oss.str();
-}
-
-std::unique_ptr<Instruction> CallInst::cloneEmpty() const
-{
-    auto cloned = std::make_unique<CallInst>(nullptr, std::vector<Value *>{});
-    cloned->_cloneTarget = const_cast<CallInst *>(this);
-    cloned->_notRemapped = true;
-    return cloned;
+std::unique_ptr<Instruction> CallInst::cloneEmpty() const {
+  auto cloned = std::make_unique<CallInst>(nullptr, std::vector<Value *>{});
+  cloned->_cloneTarget = const_cast<CallInst *>(this);
+  cloned->_notRemapped = true;
+  return cloned;
 }
 
 MoveInst::MoveInst(PhiInst *target, Value *src)
-    : Instruction(target->getType()->clone(), {src}), _target(target)
-{
-}
+    : Instruction(target->getType()->clone(), {src}), _target(target) {}
 
 } // namespace ir

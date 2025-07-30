@@ -36,10 +36,10 @@
    private implementation details that can be changed or removed.  */
 
 #ifndef YY_YY_PARSER_TAB_HPP_INCLUDED
-# define YY_YY_PARSER_TAB_HPP_INCLUDED
+#define YY_YY_PARSER_TAB_HPP_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 0
+#define YYDEBUG 0
 #endif
 #if YYDEBUG
 extern int yydebug;
@@ -47,124 +47,118 @@ extern int yydebug;
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
-# define YYTOKENTYPE
-  enum yytokentype
-  {
-    YYEMPTY = -2,
-    YYEOF = 0,                     /* "end of file"  */
-    YYerror = 256,                 /* error  */
-    YYUNDEF = 257,                 /* "invalid token"  */
-    INT = 258,                     /* INT  */
-    FLOAT = 259,                   /* FLOAT  */
-    ID = 260,                      /* ID  */
-    GTE = 261,                     /* GTE  */
-    LTE = 262,                     /* LTE  */
-    GT = 263,                      /* GT  */
-    LT = 264,                      /* LT  */
-    EQ = 265,                      /* EQ  */
-    NEQ = 266,                     /* NEQ  */
-    INTTYPE = 267,                 /* INTTYPE  */
-    FLOATTYPE = 268,               /* FLOATTYPE  */
-    VOID = 269,                    /* VOID  */
-    CONST = 270,                   /* CONST  */
-    RETURN = 271,                  /* RETURN  */
-    IF = 272,                      /* IF  */
-    ELSE = 273,                    /* ELSE  */
-    WHILE = 274,                   /* WHILE  */
-    BREAK = 275,                   /* BREAK  */
-    CONTINUE = 276,                /* CONTINUE  */
-    LP = 277,                      /* LP  */
-    RP = 278,                      /* RP  */
-    LB = 279,                      /* LB  */
-    RB = 280,                      /* RB  */
-    LC = 281,                      /* LC  */
-    RC = 282,                      /* RC  */
-    COMMA = 283,                   /* COMMA  */
-    SEMICOLON = 284,               /* SEMICOLON  */
-    NOT = 285,                     /* NOT  */
-    ASSIGN = 286,                  /* ASSIGN  */
-    MINUS = 287,                   /* MINUS  */
-    ADD = 288,                     /* ADD  */
-    MUL = 289,                     /* MUL  */
-    DIV = 290,                     /* DIV  */
-    MOD = 291,                     /* MOD  */
-    AND = 292,                     /* AND  */
-    OR = 293,                      /* OR  */
-    LOWER_THEN_ELSE = 294          /* LOWER_THEN_ELSE  */
-  };
-  typedef enum yytokentype yytoken_kind_t;
+#define YYTOKENTYPE
+enum yytokentype {
+  YYEMPTY = -2,
+  YYEOF = 0,            /* "end of file"  */
+  YYerror = 256,        /* error  */
+  YYUNDEF = 257,        /* "invalid token"  */
+  INT = 258,            /* INT  */
+  FLOAT = 259,          /* FLOAT  */
+  ID = 260,             /* ID  */
+  GTE = 261,            /* GTE  */
+  LTE = 262,            /* LTE  */
+  GT = 263,             /* GT  */
+  LT = 264,             /* LT  */
+  EQ = 265,             /* EQ  */
+  NEQ = 266,            /* NEQ  */
+  INTTYPE = 267,        /* INTTYPE  */
+  FLOATTYPE = 268,      /* FLOATTYPE  */
+  VOID = 269,           /* VOID  */
+  CONST = 270,          /* CONST  */
+  RETURN = 271,         /* RETURN  */
+  IF = 272,             /* IF  */
+  ELSE = 273,           /* ELSE  */
+  WHILE = 274,          /* WHILE  */
+  BREAK = 275,          /* BREAK  */
+  CONTINUE = 276,       /* CONTINUE  */
+  LP = 277,             /* LP  */
+  RP = 278,             /* RP  */
+  LB = 279,             /* LB  */
+  RB = 280,             /* RB  */
+  LC = 281,             /* LC  */
+  RC = 282,             /* RC  */
+  COMMA = 283,          /* COMMA  */
+  SEMICOLON = 284,      /* SEMICOLON  */
+  NOT = 285,            /* NOT  */
+  ASSIGN = 286,         /* ASSIGN  */
+  MINUS = 287,          /* MINUS  */
+  ADD = 288,            /* ADD  */
+  MUL = 289,            /* MUL  */
+  DIV = 290,            /* DIV  */
+  MOD = 291,            /* MOD  */
+  AND = 292,            /* AND  */
+  OR = 293,             /* OR  */
+  LOWER_THEN_ELSE = 294 /* LOWER_THEN_ELSE  */
+};
+typedef enum yytokentype yytoken_kind_t;
 #endif
 
 /* Value type.  */
-#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-union YYSTYPE
-{
+#if !defined YYSTYPE && !defined YYSTYPE_IS_DECLARED
+union YYSTYPE {
 #line 23 "parser.y"
 
-    CompUnit* compUnit;
-    DeclDef* declDef;
-    Decl* decl;
-    DefList* defList;
-    Def* def;
-    ArrayList* arrays;
-    InitValList* initValList;
-    InitVal* initVal;
-    FuncDef* funcDef;
-    FuncFParamList* funcFParamList;
-    FuncFParam* funcFParam;
-    Block* block;
-    BlockItemList* blockItemList;
-    BlockItem* blockItem;
-    Stmt* stmt;
-    ReturnStmt* returnStmt;
-    IfStmt* ifStmt;
-    WhileStmt* whileStmtAST;
-    LVal* lVal;
-    PrimaryExp* primaryExp;
-    NumberNode* number;
-    UnaryExp* unaryExp;
-    Call* call;
-    FuncCParamList* funcCParamList;
-    MulExp* mulExp;
-    AddExp* addExp;
-    RelExp* relExp;
-    EqExp* eqExp;
-    LAndExp* lAndExp;
-    LOrExp* lOrExp;
+  CompUnit *compUnit;
+  DeclDef *declDef;
+  Decl *decl;
+  DefList *defList;
+  Def *def;
+  ArrayList *arrays;
+  InitValList *initValList;
+  InitVal *initVal;
+  FuncDef *funcDef;
+  FuncFParamList *funcFParamList;
+  FuncFParam *funcFParam;
+  Block *block;
+  BlockItemList *blockItemList;
+  BlockItem *blockItem;
+  Stmt *stmt;
+  ReturnStmt *returnStmt;
+  IfStmt *ifStmt;
+  WhileStmt *whileStmtAST;
+  LVal *lVal;
+  PrimaryExp *primaryExp;
+  NumberNode *number;
+  UnaryExp *unaryExp;
+  Call *call;
+  FuncCParamList *funcCParamList;
+  MulExp *mulExp;
+  AddExp *addExp;
+  RelExp *relExp;
+  EqExp *eqExp;
+  LAndExp *lAndExp;
+  LOrExp *lOrExp;
 
-    BType ty;
-    UnaryOp op;
-    string* token;
-    int int_val;
-    float float_val;
+  BType ty;
+  UnaryOp op;
+  string *token;
+  int int_val;
+  float float_val;
 
 #line 142 "parser.tab.hpp"
-
 };
 typedef union YYSTYPE YYSTYPE;
-# define YYSTYPE_IS_TRIVIAL 1
-# define YYSTYPE_IS_DECLARED 1
+#define YYSTYPE_IS_TRIVIAL 1
+#define YYSTYPE_IS_DECLARED 1
 #endif
 
 /* Location type.  */
-#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
+#if !defined YYLTYPE && !defined YYLTYPE_IS_DECLARED
 typedef struct YYLTYPE YYLTYPE;
-struct YYLTYPE
-{
+struct YYLTYPE {
   int first_line;
   int first_column;
   int last_line;
   int last_column;
 };
-# define YYLTYPE_IS_DECLARED 1
-# define YYLTYPE_IS_TRIVIAL 1
+#define YYLTYPE_IS_DECLARED 1
+#define YYLTYPE_IS_TRIVIAL 1
 #endif
-
 
 extern YYSTYPE yylval;
 extern YYLTYPE yylloc;
 
-int yyparse (void);
-
+int yyparse(void);
 
 #endif /* !YY_YY_PARSER_TAB_HPP_INCLUDED  */

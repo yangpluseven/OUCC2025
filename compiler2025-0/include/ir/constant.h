@@ -35,6 +35,7 @@ public:
   explicit ConstantNumber(const Number &num);
   ConstantNumber(ConstantNumber &&other) noexcept;
 
+  ValueKind getValueKind() const override { return ValueKind::ConstNum; }
   ConstantKind getConstantKind() const override { return ConstantKind::Number; }
 
   Number getValue() const;

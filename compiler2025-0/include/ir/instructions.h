@@ -99,6 +99,7 @@ public:
   std::string str() const override;
   std::unique_ptr<Instruction> cloneEmpty() const override;
   bool isTerminator() const override;
+  bool isConditional() const { getNumOperands() == 3; }
 };
 
 //===---------------- Other Instructions ----------------===//

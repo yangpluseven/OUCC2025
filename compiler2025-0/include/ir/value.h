@@ -11,6 +11,7 @@ namespace ir {
 
 enum class ValueKind {
   Const,
+  ConstNum,
   Inst,
   Global,
   Block,
@@ -36,7 +37,7 @@ public:
   std::unique_ptr<BasicType> makeRegType() const;
   size_t getTypeSize() const { return _type->getSize(); }
   virtual ValueKind getValueKind() const = 0;
-  bool isConst() const { return getValueKind() == ValueKind::Const; }
+  bool isConstNum() const { return getValueKind() == ValueKind::ConstNum; }
   bool isGlobal() const { return getValueKind() == ValueKind::Global; }
   bool isArg() const { return getValueKind() == ValueKind::Arg; }
   bool isInst() const { return getValueKind() == ValueKind::Inst; }

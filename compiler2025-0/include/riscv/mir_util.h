@@ -172,10 +172,9 @@ MachineInst *divRegImmI(MachineBlock *block, MachineInst *src, int imm) {
   return static_cast<MachineInst *>(tmp1);
 }
 
+// TODO
 MachineInst *divRegRegF(MachineBlock *block, MachineInst *src0,
-                        MachineInst *src1) {
-                          
-                        }
+                        MachineInst *src1);
 MachineInst *divRegRegI(MachineBlock *block, MachineInst *src0,
                         MachineInst *src1);
 MachineInst *modImmReg(MachineBlock *block, int imm, MachineInst *src);
@@ -195,6 +194,13 @@ MachineInst *subRegRegF(MachineBlock *block, MachineInst *src0,
                         MachineInst *src1);
 MachineInst *subRegRegI(MachineBlock *block, MachineInst *src0,
                         MachineInst *src1);
+
+MachineInst *binImmReg(MachineBlock *block, ir::ConstantNumber *imm,
+                       MachineInst *src);
+MachineInst *binRegImm(MachineBlock *block, MachineInst *src,
+                       ir::ConstantNumber *imm);
+MachineInst *binRegReg(MachineBlock *block, MachineInst *src0,
+                       MachineInst *src1);
 
 } // namespace riscv
 
