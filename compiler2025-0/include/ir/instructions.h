@@ -99,7 +99,6 @@ public:
   std::string str() const override;
   std::unique_ptr<Instruction> cloneEmpty() const override;
   bool isTerminator() const override;
-  bool isConditional() const { getNumOperands() == 3; }
 };
 
 //===---------------- Other Instructions ----------------===//
@@ -168,8 +167,8 @@ public:
   PhiInst *getTarget() const { return _target; }
   // TODO
   std::string str() const override {
-    // TODO
-    return "";
+    return "fake mv " + getName() + "\ttarget: " + getOperand(0)->str() +
+           "\tsrc: " + getOperand(1)->getName();
   }
   std::unique_ptr<Instruction> cloneEmpty() const override {
     // TODO
