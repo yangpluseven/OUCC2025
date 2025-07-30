@@ -87,6 +87,8 @@ MachineInst *const MReg::raInst = new MachineInst(MReg::ra);
 MachineInst *const MReg::spInst = new MachineInst(MReg::sp);
 MachineInst *const MReg::gpInst = new MachineInst(MReg::gp);
 MachineInst *const MReg::tpInst = new MachineInst(MReg::tp);
+MachineInst *const MReg::a0Inst = new MachineInst(MReg::a0);
+MachineInst *const MReg::fa0Inst = new MachineInst(MReg::fa0);
 
 const std::vector<MReg *> MReg::iRegs = {
     MReg::a0, MReg::a1, MReg::a2, MReg::a3, MReg::a4, MReg::a5, MReg::a6,

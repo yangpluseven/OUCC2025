@@ -253,9 +253,9 @@ int MachineFunc::call(ir::CallInst *inst, MachineBlock *block) {
     MachineInst *retInst = nullptr;
     if (retType->isF32()) {
       retInst =
-          block->pushMInst(make_unique<RR>(RROp::MV, MAKE_F32, MReg::fa0));
+          block->pushMInst(make_unique<RR>(RROp::MV, MAKE_F32, MReg::fa0Inst));
     } else {
-      retInst = block->pushMInst(make_unique<RR>(RROp::MV, MAKE_I32, MReg::a0));
+      retInst = block->pushMInst(make_unique<RR>(RROp::MV, MAKE_I32, MReg::a0Inst));
     }
     _instMap[inst] = retInst;
   }

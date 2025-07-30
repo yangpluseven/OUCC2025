@@ -87,6 +87,8 @@ public:
   static MachineInst *const spInst;
   static MachineInst *const gpInst;
   static MachineInst *const tpInst;
+  static MachineInst *const a0Inst;
+  static MachineInst *const fa0Inst;
 
   static const std::vector<MReg *> iRegs;
   static const std::vector<MReg *> fRegs;
