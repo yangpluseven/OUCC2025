@@ -63,7 +63,7 @@ public:
 
   void binary(ir::BinaryInst *inst, MachineBlock *block);
   void branch(ir::BranchInst *inst, MachineBlock *block);
-  void call(ir::CallInst *inst, MachineBlock *block);
+  int call(ir::CallInst *inst, MachineBlock *block);
   void gep(ir::GetElementPtrInst *inst, MachineBlock *block);
   void load(ir::LoadInst *inst, MachineBlock *block);
   void ret(ir::RetInst *inst, MachineBlock *block);

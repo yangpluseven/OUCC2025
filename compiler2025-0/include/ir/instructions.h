@@ -148,6 +148,9 @@ public:
   InstKind getInstKind() const override;
   std::string str() const override;
   std::unique_ptr<Instruction> cloneEmpty() const override;
+  BasicKind retTypeKind() const {
+    return static_cast<BasicType *>(getType())->getBasicKind();
+  }
 };
 
 //===---------------- Fake Instructions ----------------===//

@@ -9,7 +9,7 @@
 
 namespace riscv {
 
-class MReg : ir::Reg {
+class MReg : public ir::Reg {
 private:
   std::string _name;
 

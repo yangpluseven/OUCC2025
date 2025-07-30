@@ -22,6 +22,7 @@ public:
   void addOperand(Value *v);
   void setOperand(size_t index, Value *v);
   Value *getOperand(size_t index) const;
+  Value *getLastOperand() const;
 
   size_t getNumOperands() const { return operands.size(); }
   bool empty() const { return operands.empty(); }

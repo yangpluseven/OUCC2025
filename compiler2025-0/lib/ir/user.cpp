@@ -32,6 +32,11 @@ Value *User::getOperand(size_t index) const {
   return operands[index]->getValue();
 }
 
+Value *User::getLastOperand() const {
+  assert(!operands.empty());
+  return operands.back()->getValue();
+}
+
 void User::replaceOperand(Value *oldVal, Value *newVal) {
   for (auto &usePtr : operands) {
     auto use = usePtr.get();

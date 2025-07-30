@@ -4,6 +4,9 @@
 
 namespace riscv {
 
+using ir::GlobalVariable;
+using ir::InstKind;
+using ir::Instruction;
 using ir::ValueKind;
 using std::make_unique;
 using std::unique_ptr;
@@ -182,6 +185,191 @@ void MachineFunc::branch(ir::BranchInst *inst, MachineBlock *block) {
   block->pushInstruction(make_unique<Jump>(falseBlock));
 }
 
-void MachineFunc::gep(ir::GetElementPtrInst *inst, MachineBlock *block) {}
+int MachineFunc::call(ir::CallInst *inst, MachineBlock *block) {
+  auto func = static_cast<ir::Function *>(inst->getOperand(0));
+  int iSize = 0, fSize = 0;
+  for (int i = 0; i < inst->getNumOperands(); i++) {
+    auto param = inst->getOperand(i);
+    bool isFloat = param->getType()->isF32();
+    auto &callerRegs = isFloat ? MReg::fCallerRegs : MReg::iCallerRegs;
+    auto &curSize = isFloat ? fSize : iSize;
+    if (curSize < callerRegs.size()) {
+      switch (param->getValueKind()) {
+      case ValueKind::Arg: {
+        auto tmp = handleArg(static_cast<ir::Argument *>(param), block);
+        tmp->setDest(callerRegs[curSize]);
+        break;
+      }
+      case ValueKind::Inst:
+        block->pushMInst(
+            make_unique<RR>(RROp::MV, callerRegs[curSize],
+                            _instMap[static_cast<ir::Instruction *>(param)]));
+        break;
+      case ValueKind::ConstNum:
+        if (isFloat) {
+          auto tmp = loadImmF(
+              block, static_cast<ir::ConstantNumber *>(param)->floatValue());
+          tmp->setDest(callerRegs[curSize]);
+        } else {
+          auto tmp = loadImmI(
+              block, static_cast<ir::ConstantNumber *>(param)->intValue());
+          tmp->setDest(callerRegs[curSize]);
+        }
+        break;
+      }
+    } else {
+      switch (param->getValueKind()) {
+      case ValueKind::Arg: {
+        auto tmp = handleArg(static_cast<ir::Argument *>(param), block);
+        block->pushMInst(make_unique<StoreTo>(
+            StoreItem::CALL_PARAM, tmp, MReg::argsStackOffset(iSize, fSize)));
+        break;
+      }
+      case ValueKind::Inst:
+        block->pushMInst(make_unique<StoreTo>(
+            StoreItem::CALL_PARAM,
+            _instMap[static_cast<ir::Instruction *>(param)],
+            MReg::argsStackOffset(iSize, fSize)));
+        break;
+      case ValueKind::ConstNum: {
+        auto constNum = static_cast<ir::ConstantNumber *>(param);
+        MachineInst *tmp = nullptr;
+        if (isFloat) {
+          tmp = loadImmI(block, constNum->floatValue());
+        } else {
+          tmp = loadImmI(block, constNum->intValue());
+        }
+        block->pushMInst(make_unique<StoreTo>(
+            StoreItem::CALL_PARAM, tmp, MReg::argsStackOffset(iSize, fSize)));
+        break;
+      }
+      }
+    }
+    curSize++;
+  }
+  block->pushMInst(make_unique<Call>(func));
+  if (inst->retTypeKind() != ir::BasicKind::VOID) {
+    auto retType = inst->getType();
+    MachineInst *retInst = nullptr;
+    if (retType->isF32()) {
+      retInst =
+          block->pushMInst(make_unique<RR>(RROp::MV, MAKE_F32, MReg::fa0));
+    } else {
+      retInst = block->pushMInst(make_unique<RR>(RROp::MV, MAKE_I32, MReg::a0));
+    }
+    _instMap[inst] = retInst;
+  }
+  return inst->getNumOperands() - 1; // Return the number of parameters
+}
+
+void MachineFunc::gep(ir::GetElementPtrInst *inst, MachineBlock *block) {
+  auto ptr = inst->getOperand(0);
+  MachineInst *base = nullptr;
+  MachineInst *mul1 = nullptr;
+  std::pair<bool, int> offset;
+  switch (ptr->getValueKind()) {
+  case ValueKind::Global:
+    base = block->pushMInst(
+        make_unique<LLA>(MAKE_I32, static_cast<GlobalVariable *>(ptr)));
+    mul1 = block->pushMInst(make_unique<LI>(
+        MAKE_I32, inst->getType()->getBaseType()->getSize() / 8));
+    break;
+  case ValueKind::Arg: {
+    offset = _argOffsets[static_cast<ir::Argument *>(ptr)];
+    base = block->pushMInst(
+        make_unique<LoadFrom>(offset.first ? LoadItem::INNER : LoadItem::OUTER,
+                              MAKE_I32, offset.second));
+    mul1 = block->pushMInst(make_unique<LI>(
+        MAKE_I32, inst->getType()->getBaseType()->getSize() / 8));
+    break;
+  }
+  case ValueKind::Inst: {
+    if (inst->getNumOperands() == 3) {
+      mul1 = block->pushMInst(make_unique<LI>(
+          MAKE_I32,
+          inst->getType()->getBaseType()->getBaseType()->getSize() / 8));
+    } else {
+      mul1 = block->pushMInst(make_unique<LI>(
+          MAKE_I32, inst->getType()->getBaseType()->getSize() / 8));
+    }
+    auto pInst = static_cast<Instruction *>(ptr);
+    if (pInst->getInstKind() == InstKind::Alloca) {
+      int offset = _localOffsets[static_cast<ir::AllocaInst *>(pInst)];
+      base = block->pushMInst(make_unique<LEA>(MAKE_I32, offset));
+    } else {
+      // Handle other cases
+      base = _instMap[pInst];
+    }
+    break;
+  }
+  }
+  auto operand = inst->getLastOperand();
+  MachineInst *mul2 = nullptr;
+  switch (operand->getValueKind()) {
+  case ValueKind::Arg:
+    mul2 = handleArg(static_cast<ir::Argument *>(operand), block);
+    break;
+  case ValueKind::Inst: {
+    auto tmp = _instMap[static_cast<ir::Instruction *>(operand)];
+    if (tmp->getDest()->getRegType()->getBasicKind() == ir::BasicKind::I32) {
+      mul2 = tmp;
+    } else {
+      // Handle other cases, like F32
+      mul2 = block->pushMInst(make_unique<RR>(RROp::MV, MAKE_I32, tmp));
+    }
+    break;
+  }
+  case ValueKind::ConstNum:
+    if (operand->getType()->isF32()) {
+      mul2 = loadImmI(block,
+                      static_cast<ir::ConstantNumber *>(operand)->floatValue());
+    } else {
+      mul2 = loadImmI(block,
+                      static_cast<ir::ConstantNumber *>(operand)->intValue());
+    }
+    break;
+  default:
+    throw std::runtime_error("Invalid operand for GEP instruction");
+  }
+  auto mulResult =
+      block->pushMInst(make_unique<RRR>(RRROp::MUL, MAKE_I32, mul1, mul2));
+  auto addResult =
+      block->pushMInst(make_unique<RRR>(RRROp::ADD, MAKE_I32, base, mulResult));
+  _instMap[inst] = addResult;
+}
+
+void MachineFunc::load(ir::LoadInst *inst, MachineBlock *block) {
+  auto ptr = inst->getOperand(0);
+  MachineInst *base = nullptr;
+  int size = 4; // Default size
+  switch (ptr->getValueKind()) {
+  case ValueKind::Global:
+    base = block->pushMInst(
+        make_unique<LLA>(MAKE_I32, static_cast<GlobalVariable *>(ptr)));
+    break;
+  case ValueKind::Arg: {
+    auto tmp = handleArg(static_cast<ir::Argument *>(ptr), block);
+    _instMap[inst] = tmp;
+    return;
+  }
+  case ValueKind::Inst: {
+    auto pInst = static_cast<Instruction *>(ptr);
+    size = pInst->getType()->getBaseType()->getSize() / 8;
+    if (pInst->getInstKind() == InstKind::Alloca) {
+      int offset = _localOffsets[static_cast<ir::AllocaInst *>(pInst)];
+      base = block->pushMInst(make_unique<LEA>(MAKE_I32, offset));
+    } else {
+      // Handle other cases
+      base = _instMap[pInst];
+    }
+    break;
+  }
+  }
+  auto loadInst =
+      block->pushMInst(make_unique<Load>(ptr->makeRegType(), base, 0, size));
+  _instMap[inst] = loadInst;
+}
+
+void MachineFunc::ret(ir::RetInst *inst, MachineBlock *block) {}
 
 } // namespace riscv
