@@ -24,14 +24,8 @@ public:
   virtual std::unique_ptr<Type> clone() const = 0;
 
   bool isBasic() const { return getTypeKind() == TypeKind::BASIC; }
-  bool isI32() const {
-    return isBasic() && static_cast<const BasicType *>(this)->getBasicKind() ==
-                            BasicKind::I32;
-  }
-  bool isF32() const {
-    return isBasic() && static_cast<const BasicType *>(this)->getBasicKind() ==
-                            BasicKind::F32;
-  }
+  bool isI32() const;
+  bool isF32() const;
   bool isArray() const { return getTypeKind() == TypeKind::ARRAY; }
   bool isPointer() const { return getTypeKind() == TypeKind::POINTER; }
 

@@ -253,6 +253,8 @@ BranchInst::BranchInst(BasicBlock *target)
   addOperand(target);
 }
 
+bool BranchInst::isConditional() const { return getNumOperands() > 1; }
+
 InstKind BranchInst::getInstKind() const { return InstKind::Branch; }
 
 std::string BranchInst::str() const {

@@ -95,6 +95,7 @@ public:
   BranchInst(Value *cond, BasicBlock *trueBlock, BasicBlock *falseBlock);
   BranchInst(BasicBlock *target); // unconditional branch
 
+  bool isConditional() const;
   InstKind getInstKind() const override;
   std::string str() const override;
   std::unique_ptr<Instruction> cloneEmpty() const override;

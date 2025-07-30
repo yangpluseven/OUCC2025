@@ -11,7 +11,8 @@ using std::unordered_map;
 unique_ptr<MachineFunc> GenerateMIR::funcToMIR(ir::Function *func) {
   auto machineFunc = make_unique<MachineFunc>(func);
   for (auto &block : *func) {
-    auto machineBlock = make_unique<MachineBlock>(block.get());
+    auto machineBlock =
+        make_unique<MachineBlock>(static_cast<ir::BasicBlock *>(block.get()));
     machineFunc->pushBlock(std::move(machineBlock));
     for (auto &instPtr : *block) {
       auto inst = static_cast<Instruction *>(instPtr.get());
@@ -35,9 +36,11 @@ unique_ptr<MachineFunc> GenerateMIR::funcToMIR(ir::Function *func) {
       case InstKind::FPToSI:
       case InstKind::Move:
       default:
+        continue;
       }
     }
   }
+  return std::move(machineFunc);
 }
 
 } // namespace riscv

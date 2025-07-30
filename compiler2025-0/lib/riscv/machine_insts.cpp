@@ -49,6 +49,10 @@ std::vector<ir::Reg *> MachineInst::getRegs() const {
   return std::move(regs);
 }
 
+void MachineInst::spill(ir::Reg *spilledReg, int offset, MachineBlock *block) {
+  block->pushInstruction(getBlock()->eraseInstruction(this));
+}
+
 void LEA::spill(ir::Reg *spilledReg, int offset, MachineBlock *block) {
   if (spilledReg != getDest())
     throw std::runtime_error("in LEA:spill");

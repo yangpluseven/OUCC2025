@@ -11,6 +11,8 @@
 
 namespace riscv {
 
+class MachineBlock;
+
 enum class MInstKind {
   Fake,
   LEA,
@@ -115,9 +117,7 @@ public:
 
   virtual MInstKind getMInstKind() const { return MInstKind::Fake; }
 
-  virtual void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) {
-    block->pushInstruction(getBlock()->eraseInstruction(this));
-  }
+  virtual void spill(ir::Reg *spilledReg, int offset, MachineBlock *block);
 };
 
 class ImmInst : public MachineInst {
@@ -296,7 +296,10 @@ public:
 
   void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
 
-  std::string str() const override;
+  std::string str() const override {
+    // TODO
+    return "";
+  }
 };
 
 class RR : public MachineInst {
@@ -331,7 +334,10 @@ public:
 
   void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
 
-  std::string str() const override;
+  std::string str() const override {
+    // TODO
+    return "";
+  }
 };
 
 class RRI : public ImmInst {
@@ -433,7 +439,10 @@ public:
 
   void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
 
-  std::string str() const override;
+  std::string str() const override {
+    // TODO
+    return "";
+  }
 };
 
 enum class StoreItem { LOCAL, CALL_PARAM, INNER_PARAM, OUTER_PARAM, SPILL };
@@ -481,7 +490,10 @@ public:
 
   void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
 
-  std::string str() const override;
+  std::string str() const override {
+    // TODO
+    return "";
+  }
 };
 
 } // namespace riscv

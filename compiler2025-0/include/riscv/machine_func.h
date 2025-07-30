@@ -4,10 +4,12 @@
 #include "ir/basic_block.h"
 #include "ir/instructions.h"
 #include "ir/type.h"
+#include "riscv/machine_insts.h"
 
 namespace riscv {
 
 class MachineFunc;
+class MachineInst;
 
 class MachineBlock : public ir::BlockBase {
 private:
@@ -16,11 +18,9 @@ private:
 
 public:
   MachineBlock();
-  explicit MachineBlock(ir::BasicBlock *origin)
+  MachineBlock(ir::BasicBlock *origin)
       : BlockBase(origin->getID()), _origin(origin) {}
-  explicit MachineBlock(int id);
-
-  explicit MachineBlock(int id);
+  MachineBlock(int id);
 
   ir::ValueKind getValueKind() const override {
     return ir::ValueKind::MachineBlock;
@@ -51,16 +51,13 @@ public:
   // Not sure about the type but I guess it's fine (ATTENTION)
   MachineFunc(ir::Function *func);
 
-  [[nodiscard]] int getFCallerNum() const { return _fCallerNum; }
-
-  [[nodiscard]] int getICallerNum() const { return _iCallerNum; }
-
-  [[nodiscard]] int getLocalSize() const { return _localSize; }
-
   int getFCallerNum() const { return _fCallerNum; }
   int getICallerNum() const { return _iCallerNum; }
   int getLocalSize() const { return _localSize; }
   std::string getName() const { return getRawName(); }
+  ir::ValueKind getValueKind() const override {
+    return ir::ValueKind::MachineFunc;
+  }
 
   void binary(ir::BinaryInst *inst, MachineBlock *block);
   void branch(ir::BranchInst *inst, MachineBlock *block);

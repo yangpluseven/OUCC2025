@@ -40,6 +40,16 @@ bool Type::isEqual(const Type *lhs, const Type *rhs) {
   return false; // unreachable
 }
 
+bool Type::isI32() const {
+  return isBasic() && (static_cast<const BasicType *>(this)->getBasicKind() ==
+                       BasicKind::I32);
+}
+
+bool Type::isF32() const {
+  return isBasic() && (static_cast<const BasicType *>(this)->getBasicKind() ==
+                       BasicKind::F32);
+}
+
 //
 // ======== BASIC TYPE ========
 //

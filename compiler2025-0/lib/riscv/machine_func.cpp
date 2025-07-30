@@ -172,7 +172,7 @@ void MachineFunc::branch(ir::BranchInst *inst, MachineBlock *block) {
     throw std::runtime_error("Invalid condition for branch instruction");
   }
   block->pushInstruction(
-      make_unique<Jump>(condInst, MReg::zeroInst, trueBlock));
+      make_unique<Jump>(JumpOp::NE, condInst, MReg::zeroInst, trueBlock));
   block->pushInstruction(make_unique<Jump>(falseBlock));
 }
 
