@@ -24,6 +24,14 @@ public:
   virtual std::unique_ptr<Type> clone() const = 0;
 
   bool isBasic() const { return getTypeKind() == TypeKind::BASIC; }
+  bool isI32() const {
+    return isBasic() && static_cast<const BasicType *>(this)->getBasicKind() ==
+                            BasicKind::I32;
+  }
+  bool isF32() const {
+    return isBasic() && static_cast<const BasicType *>(this)->getBasicKind() ==
+                            BasicKind::F32;
+  }
   bool isArray() const { return getTypeKind() == TypeKind::ARRAY; }
   bool isPointer() const { return getTypeKind() == TypeKind::POINTER; }
 
@@ -43,9 +51,7 @@ class BasicType : public Type {
 public:
   explicit BasicType(BasicKind kind);
 
-  TypeKind getTypeKind() const override {
-    return TypeKind::BASIC;
-  }
+  TypeKind getTypeKind() const override { return TypeKind::BASIC; }
   size_t getSize() const override;
   // Should not be called
   Type *getBaseType() const override { return nullptr; }
@@ -66,14 +72,10 @@ class ArrayType : public Type {
 public:
   explicit ArrayType(std::unique_ptr<Type> elementType, size_t arraySize);
 
-  TypeKind getTypeKind() const override {
-    return TypeKind::ARRAY;
-  }
+  TypeKind getTypeKind() const override { return TypeKind::ARRAY; }
   size_t getSize() const override;
   // Recommend getElementType()
-  Type *getBaseType() const override {
-    return _elementType.get();
-  }
+  Type *getBaseType() const override { return _elementType.get(); }
   // Return a viewport instead of the actual ownership
   Type *getElementType() const { return _elementType.get(); }
   size_t getLength() const { return _arrayLength; }
@@ -100,14 +102,10 @@ class PointerType : public Type {
 public:
   explicit PointerType(std::unique_ptr<Type> pointeeType);
 
-  TypeKind getTypeKind() const override {
-    return TypeKind::POINTER;
-  }
+  TypeKind getTypeKind() const override { return TypeKind::POINTER; }
   size_t getSize() const override;
   // Recommend getPointeeType()
-  Type *getBaseType() const override {
-    return _pointeeType.get();
-  }
+  Type *getBaseType() const override { return _pointeeType.get(); }
   // Return a viewport instead of the actual ownership
   Type *getPointeeType() const { return _pointeeType.get(); }
 
