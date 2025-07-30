@@ -10,6 +10,7 @@ using std::unordered_map;
 
 unique_ptr<MachineFunc> GenerateMIR::funcToMIR(ir::Function *func) {
   auto machineFunc = make_unique<MachineFunc>(func);
+  auto exitBlock = make_unique<ir::BasicBlock>();
   for (auto &block : *func) {
     auto machineBlock =
         make_unique<MachineBlock>(static_cast<ir::BasicBlock *>(block.get()));

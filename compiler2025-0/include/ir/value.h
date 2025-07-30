@@ -12,6 +12,7 @@ namespace ir {
 enum class ValueKind {
   Const,
   ConstNum,
+  ConstZero,
   Inst,
   Global,
   Block,
@@ -38,6 +39,7 @@ public:
   size_t getTypeSize() const { return _type->getSize(); }
   virtual ValueKind getValueKind() const = 0;
   bool isConstNum() const { return getValueKind() == ValueKind::ConstNum; }
+  bool isConstZero() const { return getValueKind() == ValueKind::ConstZero; }
   bool isGlobal() const { return getValueKind() == ValueKind::Global; }
   bool isArg() const { return getValueKind() == ValueKind::Arg; }
   bool isInst() const { return getValueKind() == ValueKind::Inst; }

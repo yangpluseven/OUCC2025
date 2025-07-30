@@ -67,7 +67,7 @@ public:
   using Constant::Constant;
 
   ConstantKind getConstantKind() const override { return ConstantKind::Zero; }
-
+  ValueKind getValueKind() const override { return ValueKind::ConstZero; }
   std::string getName() const override;
   std::string str() const override;
 };

@@ -1,4 +1,4 @@
-#include "mir_util.h"
+#include "riscv/mir_util.h"
 
 namespace riscv {
 

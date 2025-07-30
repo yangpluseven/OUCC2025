@@ -17,6 +17,8 @@ MachineBlock::MachineBlock() : BlockBase(_counter++) {}
 
 MachineBlock::MachineBlock(int id) : BlockBase(id) { _counter = id + 1; }
 
+MachineBlock::MachineBlock(std::string name) : BlockBase(-1), _name(name) {}
+
 MachineInst *MachineBlock::pushMInst(std::unique_ptr<MachineInst> inst) {
   auto machineInst =
       static_cast<MachineInst *>(BlockBase::pushInstruction(std::move(inst)));
@@ -25,6 +27,9 @@ MachineInst *MachineBlock::pushMInst(std::unique_ptr<MachineInst> inst) {
 
 // Currently the name must match the original LLVM IR basicblock (ATTENTION)
 std::string MachineBlock::getLabel() const {
+  if (getID() == -1) {
+    return "." + _name;
+  }
   return ".bb" + std::to_string(getID());
 }
 
@@ -122,16 +127,22 @@ void MachineFunc::binary(ir::BinaryInst *inst, MachineBlock *block) {
   auto operand1 = inst->getOperand(0);
   auto operand2 = inst->getOperand(1);
   MachineInst *src1 = nullptr;
-  if (operand1->isArg()) {
+  switch (operand1->getValueKind()) {
+  case ValueKind::Arg:
     src1 = handleArg(static_cast<ir::Argument *>(operand1), block);
-  } else if (operand1->isInst()) {
+    break;
+  case ValueKind::Inst:
     src1 = _instMap[static_cast<ir::Instruction *>(operand1)];
+    break;
   }
   MachineInst *src2 = nullptr;
-  if (operand2->isArg()) {
+  switch (operand2->getValueKind()) {
+  case ValueKind::Arg:
     src2 = handleArg(static_cast<ir::Argument *>(operand2), block);
-  } else if (operand2->isInst()) {
+    break;
+  case ValueKind::Inst:
     src2 = _instMap[static_cast<ir::Instruction *>(operand2)];
+    break;
   }
   if (src1 && src2) {
     // TODO
@@ -255,7 +266,8 @@ int MachineFunc::call(ir::CallInst *inst, MachineBlock *block) {
       retInst =
           block->pushMInst(make_unique<RR>(RROp::MV, MAKE_F32, MReg::fa0Inst));
     } else {
-      retInst = block->pushMInst(make_unique<RR>(RROp::MV, MAKE_I32, MReg::a0Inst));
+      retInst =
+          block->pushMInst(make_unique<RR>(RROp::MV, MAKE_I32, MReg::a0Inst));
     }
     _instMap[inst] = retInst;
   }
@@ -370,6 +382,326 @@ void MachineFunc::load(ir::LoadInst *inst, MachineBlock *block) {
   _instMap[inst] = loadInst;
 }
 
-void MachineFunc::ret(ir::RetInst *inst, MachineBlock *block) {}
+void MachineFunc::ret(ir::RetInst *inst, MachineBlock *block,
+                      ir::BasicBlock *exitBlock) {
+  if (inst->empty()) {
+    block->pushMInst(make_unique<Jump>(exitBlock));
+    return;
+  }
+  auto retVal = inst->getOperand(0);
+  MachineInst *retInst = nullptr;
+  switch (retVal->getValueKind()) {
+  case ValueKind::Arg:
+    retInst = handleArg(static_cast<ir::Argument *>(retVal), block);
+    break;
+  case ValueKind::Inst:
+    retInst = _instMap[static_cast<ir::Instruction *>(retVal)];
+    break;
+  case ValueKind::ConstNum:
+    if (retVal->getType()->isF32()) {
+      retInst = loadImmF(
+          block, static_cast<ir::ConstantNumber *>(retVal)->floatValue());
+    } else {
+      retInst = loadImmI(block,
+                         static_cast<ir::ConstantNumber *>(retVal)->intValue());
+    }
+    break;
+  default:
+    throw std::runtime_error("Invalid return value for Ret instruction");
+  }
+  if (retVal->getType()->isF32()) {
+    block->pushMInst(make_unique<RR>(RROp::MV, MReg::fa0Inst, retInst));
+  } else {
+    block->pushMInst(make_unique<RR>(RROp::MV, MReg::a0Inst, retInst));
+  }
+  block->pushMInst(make_unique<Jump>(exitBlock));
+}
+
+void MachineFunc::store(ir::StoreInst *inst, MachineBlock *block) {
+  auto value = inst->getOperand(0);
+  auto ptr = inst->getOperand(1);
+  MachineInst *base = nullptr;
+  int size = 4; // Default size
+  switch (ptr->getValueKind()) {
+  case ValueKind::Global:
+    base = block->pushMInst(
+        make_unique<LLA>(MAKE_I32, static_cast<GlobalVariable *>(ptr)));
+    break;
+  case ValueKind::Arg: {
+    base = handleArg(static_cast<ir::Argument *>(ptr), block);
+    break;
+  }
+  case ValueKind::Inst: {
+    auto pInst = static_cast<Instruction *>(ptr);
+    size = pInst->getType()->getBaseType()->getSize() / 8;
+    if (pInst->getInstKind() == InstKind::Alloca) {
+      int offset = _localOffsets[static_cast<ir::AllocaInst *>(pInst)];
+      base = block->pushMInst(make_unique<LEA>(MAKE_I32, offset));
+    } else {
+      // Handle other cases
+      base = _instMap[pInst];
+    }
+    break;
+  }
+  }
+  MachineInst *valueInst = nullptr;
+  switch (value->getValueKind()) {
+  case ValueKind::Arg:
+    valueInst = handleArg(static_cast<ir::Argument *>(value), block);
+    break;
+  case ValueKind::Inst:
+    valueInst = _instMap[static_cast<ir::Instruction *>(value)];
+    break;
+  case ValueKind::ConstNum:
+    if (value->getType()->isF32()) {
+      valueInst = loadImmI(
+          block, static_cast<ir::ConstantNumber *>(value)->floatValue());
+    } else {
+      valueInst =
+          loadImmI(block, static_cast<ir::ConstantNumber *>(value)->intValue());
+    }
+    break;
+  default:
+    throw std::runtime_error("Invalid value for Store instruction");
+  }
+  block->pushMInst(make_unique<Store>(valueInst, base, 0, size));
+}
+
+using ir::CmpOp;
+
+void MachineFunc::icmp(ir::CmpInst *inst, MachineBlock *block) {
+  auto operand1 = inst->getOperand(0);
+  auto operand2 = inst->getOperand(1);
+  MachineInst *src1 = nullptr;
+  switch (operand1->getValueKind()) {
+  case ValueKind::Arg:
+    src1 = handleArg(static_cast<ir::Argument *>(operand1), block);
+    break;
+  case ValueKind::Inst:
+    src1 = _instMap[static_cast<ir::Instruction *>(operand1)];
+    break;
+  case ValueKind::ConstNum:
+    src1 = loadImmI(block,
+                    static_cast<ir::ConstantNumber *>(operand1)->intValue());
+    break;
+  }
+  MachineInst *src2 = nullptr;
+  switch (operand2->getValueKind()) {
+  case ValueKind::Arg:
+    src2 = handleArg(static_cast<ir::Argument *>(operand2), block);
+    break;
+  case ValueKind::Inst:
+    src2 = _instMap[static_cast<ir::Instruction *>(operand2)];
+    break;
+  case ValueKind::ConstNum:
+    src2 = loadImmI(block,
+                    static_cast<ir::ConstantNumber *>(operand2)->intValue());
+    break;
+  }
+  MachineInst *tmp = nullptr;
+  MachineInst *result = nullptr;
+  switch (inst->getOp()) {
+  case CmpOp::EQ:
+    // Maybe eq is enough?
+    tmp = block->pushMInst(make_unique<RRR>(RRROp::SUB, MAKE_I32, src1, src2));
+    result =
+        block->pushMInst(make_unique<RR>(RROp::SEQZ, MAKE_I32, src1, src2));
+    break;
+  case CmpOp::NE:
+    tmp = block->pushMInst(make_unique<RRR>(RRROp::SUB, MAKE_I32, src1, src2));
+    result =
+        block->pushMInst(make_unique<RR>(RROp::SNEZ, MAKE_I32, src1, src2));
+    break;
+  case CmpOp::SGE:
+    tmp = block->pushMInst(make_unique<RRR>(RRROp::SLT, MAKE_I32, src1, src2));
+    result = block->pushMInst(make_unique<RRI>(RRIOp::XORI, MAKE_I32, src1, 1));
+    break;
+  case CmpOp::SGT:
+    result =
+        block->pushMInst(make_unique<RRR>(RRROp::SGT, MAKE_I32, src2, src1));
+    break;
+  case CmpOp::SLE:
+    tmp = block->pushMInst(make_unique<RRR>(RRROp::SGT, MAKE_I32, src1, src2));
+    result = block->pushMInst(make_unique<RRI>(RRIOp::XORI, MAKE_I32, src1, 1));
+    break;
+  case CmpOp::SLT:
+    result =
+        block->pushMInst(make_unique<RRR>(RRROp::SLT, MAKE_I32, src1, src2));
+    break;
+  default:
+    throw std::runtime_error("Invalid comparison operation");
+  }
+  _instMap[inst] = result;
+}
+
+using ir::CmpOp;
+
+void MachineFunc::fcmp(ir::CmpInst *inst, MachineBlock *block) {
+  auto operand1 = inst->getOperand(0);
+  auto operand2 = inst->getOperand(1);
+  MachineInst *src1 = nullptr;
+  switch (operand1->getValueKind()) {
+  case ValueKind::Arg:
+    src1 = handleArg(static_cast<ir::Argument *>(operand1), block);
+    break;
+  case ValueKind::Inst:
+    src1 = _instMap[static_cast<ir::Instruction *>(operand1)];
+    break;
+  case ValueKind::ConstNum:
+    src1 = loadImmF(block,
+                    static_cast<ir::ConstantNumber *>(operand1)->floatValue());
+    break;
+  }
+  MachineInst *src2 = nullptr;
+  switch (operand2->getValueKind()) {
+  case ValueKind::Arg:
+    src2 = handleArg(static_cast<ir::Argument *>(operand2), block);
+    break;
+  case ValueKind::Inst:
+    src2 = _instMap[static_cast<ir::Instruction *>(operand2)];
+    break;
+  case ValueKind::ConstNum:
+    src2 = loadImmF(block,
+                    static_cast<ir::ConstantNumber *>(operand2)->floatValue());
+    break;
+  }
+  MachineInst *result = nullptr;
+  if (inst->getOp() == CmpOp::UNE) {
+    auto tmp =
+        block->pushMInst(make_unique<RRR>(RRROp::EQ, MAKE_I32, src1, src2));
+    result = block->pushMInst(make_unique<RRI>(RRIOp::XORI, MAKE_I32, tmp, 1));
+    _instMap[inst] = result;
+    return;
+  }
+  RRROp op;
+  switch (inst->getOp()) {
+  case CmpOp::OEQ:
+    op = RRROp::EQ;
+    break;
+  case CmpOp::OGE:
+    op = RRROp::GE;
+    break;
+  case CmpOp::OGT:
+    op = RRROp::GT;
+    break;
+  case CmpOp::OLE:
+    op = RRROp::LE;
+    break;
+  case CmpOp::OLT:
+    op = RRROp::LT;
+    break;
+  default:
+    throw std::runtime_error("Invalid floating-point comparison operation");
+  }
+  result = block->pushMInst(make_unique<RRR>(op, MAKE_I32, src1, src2));
+  _instMap[inst] = result;
+  return;
+}
+
+using ir::InstKind;
+
+void MachineFunc::bitcast(ir::CastInst *inst, MachineBlock *block) {
+  auto operand = static_cast<ir::Instruction *>(inst->getOperand(0));
+  auto src = _instMap[operand];
+  if (operand->getInstKind() == InstKind::Alloca) {
+    src = block->pushMInst(make_unique<LEA>(
+        MAKE_I32, _localOffsets[static_cast<ir::AllocaInst *>(operand)]));
+  }
+  auto result =
+      block->pushMInst(make_unique<RR>(RROp::MV, inst->makeRegType(), src));
+  _instMap[inst] = result;
+}
+
+void MachineFunc::zext(ir::CastInst *inst, MachineBlock *block) {
+  auto operand = inst->getOperand(0);
+  MachineInst *src = nullptr;
+  switch (operand->getValueKind()) {
+  case ValueKind::Arg:
+    src = handleArg(static_cast<ir::Argument *>(operand), block);
+    break;
+  case ValueKind::Inst:
+    src = _instMap[static_cast<ir::Instruction *>(operand)];
+    break;
+  case ValueKind::ConstNum:
+    src =
+        loadImmI(block, static_cast<ir::ConstantNumber *>(operand)->intValue());
+    break;
+  default:
+    throw std::runtime_error("Invalid operand for zext instruction");
+  }
+  auto result =
+      block->pushMInst(make_unique<RR>(RROp::MV, inst->makeRegType(), src));
+  _instMap[inst] = result;
+}
+
+void MachineFunc ::sext(ir::CastInst *inst, MachineBlock *block) {
+  auto operand = inst->getOperand(0);
+  MachineInst *src = nullptr;
+  switch (operand->getValueKind()) {
+  case ValueKind::Arg:
+    src = handleArg(static_cast<ir::Argument *>(operand), block);
+    break;
+  case ValueKind::Inst:
+    src = _instMap[static_cast<ir::Instruction *>(operand)];
+    break;
+  case ValueKind::ConstNum:
+    src =
+        loadImmI(block, static_cast<ir::ConstantNumber *>(operand)->intValue());
+    break;
+  default:
+    throw std::runtime_error("Invalid operand for sext instruction");
+  }
+  auto result =
+      block->pushMInst(make_unique<RR>(RROp::NEG, inst->makeRegType(), src));
+  _instMap[inst] = result;
+}
+
+void MachineFunc::fptosi(ir::CastInst *inst, MachineBlock *block) {
+  auto operand = inst->getOperand(0);
+  MachineInst *src = nullptr;
+  switch (operand->getValueKind()) {
+  case ValueKind::Arg:
+    src = handleArg(static_cast<ir::Argument *>(operand), block);
+    break;
+  case ValueKind::Inst:
+    src = _instMap[static_cast<ir::Instruction *>(operand)];
+    break;
+  case ValueKind::ConstNum:
+    src = loadImmF(block,
+                   static_cast<ir::ConstantNumber *>(operand)->floatValue());
+    break;
+  default:
+    throw std::runtime_error("Invalid operand for fptosi instruction");
+  }
+  auto result =
+      block->pushMInst(make_unique<RR>(RROp::CVT, inst->makeRegType(), src));
+  _instMap[inst] = result;
+}
+
+void MachineFunc::sitofp(ir::CastInst *inst, MachineBlock *block) {
+  auto operand = inst->getOperand(0);
+  MachineInst *src = nullptr;
+  switch (operand->getValueKind()) {
+  case ValueKind::Arg:
+    src = handleArg(static_cast<ir::Argument *>(operand), block);
+    break;
+  case ValueKind::Inst:
+    src = _instMap[static_cast<ir::Instruction *>(operand)];
+    break;
+  case ValueKind::ConstNum:
+    src =
+        loadImmI(block, static_cast<ir::ConstantNumber *>(operand)->intValue());
+    break;
+  default:
+    throw std::runtime_error("Invalid operand for sitofp instruction");
+  }
+  auto result =
+      block->pushMInst(make_unique<RR>(RROp::CVT, inst->makeRegType(), src));
+  _instMap[inst] = result;
+}
+
+void MachineFunc::move(ir::MoveInst *inst, MachineBlock *block) {
+  // TODO MoveInst is used to handle phi nodes, which are not yet supported
+}
 
 } // namespace riscv

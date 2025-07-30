@@ -1,5 +1,5 @@
-#ifndef RISCV_MACHINE_BLOCK_H
-#define RISCV_MACHINE_BLOCK_H
+#ifndef RISCV_MACHINE_FUNC_H
+#define RISCV_MACHINE_FUNC_H
 
 #include "ir/basic_block.h"
 #include "ir/instructions.h"
@@ -15,12 +15,14 @@ class MachineBlock : public ir::BlockBase {
 private:
   static int _counter;
   ir::BasicBlock *_origin = nullptr;
+  std::string _name;
 
 public:
   MachineBlock();
   MachineBlock(ir::BasicBlock *origin)
       : BlockBase(origin->getID()), _origin(origin) {}
   MachineBlock(int id);
+  MachineBlock(std::string name);
 
   MachineInst *pushMInst(std::unique_ptr<MachineInst> inst);
 
@@ -66,7 +68,7 @@ public:
   int call(ir::CallInst *inst, MachineBlock *block);
   void gep(ir::GetElementPtrInst *inst, MachineBlock *block);
   void load(ir::LoadInst *inst, MachineBlock *block);
-  void ret(ir::RetInst *inst, MachineBlock *block);
+  void ret(ir::RetInst *inst, MachineBlock *block, ir::BasicBlock *exitBlock);
   void store(ir::StoreInst *inst, MachineBlock *block);
   void icmp(ir::CmpInst *inst, MachineBlock *block);
   void fcmp(ir::CmpInst *inst, MachineBlock *block);
