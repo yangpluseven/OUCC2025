@@ -361,12 +361,12 @@ MachineInst *subRegRegI(MachineBlock *block, MachineInst *src0,
       std::make_unique<RRR>(RRROp::SUBW, MAKE_I32, src0, src1)));
 }
 // TODO
-MachineInst *binImmReg(MachineBlock *block, ir::ConstantNumber *imm,
-                       MachineInst *src) {}
-MachineInst *binRegImm(MachineBlock *block, MachineInst *src,
-                       ir::ConstantNumber *imm);
-MachineInst *binRegReg(MachineBlock *block, MachineInst *src0,
-                       MachineInst *src1);
+MachineInst *binImmReg(MachineBlock *block, ir::BinaryInst *binInst,
+                       ir::ConstantNumber *imm, MachineInst *src);
+MachineInst *binRegImm(MachineBlock *block, ir::BinaryInst *binInst,
+                       MachineInst *src, ir::ConstantNumber *imm);
+MachineInst *binRegReg(MachineBlock *block, ir::BinaryInst *binInst,
+                       MachineInst *src0, MachineInst *src1);
 
 } // namespace riscv
 
