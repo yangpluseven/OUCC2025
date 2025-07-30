@@ -22,6 +22,8 @@ public:
       : BlockBase(origin->getID()), _origin(origin) {}
   MachineBlock(int id);
 
+  MachineInst *pushMInst(std::unique_ptr<MachineInst> inst);
+
   ir::ValueKind getValueKind() const override {
     return ir::ValueKind::MachineBlock;
   }

@@ -14,6 +14,12 @@ MachineBlock::MachineBlock() : BlockBase(_counter++) {}
 
 MachineBlock::MachineBlock(int id) : BlockBase(id) { _counter = id + 1; }
 
+MachineInst *MachineBlock::pushMInst(std::unique_ptr<MachineInst> inst) {
+  auto machineInst =
+      static_cast<MachineInst *>(BlockBase::pushInstruction(std::move(inst)));
+  return machineInst;
+}
+
 // Currently the name must match the original LLVM IR basicblock (ATTENTION)
 std::string MachineBlock::getLabel() const {
   return ".bb" + std::to_string(getID());

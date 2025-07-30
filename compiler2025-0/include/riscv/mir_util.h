@@ -12,15 +12,14 @@
 namespace riscv {
 
 MachineInst *loadImmI(MachineBlock *block, int imm) {
-  auto inst = block->pushInstruction(std::make_unique<LI>(MAKE_I32, imm));
-  return static_cast<MachineInst *>(inst);
+  auto inst = block->pushMInst(std::make_unique<LI>(MAKE_I32, imm));
+  return (inst);
 }
 
 MachineInst *loadImmF(MachineBlock *block, int imm) {
-  auto tmp = block->pushInstruction(std::make_unique<LI>(MAKE_I32, imm));
-  auto inst = block->pushInstruction(std::make_unique<RR>(
-      RROp::MV, MAKE_F32, static_cast<MachineInst *>(tmp)));
-  return static_cast<MachineInst *>(inst);
+  auto tmp = block->pushMInst(std::make_unique<LI>(MAKE_I32, imm));
+  auto inst = block->pushMInst(std::make_unique<RR>(RROp::MV, MAKE_F32, (tmp)));
+  return (inst);
 }
 
 MachineInst *loadImmI(MachineBlock *block, float imm) {
@@ -69,16 +68,16 @@ int trailingZeros(int x) {
 
 MachineInst *addRegRegI(MachineBlock *block, MachineInst *src0,
                         MachineInst *src1) {
-  auto inst = block->pushInstruction(
-      std::make_unique<RRR>(RRROp::ADD, MAKE_I32, src0, src1));
-  return static_cast<MachineInst *>(inst);
+  auto inst =
+      block->pushMInst(std::make_unique<RRR>(RRROp::ADD, MAKE_I32, src0, src1));
+  return (inst);
 }
 
 MachineInst *addRegRegF(MachineBlock *block, MachineInst *src0,
                         MachineInst *src1) {
-  auto inst = block->pushInstruction(
-      std::make_unique<RRR>(RRROp::ADD, MAKE_F32, src0, src1));
-  return static_cast<MachineInst *>(inst);
+  auto inst =
+      block->pushMInst(std::make_unique<RRR>(RRROp::ADD, MAKE_F32, src0, src1));
+  return (inst);
 }
 
 MachineInst *addRegImmF(MachineBlock *block, MachineInst *src, float imm) {
@@ -89,9 +88,9 @@ MachineInst *addRegImmF(MachineBlock *block, MachineInst *src, float imm) {
 MachineInst *addRegImmI(MachineBlock *block, MachineInst *src, int imm) {
   if (imm >= -2048 && imm < 2048) {
     // Use ADDI
-    auto inst = block->pushInstruction(
+    auto inst = block->pushMInst(
         std::make_unique<RRI>(RRIOp::ADDI, MAKE_I32, src, imm));
-    return static_cast<MachineInst *>(inst);
+    return (inst);
   }
   auto inst = loadImmI(block, imm);
   return addRegRegI(block, src, inst);
@@ -99,13 +98,13 @@ MachineInst *addRegImmI(MachineBlock *block, MachineInst *src, int imm) {
 
 MachineInst *divRegRegF(MachineBlock *block, MachineInst *src0,
                         MachineInst *src1) {
-  return static_cast<MachineInst *>(block->pushInstruction(
+  return (block->pushMInst(
       std::make_unique<RRR>(RRROp::DIV, MAKE_I32, src0, src1)));
 }
 
 MachineInst *divRegRegI(MachineBlock *block, MachineInst *src0,
                         MachineInst *src1) {
-  return static_cast<MachineInst *>(block->pushInstruction(
+  return (block->pushMInst(
       std::make_unique<RRR>(RRROp::DIVW, MAKE_I32, src0, src1)));
 }
 
@@ -131,8 +130,8 @@ MachineInst *divRegImmI(MachineBlock *block, MachineInst *src, int imm) {
   if (imm == -1) {
     // Use NEG
     auto negInst =
-        block->pushInstruction(std::make_unique<RR>(RROp::NEG, MAKE_F32, src));
-    return static_cast<MachineInst *>(negInst);
+        block->pushMInst(std::make_unique<RR>(RROp::NEG, MAKE_F32, src));
+    return (negInst);
   }
   int div = imm;
   bool isPos = true;
@@ -149,44 +148,44 @@ MachineInst *divRegImmI(MachineBlock *block, MachineInst *src, int imm) {
   auto tmp1 = loadImmI(block, magic);
   MachineInst *mid1, *mid2;
   if (magic >= 0) {
-    auto tmp2 = static_cast<MachineInst *>(block->pushInstruction(
+    auto tmp2 = (block->pushMInst(
         std::make_unique<RRR>(RRROp::MUL, MAKE_I32, src, tmp1)));
-    auto tmp3 = block->pushInstruction(
+    auto tmp3 = block->pushMInst(
         std::make_unique<RRI>(RRIOp::SRLI, MAKE_I32, tmp2, 32));
-    mid1 = static_cast<MachineInst *>(tmp3);
+    mid1 = (tmp3);
   } else {
-    auto tmp2 = static_cast<MachineInst *>(block->pushInstruction(
+    auto tmp2 = (block->pushMInst(
         std::make_unique<RRR>(RRROp::MUL, MAKE_I32, src, tmp1)));
-    auto tmp3 = static_cast<MachineInst *>(block->pushInstruction(
+    auto tmp3 = (block->pushMInst(
         std::make_unique<RRI>(RRIOp::SRLI, MAKE_I32, tmp2, 32)));
-    auto tmp4 = static_cast<MachineInst *>(block->pushInstruction(
+    auto tmp4 = (block->pushMInst(
         std::make_unique<RRR>(RRROp::ADD, MAKE_I32, tmp3, src)));
-    mid1 = static_cast<MachineInst *>(tmp4);
+    mid1 = (tmp4);
   }
   if (shift != 0) {
-    auto tmp2 = block->pushInstruction(
+    auto tmp2 = block->pushMInst(
         std::make_unique<RRI>(RRIOp::SRAIW, MAKE_I32, mid1, shift));
-    mid2 = static_cast<MachineInst *>(tmp2);
+    mid2 = (tmp2);
   } else {
     mid2 = mid1; // No shift needed
   }
   if (isPos) {
-    auto tmp2 = static_cast<MachineInst *>(block->pushInstruction(
+    auto tmp2 = (block->pushMInst(
         std::make_unique<RRI>(RRIOp::SRLIW, MAKE_I32, src, 31)));
-    auto tmp3 = static_cast<MachineInst *>(block->pushInstruction(
+    auto tmp3 = (block->pushMInst(
         std::make_unique<RRR>(RRROp::ADDW, MAKE_I32, mid2, tmp2)));
-    return static_cast<MachineInst *>(tmp1);
+    return (tmp1);
   }
-  auto tmp2 = static_cast<MachineInst *>(block->pushInstruction(
+  auto tmp2 = (block->pushMInst(
       std::make_unique<RRI>(RRIOp::SRAIW, MAKE_I32, src, 31)));
-  auto tmp3 = static_cast<MachineInst *>(block->pushInstruction(
+  auto tmp3 = (block->pushMInst(
       std::make_unique<RRR>(RRROp::SUBW, MAKE_I32, mid2, tmp2)));
-  return static_cast<MachineInst *>(tmp3);
+  return (tmp3);
 }
 
 MachineInst *modRegReg(MachineBlock *block, MachineInst *src0,
                        MachineInst *src1) {
-  return static_cast<MachineInst *>(block->pushInstruction(
+  return (block->pushMInst(
       std::make_unique<RRR>(RRROp::REMW, MAKE_I32, src0, src1)));
 }
 
@@ -197,13 +196,13 @@ MachineInst *modImmReg(MachineBlock *block, int imm, MachineInst *src) {
 
 MachineInst *mulRegRegF(MachineBlock *block, MachineInst *src0,
                         MachineInst *src1) {
-  return static_cast<MachineInst *>(block->pushInstruction(
+  return (block->pushMInst(
       std::make_unique<RRR>(RRROp::MUL, MAKE_F32, src0, src1)));
 }
 
 MachineInst *mulRegRegI(MachineBlock *block, MachineInst *src0,
                         MachineInst *src1) {
-  return static_cast<MachineInst *>(block->pushInstruction(
+  return (block->pushMInst(
       std::make_unique<RRR>(RRROp::MULW, MAKE_I32, src0, src1)));
 }
 
@@ -216,28 +215,23 @@ MachineInst *mulRegImmI(MachineBlock *block, MachineInst *src, int imm) {
   if (imm == 0)
     return loadImmI(block, 0);
   else if (imm == 1)
-    return static_cast<MachineInst *>(
-        block->pushInstruction(std::make_unique<RR>(RROp::MV, MAKE_I32, src)));
+    return (block->pushMInst(std::make_unique<RR>(RROp::MV, MAKE_I32, src)));
   else if (imm == -1)
-    return static_cast<MachineInst *>(
-        block->pushInstruction(std::make_unique<RR>(RROp::NEG, MAKE_I32, src)));
+    return (block->pushMInst(std::make_unique<RR>(RROp::NEG, MAKE_I32, src)));
   else if (bitcount(imm) == 1)
-    return static_cast<MachineInst *>(
-        block->pushInstruction(std::make_unique<RRI>(RRIOp::SLLIW, MAKE_I32,
-                                                     src, trailingZeros(imm))));
+    return (block->pushMInst(std::make_unique<RRI>(RRIOp::SLLIW, MAKE_I32, src,
+                                                   trailingZeros(imm))));
   else if (bitcount(imm) == 2 && imm % 2 == 1) {
-    auto midInst = block->pushInstruction(std::make_unique<RRI>(
+    auto midInst = block->pushMInst(std::make_unique<RRI>(
         RRIOp::SLLIW, MAKE_I32, src, 31 - leadingZeros(imm)));
-    return static_cast<MachineInst *>(
-        block->pushInstruction(std::make_unique<RRR>(
-            RRROp::ADDW, MAKE_I32, static_cast<MachineInst *>(midInst), src)));
+    return (block->pushMInst(
+        std::make_unique<RRR>(RRROp::ADDW, MAKE_I32, (midInst), src)));
   } else if (trailingZeros(imm) == 0 &&
              leadingZeros(imm) + bitcount(imm) == 32) {
-    auto midInst = block->pushInstruction(std::make_unique<RRI>(
+    auto midInst = block->pushMInst(std::make_unique<RRI>(
         RRIOp::SLLIW, MAKE_I32, src, 32 - leadingZeros(imm)));
-    return static_cast<MachineInst *>(
-        block->pushInstruction(std::make_unique<RRR>(
-            RRROp::SUBW, MAKE_I32, static_cast<MachineInst *>(midInst), src)));
+    return (block->pushMInst(
+        std::make_unique<RRR>(RRROp::SUBW, MAKE_I32, (midInst), src)));
   } else {
     auto midInst = loadImmI(block, imm);
     return mulRegRegI(block, src, midInst);
@@ -246,13 +240,13 @@ MachineInst *mulRegImmI(MachineBlock *block, MachineInst *src, int imm) {
 
 MachineInst *subRegRegF(MachineBlock *block, MachineInst *src0,
                         MachineInst *src1) {
-  return static_cast<MachineInst *>(block->pushInstruction(
+  return (block->pushMInst(
       std::make_unique<RRR>(RRROp::SUB, MAKE_F32, src0, src1)));
 }
 
 MachineInst *subRegRegI(MachineBlock *block, MachineInst *src0,
                         MachineInst *src1) {
-  return static_cast<MachineInst *>(block->pushInstruction(
+  return (block->pushMInst(
       std::make_unique<RRR>(RRROp::SUBW, MAKE_I32, src0, src1)));
 }
 
@@ -270,7 +264,7 @@ MachineInst *subRegImmF(MachineBlock *block, MachineInst *src, float imm) {
 }
 MachineInst *subRegImmI(MachineBlock *block, MachineInst *src, int imm) {
   if (-imm >= -2048 && -imm < 2048)
-    return static_cast<MachineInst *>(block->pushInstruction(
+    return (block->pushMInst(
         std::make_unique<RRI>(RRIOp::ADDI, MAKE_I32, src, -imm)));
 
   auto midInst = loadImmI(block, imm);
