@@ -1,4 +1,5 @@
 #include "riscv/machine_func.h"
+#include "riscv/mir_util.h"
 #include "riscv/registers.h"
 
 namespace riscv {
@@ -153,12 +154,19 @@ void MachineFunc::branch(ir::BranchInst *inst, MachineBlock *block) {
   auto trueBlock = static_cast<ir::BasicBlock *>(inst->getOperand(1));
   auto falseBlock = static_cast<ir::BasicBlock *>(inst->getOperand(2));
   MachineInst *condInst = nullptr;
+  auto type = cond->getType();
   switch (cond->getValueKind()) {
   case ValueKind::Inst:
     condInst = _instMap[static_cast<ir::Instruction *>(cond)];
     break;
   case ValueKind::ConstNum:
-    // TODO
+    if (type->isF32()) {
+      condInst = loadImmI(
+          block, static_cast<ir::ConstantNumber *>(cond)->floatValue());
+    } else {
+      condInst =
+          loadImmI(block, static_cast<ir::ConstantNumber *>(cond)->intValue());
+    }
     break;
   default:
     throw std::runtime_error("Invalid condition for branch instruction");
@@ -167,5 +175,7 @@ void MachineFunc::branch(ir::BranchInst *inst, MachineBlock *block) {
       make_unique<Jump>(condInst, MReg::zeroInst, trueBlock));
   block->pushInstruction(make_unique<Jump>(falseBlock));
 }
+
+void MachineFunc::gep(ir::GetElementPtrInst *inst, MachineBlock *block) {}
 
 } // namespace riscv
