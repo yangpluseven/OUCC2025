@@ -153,18 +153,21 @@ Value *GenerateIR::typeConversion(Value *value, BasicKind targetType) {
       return value;
     case BasicKind::I32:
       inst = new CmpInst(CmpOp::NE, value, new ConstantNumber(Number(0)));
-
+      break;
     case BasicKind::F32:
       inst = new CmpInst(CmpOp::UNE, value, new ConstantNumber(Number(0.0f)));
+      break;
     }
   case BasicKind::I32:
     switch (type) {
     case BasicKind::I1:
       inst = new CastInst(MAKE_I32, CastOp::ZExt, value);
+      break;
     case BasicKind::I32:
       return value;
     case BasicKind::F32:
       inst = new CastInst(MAKE_I32, CastOp::FPToSI, value);
+      break;
     }
   case BasicKind::F32:
     switch (type) {
@@ -172,8 +175,10 @@ Value *GenerateIR::typeConversion(Value *value, BasicKind targetType) {
       inst = new CastInst(MAKE_I32, CastOp::ZExt, value);
       _curBlock->pushInstruction(std::unique_ptr<Instruction>(inst));
       inst = new CastInst(MAKE_F32, CastOp::SIToFP, value);
+      break;
     case BasicKind::I32:
       inst = new CastInst(MAKE_F32, CastOp::SIToFP, value);
+      break;
     case BasicKind::F32:
       return value;
     }
