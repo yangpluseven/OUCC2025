@@ -80,6 +80,7 @@ unique_ptr<MachineFunc> GenerateMIR::funcToMIR(ir::Function *func) {
   }
   auto exitMBlock = make_unique<MachineBlock>(exitBBlock.get());
   machineFunc->pushBlock(std::move(exitMBlock));
+  func->pushBlock(std::move(exitBBlock));
   return std::move(machineFunc);
 }
 

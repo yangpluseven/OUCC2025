@@ -1,6 +1,7 @@
 #include "parser/ast.h"
 #include "parser/define.h"
 #include "parser/generate_ir.h"
+#include "riscv/generate_mir.h"
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -47,6 +48,23 @@ void emitLLVM(std::string filename) {
   }
 }
 
+void testEmitMIR(std::string filename) {
+  std::ofstream ofs(filename);
+  if (!ofs.is_open()) {
+    std::cout << "Open " << filename << " failed" << std::endl;
+    return;
+  }
+
+  for (const auto &mfunc : _module->getMFuncs()) {
+    ofs << mfunc->str() << "\n";
+  }
+
+  ofs.close();
+  if (ofs.fail()) {
+    std::cout << "Write " << filename << " failed" << std::endl;
+  }
+}
+
 int main(int argc, char *argv[]) {
   char *filename = argv[1];
   yyin = fopen(filename, "r");
@@ -59,5 +77,8 @@ int main(int argc, char *argv[]) {
   GenerateIR genIR;
   root->accept(genIR);
   _module = genIR.getModule();
-  emitLLVM("./ctest/default_output.ll");
+  riscv::GenerateMIR genMIR(_module);
+  genMIR.generate();
+  // emitLLVM("./test/default_output.ll");
+  testEmitMIR("./test/default_output.mir");
 }
