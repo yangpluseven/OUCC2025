@@ -13,6 +13,7 @@ private:
   ir::Module *_module;
   bool _isProcessed = false;
 
+  void makeMachineBlocks(MachineFunc *mFunc);
   std::unique_ptr<MachineFunc> funcToMIR(ir::Function *func);
 
   void moduleToMIR() {

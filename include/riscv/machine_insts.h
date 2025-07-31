@@ -163,7 +163,7 @@ enum class JumpOp { NUL, EQ, NE, LT, LE, GT, GE };
 class Jump : public MachineInst {
 private:
   JumpOp _op = JumpOp::NUL;
-  ir::BasicBlock *_target;
+  MachineBlock *_target;
 
   std::string_view opToString() const {
     switch (_op) {
@@ -187,22 +187,16 @@ private:
   }
 
 public:
-  Jump(JumpOp op, MachineInst *src0, MachineInst *src1, ir::BasicBlock *target)
+  Jump(JumpOp op, MachineInst *src0, MachineInst *src1, MachineBlock *target)
       : MachineInst(MAKE_VOID, {src0, src1}), _op(op), _target(target) {}
 
-  Jump(ir::BasicBlock *target) : _target(target) {}
+  Jump(MachineBlock *target) : _target(target) {}
 
   void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
 
   bool hasCond() const { return _op != JumpOp::NUL; }
 
-  std::string str() const override {
-    if (!hasCond()) {
-      return fmt::format("j\t.{}", _target->getLabel());
-    }
-    return fmt::format("b{}\t{}, {}, .{}", opToString(), getSrc(0)->str(),
-                       getSrc(1)->str(), _target->getLabel());
-  }
+  std::string str() const override;
 };
 
 class Call : public MachineInst {

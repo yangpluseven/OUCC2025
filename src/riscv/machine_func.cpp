@@ -183,13 +183,14 @@ void MachineFunc::binary(ir::BinaryInst *inst, MachineBlock *block) {
 
 void MachineFunc::branch(ir::BranchInst *inst, MachineBlock *block) {
   if (!inst->isConditional()) {
-    auto dest = static_cast<ir::BasicBlock *>(inst->getOperand(0));
+    auto dest = blockMap[static_cast<ir::BasicBlock *>(inst->getOperand(0))];
     block->pushInstruction(make_unique<Jump>(dest));
     return;
   }
   auto cond = inst->getOperand(0);
-  auto trueBlock = static_cast<ir::BasicBlock *>(inst->getOperand(1));
-  auto falseBlock = static_cast<ir::BasicBlock *>(inst->getOperand(2));
+  auto trueBlock = blockMap[static_cast<ir::BasicBlock *>(inst->getOperand(1))];
+  auto falseBlock =
+      blockMap[static_cast<ir::BasicBlock *>(inst->getOperand(2))];
   MachineInst *condInst = nullptr;
   auto type = cond->getType();
   switch (cond->getValueKind()) {
@@ -255,8 +256,7 @@ int MachineFunc::call(ir::CallInst *inst, MachineBlock *block) {
       }
       case ValueKind::Inst:
         block->pushMInst(make_unique<StoreTo>(
-            StoreItem::CALL_PARAM,
-            _instMap[static_cast<Instruction *>(param)],
+            StoreItem::CALL_PARAM, _instMap[static_cast<Instruction *>(param)],
             MReg::argsStackOffset(iSize, fSize)));
         break;
       case ValueKind::ConstNum: {
@@ -400,7 +400,7 @@ void MachineFunc::load(ir::LoadInst *inst, MachineBlock *block) {
 }
 
 void MachineFunc::ret(ir::RetInst *inst, MachineBlock *block,
-                      ir::BasicBlock *exitBlock) {
+                      MachineBlock *exitBlock) {
   if (inst->empty()) {
     block->pushMInst(make_unique<Jump>(exitBlock));
     return;

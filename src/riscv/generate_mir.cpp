@@ -8,14 +8,26 @@ using std::make_unique;
 using std::unique_ptr;
 using std::unordered_map;
 
+void GenerateMIR::makeMachineBlocks(MachineFunc *mFunc) {
+  auto original = mFunc->getOriginalFunc();
+  for (auto &block : *original) {
+    auto machineBlock =
+        make_unique<MachineBlock>(static_cast<ir::BasicBlock *>(block.get()));
+    mFunc->blockMap[static_cast<ir::BasicBlock *>(block.get())] =
+        machineBlock.get();
+    mFunc->pushBlock(std::move(machineBlock));
+  }
+}
+
 unique_ptr<MachineFunc> GenerateMIR::funcToMIR(ir::Function *func) {
   auto machineFunc = make_unique<MachineFunc>(func);
   auto exitBBlock = make_unique<ir::BasicBlock>();
+  auto exitMBlock = make_unique<MachineBlock>(exitBBlock.get());
+  machineFunc->blockMap[exitBBlock.get()] = exitMBlock.get();
+  makeMachineBlocks(machineFunc.get());
   for (auto &block : *func) {
-    auto machineBlock =
-        make_unique<MachineBlock>(static_cast<ir::BasicBlock *>(block.get()));
-    auto mBlock = machineBlock.get();
-    machineFunc->pushBlock(std::move(machineBlock));
+    auto mBlock =
+        machineFunc->blockMap[static_cast<ir::BasicBlock *>(block.get())];
     for (auto &instPtr : *block) {
       auto inst = static_cast<Instruction *>(instPtr.get());
       switch (inst->getInstKind()) {
@@ -43,7 +55,7 @@ unique_ptr<MachineFunc> GenerateMIR::funcToMIR(ir::Function *func) {
         continue;
       case InstKind::Ret:
         machineFunc->ret(static_cast<ir::RetInst *>(inst), mBlock,
-                         exitBBlock.get());
+                         exitMBlock.get());
         continue;
       case InstKind::Store:
         machineFunc->store(static_cast<ir::StoreInst *>(inst), mBlock);
@@ -78,7 +90,6 @@ unique_ptr<MachineFunc> GenerateMIR::funcToMIR(ir::Function *func) {
       }
     }
   }
-  auto exitMBlock = make_unique<MachineBlock>(exitBBlock.get());
   machineFunc->pushBlock(std::move(exitMBlock));
   func->pushBlock(std::move(exitBBlock));
   return std::move(machineFunc);

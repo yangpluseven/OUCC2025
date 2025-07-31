@@ -54,6 +54,14 @@ void MachineInst::spill(Reg *spilledReg, int offset, MachineBlock *block) {
   block->pushInstruction(getBlock()->eraseInstruction(this));
 }
 
+std::string Jump::str() const {
+  if (!hasCond()) {
+    return fmt::format("j\t{}", _target->getLabel());
+  }
+  return fmt::format("b{}\t{}, {}, {}", opToString(), getSrc(0)->str(),
+                     getSrc(1)->str(), _target->getLabel());
+}
+
 std::vector<Reg *> Call::getRead() const {
   std::vector<Reg *> regs;
   regs.reserve(_func->getArgs().size());

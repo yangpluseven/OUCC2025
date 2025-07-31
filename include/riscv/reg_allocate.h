@@ -11,13 +11,13 @@ namespace riscv {
 
 class BlockInfo {
 private:
-  const int _begin, _end;
+  MachineBlock *_mBlock;
   std::unordered_set<ir::Reg *> _liveUse, _liveDef;
   std::unordered_set<ir::Reg *> _liveIn, _liveOut;
   std::unordered_set<BlockInfo *> _nexts;
 
 public:
-  BlockInfo(int begin, int end) : _begin(begin), _end(end) {}
+  BlockInfo(MachineBlock *mBlock) : _mBlock(mBlock) {}
 
   void addUse(ir::Reg *reg) { _liveUse.insert(reg); }
 
@@ -46,9 +46,7 @@ public:
     return _liveDef.find(reg) != _liveDef.end();
   }
 
-  int getBegin() const { return _begin; }
-
-  int getEnd() const { return _end; }
+  MachineBlock *getMBlock() const { return _mBlock; }
 
   std::unordered_set<ir::Reg *> getRegs() const {
     std::unordered_set<ir::Reg *> regs;

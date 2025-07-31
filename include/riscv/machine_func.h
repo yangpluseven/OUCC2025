@@ -50,6 +50,7 @@ private:
 
 public:
   int maxFuncParamNum = 0;
+  std::unordered_map<ir::BasicBlock *, MachineBlock *> blockMap;
 
   // Not sure about the type but I guess it's fine (ATTENTION)
   MachineFunc(ir::Function *func);
@@ -57,6 +58,7 @@ public:
   int getFCallerNum() const { return _fCallerNum; }
   int getICallerNum() const { return _iCallerNum; }
   int getLocalSize() const { return _localSize; }
+  ir::Function *getOriginalFunc() const { return _origin; }
   std::string getName() const { return getRawName(); }
   ir::ValueKind getValueKind() const override {
     return ir::ValueKind::MachineFunc;
@@ -68,7 +70,7 @@ public:
   int call(ir::CallInst *inst, MachineBlock *block);
   void gep(ir::GetElementPtrInst *inst, MachineBlock *block);
   void load(ir::LoadInst *inst, MachineBlock *block);
-  void ret(ir::RetInst *inst, MachineBlock *block, ir::BasicBlock *exitBlock);
+  void ret(ir::RetInst *inst, MachineBlock *block, MachineBlock *exitBlock);
   void store(ir::StoreInst *inst, MachineBlock *block);
   void icmp(ir::CmpInst *inst, MachineBlock *block);
   void fcmp(ir::CmpInst *inst, MachineBlock *block);
