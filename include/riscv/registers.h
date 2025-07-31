@@ -9,6 +9,8 @@
 
 namespace riscv {
 
+class MachineInst;
+
 class MReg : public ir::Reg {
 private:
   std::string _name;

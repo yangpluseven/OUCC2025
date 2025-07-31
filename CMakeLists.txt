@@ -10,10 +10,6 @@ endif ()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 启用 AddressSanitizer（仅 Debug 模式）
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer -g")
-set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fsanitize=address")
-
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 
@@ -54,4 +50,7 @@ set(COMPILER_SOURCES
         ${BISON_Parser_OUTPUTS} ${FLEX_Lexer_OUTPUTS}
 )
 
+add_subdirectory(3rd/fmt)
 add_executable(compiler2025-0 ${COMPILER_SOURCES})
+
+target_link_libraries(compiler2025-0 fmt::fmt)

@@ -39,8 +39,8 @@ std::string MachineInst::getName() const {
   throw std::runtime_error("No available reg, getName should not be called");
 }
 
-std::vector<ir::Reg *> MachineInst::getRegs() const {
-  std::vector<ir::Reg *> regs;
+std::vector<Reg *> MachineInst::getRegs() const {
+  std::vector<Reg *> regs;
   auto readRegs = getRead();
   auto writeRegs = getWrite();
 
@@ -51,6 +51,32 @@ std::vector<ir::Reg *> MachineInst::getRegs() const {
 
 void MachineInst::spill(ir::Reg *spilledReg, int offset, MachineBlock *block) {
   block->pushInstruction(getBlock()->eraseInstruction(this));
+}
+
+std::vector<ir::Reg *> Call::getRead() const {
+  std::vector<ir::Reg *> regs;
+  regs.reserve(_func->getArgs().size());
+
+  size_t iSize = 0, fSize = 0;
+  for (const auto &arg : _func->getArgs()) {
+    if (arg->getType()->isF32()) {
+      if (fSize < MReg::fCallerRegs.size())
+        regs.push_back(MReg::fCallerRegs[fSize]);
+      ++fSize;
+    } else {
+      if (iSize < MReg::iCallerRegs.size())
+        regs.push_back(MReg::iCallerRegs[iSize]);
+      ++iSize;
+    }
+  }
+  return regs;
+}
+
+std::vector<ir::Reg *> Call::getWrite() const {
+  std::vector<ir::Reg *> regs;
+  regs.insert(regs.end(), MReg::iCallerRegs.begin(), MReg::iCallerRegs.end());
+  regs.insert(regs.end(), MReg::fCallerRegs.begin(), MReg::fCallerRegs.end());
+  return regs;
 }
 
 void LEA::spill(ir::Reg *spilledReg, int offset, MachineBlock *block) {
