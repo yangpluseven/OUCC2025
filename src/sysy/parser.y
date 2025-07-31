@@ -52,7 +52,7 @@
     LAndExp* lAndExp;
     LOrExp* lOrExp;
 
-    Type ty;
+    BType ty;
     UnaryOp op;
     string* token;
     int int_val;
@@ -166,16 +166,16 @@ Decl:
 // 基本类型
 BType:
     INTTYPE {
-        $$ = Type::INT;
+        $$ = BType::INT;
     }|
     FLOATTYPE {
-        $$ = Type::FLOAT;
+        $$ = BType::FLOAT;
     };
 
 // 空类型
 VoidType:
     VOID {
-        $$ = Type::VOID;
+        $$ = BType::VOID;
     };
 
 // 定义列表

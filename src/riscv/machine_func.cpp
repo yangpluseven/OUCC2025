@@ -410,9 +410,9 @@ void MachineFunc::ret(ir::RetInst *inst, MachineBlock *block,
     throw std::runtime_error("Invalid return value for Ret instruction");
   }
   if (retVal->getType()->isF32()) {
-    block->pushMInst(make_unique<RR>(RROp::MV, MReg::fa0Inst, retInst));
+    block->pushMInst(make_unique<RR>(RROp::MV, MReg::fa0, retInst));
   } else {
-    block->pushMInst(make_unique<RR>(RROp::MV, MReg::a0Inst, retInst));
+    block->pushMInst(make_unique<RR>(RROp::MV, MReg::a0, retInst));
   }
   block->pushMInst(make_unique<Jump>(exitBlock));
 }
@@ -505,16 +505,16 @@ void MachineFunc::icmp(ir::CmpInst *inst, MachineBlock *block) {
     // Maybe eq is enough?
     tmp = block->pushMInst(make_unique<RRR>(RRROp::SUB, MAKE_I32, src1, src2));
     result =
-        block->pushMInst(make_unique<RR>(RROp::SEQZ, MAKE_I32, src1, src2));
+        block->pushMInst(make_unique<RR>(RROp::SEQZ, MAKE_I32, tmp));
     break;
   case CmpOp::NE:
     tmp = block->pushMInst(make_unique<RRR>(RRROp::SUB, MAKE_I32, src1, src2));
     result =
-        block->pushMInst(make_unique<RR>(RROp::SNEZ, MAKE_I32, src1, src2));
+        block->pushMInst(make_unique<RR>(RROp::SNEZ, MAKE_I32, tmp));
     break;
   case CmpOp::SGE:
     tmp = block->pushMInst(make_unique<RRR>(RRROp::SLT, MAKE_I32, src1, src2));
-    result = block->pushMInst(make_unique<RRI>(RRIOp::XORI, MAKE_I32, src1, 1));
+    result = block->pushMInst(make_unique<RRI>(RRIOp::XORI, MAKE_I32, tmp, 1));
     break;
   case CmpOp::SGT:
     result =
@@ -522,7 +522,7 @@ void MachineFunc::icmp(ir::CmpInst *inst, MachineBlock *block) {
     break;
   case CmpOp::SLE:
     tmp = block->pushMInst(make_unique<RRR>(RRROp::SGT, MAKE_I32, src1, src2));
-    result = block->pushMInst(make_unique<RRI>(RRIOp::XORI, MAKE_I32, src1, 1));
+    result = block->pushMInst(make_unique<RRI>(RRIOp::XORI, MAKE_I32, tmp, 1));
     break;
   case CmpOp::SLT:
     result =
