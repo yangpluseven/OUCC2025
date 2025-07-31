@@ -8,11 +8,7 @@ Value::Value(std::unique_ptr<Type> type) : _type(std::move(type)) {
   assert(_type);
 }
 
-Value::~Value() {
-  // for (auto *use : _uses) {
-  //   use->setValue(nullptr);
-  // }
-}
+Value::~Value() =default;
 
 std::unique_ptr<BasicType> Value::makeRegType() const {
   if (_type->isBasic() &&
@@ -28,7 +24,7 @@ void Value::removeUse(Use *use) { _uses.erase(use); }
 
 void Value::replaceAllUsesWith(Value *newValue) {
   assert(newValue && "Cannot replace with null");
-  std::vector<Use *> toReplace(_uses.begin(), _uses.end());
+  std::vector toReplace(_uses.begin(), _uses.end());
   for (auto *use : toReplace) {
     use->setValue(newValue);
   }

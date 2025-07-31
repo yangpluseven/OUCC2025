@@ -1,11 +1,11 @@
 #include "parser/preprocessor.h"
 
-const std::regex Preprocessor::ESCAPED_NEW_LINE_PATTERN("\\\\\\n");
-const std::regex Preprocessor::COMMENT_PATTERN("//.*|/\\*[\\s\\S]*?\\*/");
+const std::regex Preprocessor::ESCAPED_NEW_LINE_PATTERN(R"(\\\n)");
+const std::regex Preprocessor::COMMENT_PATTERN(R"(//.*|/\*[\s\S]*?\*/)");
 
 void Preprocessor::replaceMacroFuncWithLineNo(const std::string &macro,
                                               const std::string &func) {
-  std::regex macroPattern("\\b" + macro + "\\s*\\(\\s*\\)");
+  std::regex macroPattern("\\b" + macro + R"(\s*\(\s*\))");
   std::string result;
   std::smatch matcher;
   std::string::const_iterator searchStart(content.cbegin());

@@ -17,6 +17,8 @@ void GenerateIR::initBuiltInFuncs() {
       std::make_unique<Argument>(std::make_unique<PointerType>(MAKE_I32), "a"));
   _module->addFunction(std::move(func));
   func = _symbolTable->makeFunction(MAKE_I32, "getfarray");
+
+  // TODO: Really?
   func->addArg(
       std::make_unique<Argument>(std::make_unique<PointerType>(MAKE_F32), "a"));
   _module->addFunction(std::move(func));
@@ -33,6 +35,7 @@ void GenerateIR::initBuiltInFuncs() {
   func = _symbolTable->makeFunction(MAKE_VOID, "putfloat");
   func->addArg(std::make_unique<Argument>(MAKE_F32, "a"));
   _module->addFunction(std::move(func));
+  // TODO: Real?
   func = _symbolTable->makeFunction(MAKE_VOID, "putfarray");
   func->addArg(std::make_unique<Argument>(MAKE_I32, "n"));
   func->addArg(std::make_unique<Argument>(MAKE_F32, "a"));
@@ -145,7 +148,7 @@ Value *GenerateIR::typeConversion(Value *value, BasicKind targetType) {
       return new ConstantNumber(Number(constant->floatValue()));
     }
   }
-  Instruction *inst;
+  Instruction *inst = nullptr;
   switch (targetType) {
   case BasicKind::I1:
     switch (type) {
@@ -158,6 +161,7 @@ Value *GenerateIR::typeConversion(Value *value, BasicKind targetType) {
       inst = new CmpInst(CmpOp::UNE, value, new ConstantNumber(Number(0.0f)));
       break;
     }
+    break;
   case BasicKind::I32:
     switch (type) {
     case BasicKind::I1:
@@ -169,6 +173,7 @@ Value *GenerateIR::typeConversion(Value *value, BasicKind targetType) {
       inst = new CastInst(MAKE_I32, CastOp::FPToSI, value);
       break;
     }
+    break;
   case BasicKind::F32:
     switch (type) {
     case BasicKind::I1:
@@ -182,6 +187,7 @@ Value *GenerateIR::typeConversion(Value *value, BasicKind targetType) {
     case BasicKind::F32:
       return value;
     }
+    break;
   }
   if (inst) {
     _curBlock->pushInstruction(std::unique_ptr<Instruction>(inst));
@@ -755,7 +761,7 @@ void GenerateIR::visit(EqExp &ast) {
   auto val2 = _curVal;
 
   auto type1 = static_cast<BasicType *>(val1->getType())->getBasicKind();
-  auto type2 = static_cast<BasicType *>(val1->getType())->getBasicKind();
+  auto type2 = static_cast<BasicType *>(val2->getType())->getBasicKind();
   auto targetType = autoTypePromotion(type1, type2);
   val1 = typeConversion(val1, targetType);
   val2 = typeConversion(val2, targetType);
@@ -763,7 +769,6 @@ void GenerateIR::visit(EqExp &ast) {
   CmpOp op;
   switch (ast.op) {
   case EqOp::EQ:
-    break;
     switch (targetType) {
     case BasicKind::I32:
       op = CmpOp::EQ;
@@ -867,7 +872,7 @@ void GenerateIR::visit(MulExp &ast) {
       _curVal = new ConstantNumber((*number1) / (*number2));
       break;
     case MulOp::MOD:
-      _curVal = new ConstantNumber((*number1) % (*number1));
+      _curVal = new ConstantNumber((*number1) % (*number2));
       break;
     }
     return;
