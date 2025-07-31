@@ -1,4 +1,5 @@
 #include "riscv/machine_insts.h"
+#include "riscv/registers.h"
 #include <stdexcept>
 using namespace ir;
 

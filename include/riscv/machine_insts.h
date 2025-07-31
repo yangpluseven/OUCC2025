@@ -311,217 +311,214 @@ public:
         ldStrV = "ld";
       else
         throw std::runtime_error("Invalid size in Load::str");
-      else
-        throw std::runtime_error("Invalid type in Load::str");
+    else
+      throw std::runtime_error("Invalid type in Load::str");
     return fmt::format("{}\t{}, {}({})", ldStrV, getDest()->str(), getImm(),
                        getSrc(0)->str());
   }
-  };
+};
 
-  class RR : public MachineInst {
-  private:
-    RROp _op;
+class RR : public MachineInst {
+private:
+  RROp _op;
 
-    std::string_view opToString() const noexcept {
-      switch (_op) {
-      case RROp::CVT:
-        return "cvt";
-      case RROp::FABS:
-        return "fabs";
-      case RROp::MV:
-        return "mv";
-      case RROp::NEG:
-        return "neg";
-      case RROp::SEQZ:
-        return "seqz";
-      case RROp::SNEZ:
-        return "snez";
-      default:
-        return "incomplete{RR.opToString}";
-      }
+  std::string_view opToString() const noexcept {
+    switch (_op) {
+    case RROp::CVT:
+      return "cvt";
+    case RROp::FABS:
+      return "fabs";
+    case RROp::MV:
+      return "mv";
+    case RROp::NEG:
+      return "neg";
+    case RROp::SEQZ:
+      return "seqz";
+    case RROp::SNEZ:
+      return "snez";
+    default:
+      return "incomplete{RR.opToString}";
     }
+  }
 
-  public:
-    RR(RROp op, std::unique_ptr<ir::Type> type, MachineInst *src)
-        : MachineInst(std::move(type), {src}), _op(op) {}
+public:
+  RR(RROp op, std::unique_ptr<ir::Type> type, MachineInst *src)
+      : MachineInst(std::move(type), {src}), _op(op) {}
 
-    RR(RROp op, ir::Reg *dest, MachineInst *src)
-        : MachineInst(dest, {src}), _op(op) {}
+  RR(RROp op, ir::Reg *dest, MachineInst *src)
+      : MachineInst(dest, {src}), _op(op) {}
 
-    void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
+  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
 
-    std::string str() const override {
-      const auto destType = getDest()->getRegType()->getBasicKind();
-      const auto srcType = getSrc(0)->getRegType()->getBasicKind();
-      switch (_op) {
-      case RROp::CVT:
-        if (destType == ir::BasicKind::F32 && srcType == ir::BasicKind::I32)
-          return fmt::format("fcvt.s.w\t{}, {}", getDest()->str(),
-                             getSrc(0)->str());
-        if (destType == ir::BasicKind::I32 && srcType == ir::BasicKind::F32)
-          return fmt::format("fcvt.w.s\t{}, {}, rtz", getDest()->str(),
-                             getSrc(0)->str());
-        throw std::runtime_error("Invalid types in RR::str, CVT");
-      case RROp::FABS:
-        return fmt::format("fabs.s\t{}, {}", getDest()->str(),
+  std::string str() const override {
+    const auto destType = getDest()->getRegType()->getBasicKind();
+    const auto srcType = getSrc(0)->getRegType()->getBasicKind();
+    switch (_op) {
+    case RROp::CVT:
+      if (destType == ir::BasicKind::F32 && srcType == ir::BasicKind::I32)
+        return fmt::format("fcvt.s.w\t{}, {}", getDest()->str(),
                            getSrc(0)->str());
-      case RROp::NEG:
-        if (destType == ir::BasicKind::F32 && srcType == ir::BasicKind::F32)
-          return fmt::format("fneg.s\t{}, {}", getDest()->str(),
-                             getSrc(0)->str());
-        if (destType == ir::BasicKind::I32 && srcType == ir::BasicKind::I32)
-          return fmt::format("negw\t{}, {}", getDest()->str(),
-                             getSrc(0)->str());
-        throw std::runtime_error("Invalid types in RR::str, NEG");
-      case RROp::MV:
-        if (destType == ir::BasicKind::F32)
-          if (srcType == ir::BasicKind::F32)
-            return fmt::format("fmv.s\t{}, {}", getDest()->str(),
-                               getSrc(0)->str());
-          else if (srcType == ir::BasicKind::I32)
-            return fmt::format("fmv.w.x\t{}, {}", getDest()->str(),
-                               getSrc(0)->str());
-
-        if (destType == ir::BasicKind::I32)
-          if (srcType == ir::BasicKind::F32)
-            return fmt::format("fmv.x.w\t{}, {}", getDest()->str(),
-                               getSrc(0)->str());
-          else if (srcType == ir::BasicKind::I32)
-            return fmt::format("mv\t{}, {}", getDest()->str(),
-                               getSrc(0)->str());
-        throw std::runtime_error("Invalid types in RR::str, MV");
-      case RROp::SEQZ:
-      case RROp::SNEZ:
-        return fmt::format("{}\t{}, {}", opToString(), getDest()->str(),
+      if (destType == ir::BasicKind::I32 && srcType == ir::BasicKind::F32)
+        return fmt::format("fcvt.w.s\t{}, {}, rtz", getDest()->str(),
                            getSrc(0)->str());
-      }
-      throw std::runtime_error("Invalid operation in RR::str");
-    }
-  };
-
-  class RRI : public ImmInst {
-  private:
-    RRIOp _op;
-
-    std::string_view opToString() const noexcept {
-      switch (_op) {
-      case RRIOp::ADDI:
-        return "addi";
-      case RRIOp::ANDI:
-        return "andi";
-      case RRIOp::SLLIW:
-        return "slliw";
-      case RRIOp::SRAIW:
-        return "sraiw";
-      case RRIOp::SRLIW:
-        return "srliw";
-      case RRIOp::SRLI:
-        return "srli";
-      case RRIOp::XORI:
-        return "xori";
-      case RRIOp::SLTI:
-        return "slti";
-      default:
-        return "incomplete{RRI.opToString}";
-      }
-    }
-
-  public:
-    RRI(RRIOp op, std::unique_ptr<ir::Type> type, MachineInst *src, int imm)
-        : ImmInst(std::move(type), {src}, imm), _op(op) {}
-
-    RRI(RRIOp op, ir::Reg *dest, MachineInst *src, int imm)
-        : ImmInst(dest, {src}, imm), _op(op) {}
-
-    void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
-
-    std::string str() const override {
-      return fmt::format("{}\t{}, {}, {}", opToString(), getDest()->str(),
-                         getSrc(0)->str(), getImm());
-    }
-  };
-
-  class RRR : public MachineInst {
-  private:
-    RRROp _op;
-
-    std::string_view opToString() const noexcept {
-      switch (_op) {
-      case RRROp::ADD:
-        return "add";
-      case RRROp::ADDW:
-        return "addw";
-      case RRROp::SUB:
-        return "sub";
-      case RRROp::SUBW:
-        return "subw";
-      case RRROp::MUL:
-        return "mul";
-      case RRROp::MULW:
-        return "mulw";
-      case RRROp::DIV:
-        return "div";
-      case RRROp::DIVW:
-        return "divw";
-      case RRROp::REMW:
-        return "remw";
-      case RRROp::EQ:
-        return "eq";
-      case RRROp::GE:
-        return "ge";
-      case RRROp::GT:
-        return "gt";
-      case RRROp::LE:
-        return "le";
-      case RRROp::LT:
-        return "lt";
-      case RRROp::AND:
-        return "and";
-      case RRROp::XOR:
-        return "xor";
-      case RRROp::SLT:
-        return "slt";
-      case RRROp::SGT:
-        return "sgt";
-      default:
-        return "incomplete{RRR.opToString}";
-      }
-    }
-
-  public:
-    RRR(RRROp op, std::unique_ptr<ir::Type> type, MachineInst *src0,
-        MachineInst *src1)
-        : MachineInst(std::move(type), {src0, src1}), _op(op) {}
-
-    RRR(RRROp op, ir::Reg *dest, MachineInst *src0, MachineInst *src1)
-        : MachineInst(dest, {src0, src1}), _op(op) {}
-
-    void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
-
-    std::string str() const override {
-      bool useFpFormat = false, opIsValid = false;
-      const auto destType = getDest()->getRegType()->getBasicKind();
+      throw std::runtime_error("Invalid types in RR::str, CVT");
+    case RROp::FABS:
+      return fmt::format("fabs.s\t{}, {}", getDest()->str(), getSrc(0)->str());
+    case RROp::NEG:
+      if (destType == ir::BasicKind::F32 && srcType == ir::BasicKind::F32)
+        return fmt::format("fneg.s\t{}, {}", getDest()->str(),
+                           getSrc(0)->str());
+      if (destType == ir::BasicKind::I32 && srcType == ir::BasicKind::I32)
+        return fmt::format("negw\t{}, {}", getDest()->str(), getSrc(0)->str());
+      throw std::runtime_error("Invalid types in RR::str, NEG");
+    case RROp::MV:
       if (destType == ir::BasicKind::F32)
-        switch (_op) {
+        if (srcType == ir::BasicKind::F32)
+          return fmt::format("fmv.s\t{}, {}", getDest()->str(),
+                             getSrc(0)->str());
+        else if (srcType == ir::BasicKind::I32)
+          return fmt::format("fmv.w.x\t{}, {}", getDest()->str(),
+                             getSrc(0)->str());
+
+      if (destType == ir::BasicKind::I32)
+        if (srcType == ir::BasicKind::F32)
+          return fmt::format("fmv.x.w\t{}, {}", getDest()->str(),
+                             getSrc(0)->str());
+        else if (srcType == ir::BasicKind::I32)
+          return fmt::format("mv\t{}, {}", getDest()->str(), getSrc(0)->str());
+      throw std::runtime_error("Invalid types in RR::str, MV");
+    case RROp::SEQZ:
+    case RROp::SNEZ:
+      return fmt::format("{}\t{}, {}", opToString(), getDest()->str(),
+                         getSrc(0)->str());
+    }
+    throw std::runtime_error("Invalid operation in RR::str");
+  }
+};
+
+class RRI : public ImmInst {
+private:
+  RRIOp _op;
+
+  std::string_view opToString() const noexcept {
+    switch (_op) {
+    case RRIOp::ADDI:
+      return "addi";
+    case RRIOp::ANDI:
+      return "andi";
+    case RRIOp::SLLIW:
+      return "slliw";
+    case RRIOp::SRAIW:
+      return "sraiw";
+    case RRIOp::SRLIW:
+      return "srliw";
+    case RRIOp::SRLI:
+      return "srli";
+    case RRIOp::XORI:
+      return "xori";
+    case RRIOp::SLTI:
+      return "slti";
+    default:
+      return "incomplete{RRI.opToString}";
+    }
+  }
+
+public:
+  RRI(RRIOp op, std::unique_ptr<ir::Type> type, MachineInst *src, int imm)
+      : ImmInst(std::move(type), {src}, imm), _op(op) {}
+
+  RRI(RRIOp op, ir::Reg *dest, MachineInst *src, int imm)
+      : ImmInst(dest, {src}, imm), _op(op) {}
+
+  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
+
+  std::string str() const override {
+    return fmt::format("{}\t{}, {}, {}", opToString(), getDest()->str(),
+                       getSrc(0)->str(), getImm());
+  }
+};
+
+class RRR : public MachineInst {
+private:
+  RRROp _op;
+
+  std::string_view opToString() const noexcept {
+    switch (_op) {
+    case RRROp::ADD:
+      return "add";
+    case RRROp::ADDW:
+      return "addw";
+    case RRROp::SUB:
+      return "sub";
+    case RRROp::SUBW:
+      return "subw";
+    case RRROp::MUL:
+      return "mul";
+    case RRROp::MULW:
+      return "mulw";
+    case RRROp::DIV:
+      return "div";
+    case RRROp::DIVW:
+      return "divw";
+    case RRROp::REMW:
+      return "remw";
+    case RRROp::EQ:
+      return "eq";
+    case RRROp::GE:
+      return "ge";
+    case RRROp::GT:
+      return "gt";
+    case RRROp::LE:
+      return "le";
+    case RRROp::LT:
+      return "lt";
+    case RRROp::AND:
+      return "and";
+    case RRROp::XOR:
+      return "xor";
+    case RRROp::SLT:
+      return "slt";
+    case RRROp::SGT:
+      return "sgt";
+    default:
+      return "incomplete{RRR.opToString}";
+    }
+  }
+
+public:
+  RRR(RRROp op, std::unique_ptr<ir::Type> type, MachineInst *src0,
+      MachineInst *src1)
+      : MachineInst(std::move(type), {src0, src1}), _op(op) {}
+
+  RRR(RRROp op, ir::Reg *dest, MachineInst *src0, MachineInst *src1)
+      : MachineInst(dest, {src0, src1}), _op(op) {}
+
+  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
+
+  std::string str() const override {
+    bool useFpFormat = false, opIsValid = false;
+    const auto destType = getDest()->getRegType()->getBasicKind();
+    if (destType == ir::BasicKind::F32)
+      switch (_op) {
       case RRROp::ADD:
       case RRROp::SUB:
       case RRROp::MUL:
       case RRROp::DIV:
-          useFpFormat = true;
-          opIsValid = true;
-          break;
+        useFpFormat = true;
+        opIsValid = true;
+        break;
       default:;
-        }
-      else if (destType == ir::BasicKind::I32)
-        switch (_op) {
+      }
+    else if (destType == ir::BasicKind::I32)
+      switch (_op) {
       case RRROp::EQ:
       case RRROp::GE:
       case RRROp::GT:
       case RRROp::LE:
       case RRROp::LT:
-          useFpFormat = true;
-          opIsValid = true;
-          break;
+        useFpFormat = true;
+        opIsValid = true;
+        break;
       case RRROp::ADD:
       case RRROp::ADDW:
       case RRROp::SUB:
@@ -535,91 +532,90 @@ public:
       case RRROp::AND:
       case RRROp::SLT:
       case RRROp::SGT:
-          opIsValid = true;
-          break;
-        }
-      else
-        throw std::runtime_error("Invalid dest type in RRR::str");
-
-      if (!opIsValid)
-        throw std::runtime_error("Invalid operation in RRR::str");
-
-      const auto opStr = opToString();
-      if (useFpFormat)
-        return fmt::format("f{}.s\t{}, {}, {}", opStr, getDest()->str(),
-                           getSrc(0)->str(), getSrc(1)->str());
-
-      return fmt::format("{}\t{}, {}, {}", opStr, getDest()->str(),
-                         getSrc(0)->str(), getSrc(1)->str());
-    }
-  };
-
-  enum class StoreItem { LOCAL, CALL_PARAM, INNER_PARAM, OUTER_PARAM, SPILL };
-
-  class StoreTo : public ImmInst {
-  private:
-    StoreItem _item;
-
-    std::string_view itemToString() const noexcept {
-      switch (_item) {
-      case StoreItem::LOCAL:
-        return "local";
-      case StoreItem::CALL_PARAM:
-        return "param_call";
-      case StoreItem::INNER_PARAM:
-        return "param_inner";
-      case StoreItem::OUTER_PARAM:
-        return "param_outer";
-      case StoreItem::SPILL:
-        return "spill";
-      default:
-        return "incomplete{StoreTo.itemToString}";
+        opIsValid = true;
+        break;
       }
+    else
+      throw std::runtime_error("Invalid dest type in RRR::str");
+
+    if (!opIsValid)
+      throw std::runtime_error("Invalid operation in RRR::str");
+
+    const auto opStr = opToString();
+    if (useFpFormat)
+      return fmt::format("f{}.s\t{}, {}, {}", opStr, getDest()->str(),
+                         getSrc(0)->str(), getSrc(1)->str());
+
+    return fmt::format("{}\t{}, {}, {}", opStr, getDest()->str(),
+                       getSrc(0)->str(), getSrc(1)->str());
+  }
+};
+
+enum class StoreItem { LOCAL, CALL_PARAM, INNER_PARAM, OUTER_PARAM, SPILL };
+
+class StoreTo : public ImmInst {
+private:
+  StoreItem _item;
+
+  std::string_view itemToString() const noexcept {
+    switch (_item) {
+    case StoreItem::LOCAL:
+      return "local";
+    case StoreItem::CALL_PARAM:
+      return "param_call";
+    case StoreItem::INNER_PARAM:
+      return "param_inner";
+    case StoreItem::OUTER_PARAM:
+      return "param_outer";
+    case StoreItem::SPILL:
+      return "spill";
+    default:
+      return "incomplete{StoreTo.itemToString}";
     }
+  }
 
-  public:
-    StoreTo(StoreItem item, MachineInst *src, int imm)
-        : ImmInst(MAKE_VOID, {src}, imm), _item(item) {}
+public:
+  StoreTo(StoreItem item, MachineInst *src, int imm)
+      : ImmInst(MAKE_VOID, {src}, imm), _item(item) {}
 
-    void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
+  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
 
-    std::string str() const override {
-      return fmt::format("store\t{}, {}(${})", getSrc(0)->str(), getImm(),
-                         itemToString());
-    }
-  };
+  std::string str() const override {
+    return fmt::format("store\t{}, {}(${})", getSrc(0)->str(), getImm(),
+                       itemToString());
+  }
+};
 
-  class Store : public ImmInst {
-  private:
-    int _size;
+class Store : public ImmInst {
+private:
+  int _size;
 
-  public:
-    Store(MachineInst *src0, MachineInst *src1, int imm, int size)
-        : ImmInst(MAKE_VOID, {src0, src1}, imm), _size(size) {}
+public:
+  Store(MachineInst *src0, MachineInst *src1, int imm, int size)
+      : ImmInst(MAKE_VOID, {src0, src1}, imm), _size(size) {}
 
-    void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
+  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
 
-    std::string str() const override {
-      std::string_view instStrV;
-      auto srcType = getSrc(0)->getRegType()->getBasicKind();
-      if (srcType == ir::BasicKind::I32)
-        instStrV = "fsw";
-      else if (srcType == ir::BasicKind::I32)
-        if (_size == 4)
-          instStrV = "sw";
-        else if (_size == 8)
-          instStrV = "sd";
-        else
-          throw std::runtime_error("Invalid size in Store::str");
-        else
-          throw std::runtime_error("Invalid source type in Store::str");
+  std::string str() const override {
+    std::string_view instStrV;
+    auto srcType = getSrc(0)->getRegType()->getBasicKind();
+    if (srcType == ir::BasicKind::I32)
+      instStrV = "fsw";
+    else if (srcType == ir::BasicKind::I32)
+      if (_size == 4)
+        instStrV = "sw";
+      else if (_size == 8)
+        instStrV = "sd";
+      else
+        throw std::runtime_error("Invalid size in Store::str");
+    else
+      throw std::runtime_error("Invalid source type in Store::str");
 
-      return fmt::format("{}\t{}, {}({})", instStrV, getSrc(0)->str(), getImm(),
-                         getDest()->str());
-    }
-  };
-}
-
+    return fmt::format("{}\t{}, {}({})", instStrV, getSrc(0)->str(), getImm(),
+                       getSrc(1)->str());
+  }
+};
+} // namespace riscv
 
 #undef MAKE_VOID
 #endif

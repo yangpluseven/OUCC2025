@@ -50,7 +50,7 @@ set(COMPILER_SOURCES
         ${BISON_Parser_OUTPUTS} ${FLEX_Lexer_OUTPUTS}
 )
 
-#[[add_subdirectory(3rd/fmt)]]
+# [[add_subdirectory(3rd/fmt)]]
 include(FetchContent)
 
 FetchContent_Declare(

@@ -146,19 +146,35 @@ void MachineFunc::binary(ir::BinaryInst *inst, MachineBlock *block) {
     break;
   }
   if (src1 && src2) {
-    // TODO
+    auto tmp = binRegReg(block, inst, src1, src2);
+    _instMap[inst] = tmp;
     return;
   }
   if (src1 && operand2->isConstNum()) {
-    // TODO
+    auto tmp = binRegImm(block, inst, src1,
+                         static_cast<ir::ConstantNumber *>(operand2));
+    _instMap[inst] = tmp;
     return;
   }
   if (src2 && operand1->isConstNum()) {
-    // TODO
+    auto tmp = binRegImm(block, inst, src2,
+                         static_cast<ir::ConstantNumber *>(operand1));
+    _instMap[inst] = tmp;
     return;
   }
   if (operand1->isConstNum() && operand2->isConstNum()) {
-    // TODO
+    auto type1 = operand1->getType();
+    MachineInst *immInst = nullptr;
+    if (type1->isF32()) {
+      immInst = loadImmF(
+          block, static_cast<ir::ConstantNumber *>(operand1)->floatValue());
+    } else {
+      immInst = loadImmI(
+          block, static_cast<ir::ConstantNumber *>(operand1)->intValue());
+    }
+    auto tmp = binRegImm(block, inst, immInst,
+                         static_cast<ir::ConstantNumber *>(operand2));
+    _instMap[inst] = tmp;
     return;
   }
   // If we reach here, it means we have a problem with the operands
@@ -444,6 +460,8 @@ void MachineFunc::store(ir::StoreInst *inst, MachineBlock *block) {
     }
     break;
   }
+  default:
+    throw std::runtime_error("Invalid pointer for Store instruction");
   }
   MachineInst *valueInst = nullptr;
   switch (value->getValueKind()) {
@@ -464,6 +482,9 @@ void MachineFunc::store(ir::StoreInst *inst, MachineBlock *block) {
     break;
   default:
     throw std::runtime_error("Invalid value for Store instruction");
+  }
+  if (!valueInst) {
+    throw std::runtime_error("Value for Store instruction is null");
   }
   block->pushMInst(make_unique<Store>(valueInst, base, 0, size));
 }
