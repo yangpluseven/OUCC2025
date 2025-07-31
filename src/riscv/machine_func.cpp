@@ -26,6 +26,33 @@ MachineInst *MachineBlock::pushMInst(std::unique_ptr<MachineInst> inst) {
   return machineInst;
 }
 
+MachineInst *MachineBlock::getMInst(size_t index) const {
+  return static_cast<MachineInst *>(getInstruction(index));
+}
+
+bool MachineBlock::hasCondJump() const {
+  if (!_origin->hasTerminator()) {
+    return false;
+  }
+  auto branch = static_cast<ir::Instruction *>(_origin->getTerminator());
+  if (branch->getInstKind() == InstKind::Branch) {
+    auto branchInst = static_cast<ir::BranchInst *>(branch);
+    return branchInst->isConditional();
+  }
+  return false;
+}
+
+Jump *MachineBlock::getUncondJump() const {
+  return static_cast<Jump *>(getTerminator());
+}
+
+Jump *MachineBlock::getCondJump() const {
+  if (!hasCondJump() || size() < 2) {
+    return nullptr;
+  }
+  return static_cast<Jump *>(getMInst(size() - 2));
+}
+
 // Currently the name must match the original LLVM IR basicblock (ATTENTION)
 std::string MachineBlock::getLabel() const {
   if (getID() == -1) {
@@ -251,12 +278,12 @@ int MachineFunc::call(ir::CallInst *inst, MachineBlock *block) {
       case ValueKind::Arg: {
         auto tmp = handleArg(static_cast<ir::Argument *>(param), block);
         block->pushMInst(make_unique<StoreTo>(
-            StoreItem::CALL_PARAM, tmp, MReg::argsStackOffset(iSize, fSize)));
+            StoreItem::CALL, tmp, MReg::argsStackOffset(iSize, fSize)));
         break;
       }
       case ValueKind::Inst:
         block->pushMInst(make_unique<StoreTo>(
-            StoreItem::CALL_PARAM, _instMap[static_cast<Instruction *>(param)],
+            StoreItem::CALL, _instMap[static_cast<Instruction *>(param)],
             MReg::argsStackOffset(iSize, fSize)));
         break;
       case ValueKind::ConstNum: {
@@ -268,7 +295,7 @@ int MachineFunc::call(ir::CallInst *inst, MachineBlock *block) {
           tmp = loadImmI(block, constNum->intValue());
         }
         block->pushMInst(make_unique<StoreTo>(
-            StoreItem::CALL_PARAM, tmp, MReg::argsStackOffset(iSize, fSize)));
+            StoreItem::CALL, tmp, MReg::argsStackOffset(iSize, fSize)));
         break;
       }
       }

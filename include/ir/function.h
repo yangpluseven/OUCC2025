@@ -42,6 +42,7 @@ public:
 
   BlockBase *getBlock(size_t index) const;
   BlockBase *getEntryBlock() const;
+  BlockBase *getExitBlock() const;
 
   // Get the function's name
   std::string getRawName() const;

@@ -777,6 +777,7 @@ void GenerateIR::visit(EqExp &ast) {
       op = CmpOp::OEQ;
       break;
     }
+    break;
   case EqOp::NEQ:
     switch (targetType) {
     case BasicKind::I32:

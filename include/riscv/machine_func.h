@@ -10,6 +10,7 @@ namespace riscv {
 
 class MachineFunc;
 class MachineInst;
+class Jump;
 
 class MachineBlock : public ir::BlockBase {
 private:
@@ -25,6 +26,10 @@ public:
   MachineBlock(std::string name);
 
   MachineInst *pushMInst(std::unique_ptr<MachineInst> inst);
+  MachineInst *getMInst(size_t index) const;
+  bool hasCondJump() const;
+  Jump *getUncondJump() const;
+  Jump *getCondJump() const;
 
   ir::ValueKind getValueKind() const override {
     return ir::ValueKind::MachineBlock;

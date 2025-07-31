@@ -193,10 +193,11 @@ public:
   Jump(MachineBlock *target) : _target(target) {}
 
   void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
-
   bool hasCond() const { return _op != JumpOp::NUL; }
-
+  MInstKind getMInstKind() const override { return MInstKind::Jump; }
   std::string str() const override;
+  bool isTerminator() const override { return true; }
+  MachineBlock *getTargetBlock() const { return _target; }
 };
 
 class Call : public MachineInst {
@@ -207,9 +208,9 @@ public:
   Call(ir::Function *func) : _func(func) {}
 
   std::vector<ir::Reg *> getRead() const override;
-
   std::vector<ir::Reg *> getWrite() const override;
-
+  ir::Function *getFunction() const { return _func; }
+  MInstKind getMInstKind() const override { return MInstKind::Call; }
   std::string str() const override {
     return fmt::format("call\t{}", _func->getRawName());
   }
@@ -218,11 +219,10 @@ public:
 class LI : public ImmInst {
 public:
   LI(std::unique_ptr<ir::Type> type, int imm) : ImmInst(std::move(type), imm) {}
-
   LI(ir::Reg *dest, int imm) : ImmInst(dest, imm) {}
 
   void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
-
+  MInstKind getMInstKind() const override { return MInstKind::LI; }
   std::string str() const override {
     return fmt::format("li\t{}, {}", getDest()->str(), getImm());
   }
@@ -240,7 +240,7 @@ public:
       : MachineInst(dest), _global(global) {}
 
   void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
-
+  MInstKind getMInstKind() const override { return MInstKind::LLA; }
   std::string str() const override {
     return fmt::format("lla\t{}, {}", getDest()->str(), _global->getRawName());
   }
@@ -273,7 +273,8 @@ public:
       : ImmInst(dest, imm), _item(item) {}
 
   void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
-
+  MInstKind getMInstKind() const override { return MInstKind::LoadFrom; }
+  LoadItem getItem() const { return _item; }
   std::string str() const override {
     return fmt::format("load\t{}, {}(${})", getDest()->str(), getImm(),
                        itemToString());
@@ -292,7 +293,7 @@ public:
       : ImmInst(dest, {src}, imm), _size(size) {}
 
   void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
-
+  MInstKind getMInstKind() const override { return MInstKind::Load; }
   std::string str() const override {
     std::string_view ldStrV;
     const auto destType = getDest()->getRegType()->getBasicKind();
@@ -343,7 +344,7 @@ public:
       : MachineInst(dest, {src}), _op(op) {}
 
   void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
-
+  MInstKind getMInstKind() const override { return MInstKind::RR; }
   std::string str() const override {
     const auto destType = getDest()->getRegType()->getBasicKind();
     const auto srcType = getSrc(0)->getRegType()->getBasicKind();
@@ -425,7 +426,7 @@ public:
       : ImmInst(dest, {src}, imm), _op(op) {}
 
   void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
-
+  MInstKind getMInstKind() const override { return MInstKind::RRI; }
   std::string str() const override {
     return fmt::format("{}\t{}, {}, {}", opToString(), getDest()->str(),
                        getSrc(0)->str(), getImm());
@@ -488,7 +489,7 @@ public:
       : MachineInst(dest, {src0, src1}), _op(op) {}
 
   void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
-
+  MInstKind getMInstKind() const override { return MInstKind::RRR; }
   std::string str() const override {
     bool useFpFormat = false, opIsValid = false;
     const auto destType = getDest()->getRegType()->getBasicKind();
@@ -545,7 +546,7 @@ public:
   }
 };
 
-enum class StoreItem { LOCAL, CALL_PARAM, INNER_PARAM, OUTER_PARAM, SPILL };
+enum class StoreItem { LOCAL, CALL, INNER, OUTER, SPILL };
 
 class StoreTo : public ImmInst {
 private:
@@ -555,11 +556,11 @@ private:
     switch (_item) {
     case StoreItem::LOCAL:
       return "local";
-    case StoreItem::CALL_PARAM:
+    case StoreItem::CALL:
       return "param_call";
-    case StoreItem::INNER_PARAM:
+    case StoreItem::INNER:
       return "param_inner";
-    case StoreItem::OUTER_PARAM:
+    case StoreItem::OUTER:
       return "param_outer";
     case StoreItem::SPILL:
       return "spill";
@@ -573,7 +574,8 @@ public:
       : ImmInst(MAKE_VOID, {src}, imm), _item(item) {}
 
   void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
-
+  MInstKind getMInstKind() const override { return MInstKind::StoreTo; }
+  StoreItem getItem() const { return _item; }
   std::string str() const override {
     return fmt::format("store\t{}, {}(${})", getSrc(0)->str(), getImm(),
                        itemToString());
@@ -589,7 +591,7 @@ public:
       : ImmInst(MAKE_VOID, {src0, src1}, imm), _size(size) {}
 
   void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
-
+  MInstKind getMInstKind() const override { return MInstKind::Store; }
   std::string str() const override {
     std::string_view instStrV;
     auto srcType = getSrc(0)->getRegType()->getBasicKind();

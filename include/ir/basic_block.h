@@ -36,6 +36,7 @@ public:
   InstBase *insertInstruction(size_t index, std::unique_ptr<InstBase> inst);
   InstBase *getTerminator() const;
   InstBase *getInstruction(size_t index) const;
+  InstBase *setInstruction(size_t index, std::unique_ptr<InstBase> inst);
   std::unique_ptr<InstBase> eraseInstruction(size_t index);
   std::unique_ptr<InstBase> eraseInstruction(InstBase *inst);
   size_t size() const { return _instructions.size(); }

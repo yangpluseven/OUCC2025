@@ -64,7 +64,6 @@ std::string Jump::str() const {
 
 std::vector<Reg *> Call::getRead() const {
   std::vector<Reg *> regs;
-  regs.reserve(_func->getArgs().size());
 
   size_t iSize = 0, fSize = 0;
   for (const auto &arg : _func->getArgs()) {

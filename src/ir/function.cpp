@@ -45,6 +45,12 @@ BlockBase *FuncBase::getEntryBlock() const {
   return _blocks.front().get();
 }
 
+BlockBase *FuncBase::getExitBlock() const {
+  if (_blocks.empty())
+    return nullptr;
+  return _blocks.back().get();
+}
+
 std::unique_ptr<BlockBase> FuncBase::eraseBlock(size_t index) {
   assert(index < _blocks.size() && "Block index out of bounds");
   auto it = _blocks.begin() + index;
@@ -112,7 +118,7 @@ FuncBase::iterator FuncBase::insertBlock(iterator pos,
 }
 
 void FuncBase::insertBlockAfter(BlockBase *target,
-                                    std::unique_ptr<BlockBase> block) {
+                                std::unique_ptr<BlockBase> block) {
   for (auto it = _blocks.begin(); it != _blocks.end(); ++it) {
     if (it->get() == target) {
       block->setFunction(this);

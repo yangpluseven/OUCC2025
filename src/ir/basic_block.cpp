@@ -37,6 +37,16 @@ InstBase *BlockBase::getInstruction(size_t index) const {
   return _instructions[index].get();
 }
 
+InstBase *BlockBase::setInstruction(size_t index,
+                                    std::unique_ptr<InstBase> inst) {
+  assert(index < _instructions.size());
+  assert(inst && "Cannot set nullptr instruction");
+  inst->setBlock(this);
+  auto ret = inst.get();
+  _instructions[index] = std::move(inst);
+  return ret;
+}
+
 InstBase *BlockBase::insertInstruction(size_t index,
                                        std::unique_ptr<InstBase> inst) {
   assert(index <= _instructions.size());

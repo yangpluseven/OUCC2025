@@ -64,7 +64,7 @@ public:
 
 class FuncRegAlloc {
 private:
-  MachineFunc *_func;
+  MachineFunc *_mFunc;
   std::vector<MReg *> _iCallerRegs;
   std::vector<MReg *> _fCallerRegs;
   std::vector<MReg *> _iCalleeRegs{};
@@ -74,26 +74,27 @@ private:
 
   static void calcInOut(std::vector<BlockInfo *> &blocks);
 
-  std::vector<BlockInfo *> calcBlocks() const;
+  std::vector<BlockInfo *> calcBlockInfos() const;
   std::unordered_map<ir::Reg *, std::unordered_set<ir::Reg *>>
   calcConflictMap();
-  std::unordered_map<ir::Reg *, std::unordered_set<int>> calcLifespans();
+  std::unordered_map<ir::Reg *, std::unordered_set<MachineInst *>>
+  calcLifespans();
   void calcUseDef(std::vector<BlockInfo *> &blocks) const;
   std::unordered_map<ir::VReg *, MReg *> calcVRegToMReg();
   void makeFrameInfo();
-  void popFrame();
   void pushFrame();
+  void popFrame();
   void replaceFakeMIRs();
   void solveSpill();
 
 public:
-  explicit FuncRegAlloc(MachineFunc *func) : _func(func) {
-    _iCallerRegs =
-        std::vector<MReg *>(MReg::iCallerRegs.begin(),
-                            MReg::iCallerRegs.begin() + _func->getICallerNum());
-    _fCallerRegs =
-        std::vector<MReg *>(MReg::fCallerRegs.begin(),
-                            MReg::fCallerRegs.begin() + _func->getFCallerNum());
+  explicit FuncRegAlloc(MachineFunc *func) : _mFunc(func) {
+    _iCallerRegs = std::vector<MReg *>(MReg::iCallerRegs.begin(),
+                                       MReg::iCallerRegs.begin() +
+                                           _mFunc->getICallerNum());
+    _fCallerRegs = std::vector<MReg *>(MReg::fCallerRegs.begin(),
+                                       MReg::fCallerRegs.begin() +
+                                           _mFunc->getFCallerNum());
     _paramInnerSize = (func->getICallerNum() + func->getFCallerNum()) * 8;
   }
 
