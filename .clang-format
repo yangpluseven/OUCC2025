@@ -9,5 +9,5 @@ Standard: c++17
 # AlignConsecutiveDeclarations: true
 # BreakBeforeBraces: Attach
 # AllowShortFunctionsOnASingleLine: Empty
-# SortIncludes: CaseSensitive
-# FixNamespaceComments: true
+SortIncludes: CaseSensitive
+FixNamespaceComments: true
