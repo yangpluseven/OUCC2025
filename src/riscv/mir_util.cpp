@@ -9,7 +9,7 @@ MachineInst *loadImmI(MachineBlock *block, int imm) {
 
 MachineInst *loadImmF(MachineBlock *block, int imm) {
   auto tmp = block->pushMInst(std::make_unique<LI>(MAKE_I32, imm));
-  auto inst = block->pushMInst(std::make_unique<RR>(RROp::MV, MAKE_F32, (tmp)));
+  auto inst = block->pushMInst(std::make_unique<RR>(RROp::MV, MAKE_F32, tmp));
   return inst;
 }
 
@@ -80,7 +80,7 @@ MachineInst *addRegImmI(MachineBlock *block, MachineInst *src, int imm) {
   if (std::abs(imm) < 2048) {
     auto inst = block->pushMInst(
         std::make_unique<RRI>(RRIOp::ADDI, MAKE_I32, src, imm));
-    return (inst);
+    return inst;
   }
   auto inst = loadImmI(block, imm);
   return addRegRegI(block, src, inst);
@@ -94,8 +94,8 @@ MachineInst *divRegRegF(MachineBlock *block, MachineInst *src0,
 
 MachineInst *divRegRegI(MachineBlock *block, MachineInst *src0,
                         MachineInst *src1) {
-  return (block->pushMInst(
-      std::make_unique<RRR>(RRROp::DIVW, MAKE_I32, src0, src1)));
+  return block->pushMInst(
+      std::make_unique<RRR>(RRROp::DIVW, MAKE_I32, src0, src1));
 }
 
 MachineInst *divImmRegF(MachineBlock *block, float imm, MachineInst *src) {
@@ -138,45 +138,43 @@ MachineInst *divRegImmI(MachineBlock *block, MachineInst *src, int imm) {
   auto tmp1 = loadImmI(block, magic);
   MachineInst *mid1, *mid2;
   if (magic >= 0) {
-    auto tmp2 = (block->pushMInst(
-        std::make_unique<RRR>(RRROp::MUL, MAKE_I32, src, tmp1)));
+    auto tmp2 = block->pushMInst(
+        std::make_unique<RRR>(RRROp::MUL, MAKE_I32, src, tmp1));
     auto tmp3 = block->pushMInst(
         std::make_unique<RRI>(RRIOp::SRLI, MAKE_I32, tmp2, 32));
-    mid1 = (tmp3);
+    mid1 = tmp3;
   } else {
-    auto tmp2 = (block->pushMInst(
-        std::make_unique<RRR>(RRROp::MUL, MAKE_I32, src, tmp1)));
-    auto tmp3 = (block->pushMInst(
-        std::make_unique<RRI>(RRIOp::SRLI, MAKE_I32, tmp2, 32)));
-    auto tmp4 = (block->pushMInst(
-        std::make_unique<RRR>(RRROp::ADD, MAKE_I32, tmp3, src)));
-    mid1 = (tmp4);
+    auto tmp2 = block->pushMInst(
+        std::make_unique<RRR>(RRROp::MUL, MAKE_I32, src, tmp1));
+    auto tmp3 = block->pushMInst(
+        std::make_unique<RRI>(RRIOp::SRLI, MAKE_I32, tmp2, 32));
+    auto tmp4 = block->pushMInst(
+        std::make_unique<RRR>(RRROp::ADD, MAKE_I32, tmp3, src));
+    mid1 = tmp4;
   }
   if (shift != 0) {
     auto tmp2 = block->pushMInst(
         std::make_unique<RRI>(RRIOp::SRAIW, MAKE_I32, mid1, shift));
-    mid2 = (tmp2);
+    mid2 = tmp2;
   } else {
     mid2 = mid1; // No shift needed
   }
   if (isPos) {
-    auto tmp2 = (block->pushMInst(
-        std::make_unique<RRI>(RRIOp::SRLIW, MAKE_I32, src, 31)));
-    auto tmp3 = (block->pushMInst(
-        std::make_unique<RRR>(RRROp::ADDW, MAKE_I32, mid2, tmp2)));
-    return tmp1;
+    auto tmp2 = block->pushMInst(
+        std::make_unique<RRI>(RRIOp::SRLIW, MAKE_I32, src, 31));
+    return block->pushMInst(
+        std::make_unique<RRR>(RRROp::ADDW, MAKE_I32, mid2, tmp2));
   }
-  auto tmp2 = (block->pushMInst(
-      std::make_unique<RRI>(RRIOp::SRAIW, MAKE_I32, src, 31)));
-  auto tmp3 = (block->pushMInst(
-      std::make_unique<RRR>(RRROp::SUBW, MAKE_I32, mid2, tmp2)));
-  return tmp3;
+  auto tmp2 =
+      block->pushMInst(std::make_unique<RRI>(RRIOp::SRAIW, MAKE_I32, src, 31));
+  return block->pushMInst(
+      std::make_unique<RRR>(RRROp::SUBW, MAKE_I32, mid2, tmp2));
 }
 
 MachineInst *modRegReg(MachineBlock *block, MachineInst *src0,
                        MachineInst *src1) {
-  return (block->pushMInst(
-      std::make_unique<RRR>(RRROp::REMW, MAKE_I32, src0, src1)));
+  return block->pushMInst(
+      std::make_unique<RRR>(RRROp::REMW, MAKE_I32, src0, src1));
 }
 
 MachineInst *modImmReg(MachineBlock *block, int imm, MachineInst *src) {

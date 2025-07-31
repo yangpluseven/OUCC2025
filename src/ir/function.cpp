@@ -111,7 +111,7 @@ FuncBase::iterator FuncBase::insertBlock(iterator pos,
   return _blocks.insert(pos, std::move(block));
 }
 
-void ir::FuncBase::insertBlockAfter(BlockBase *target,
+void FuncBase::insertBlockAfter(BlockBase *target,
                                     std::unique_ptr<BlockBase> block) {
   for (auto it = _blocks.begin(); it != _blocks.end(); ++it) {
     if (it->get() == target) {

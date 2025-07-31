@@ -101,7 +101,7 @@ public:
 
   MReg(ir::BasicType *type, std::string name)
       : Reg(type), _name(std::move(name)) {}
-  std::string str() const { return _name; }
+  std::string str() const override { return _name; }
 
   static int argsStackOffset(int iSize, int fSize) {
     return (std::max(iSize - static_cast<int>(iCallerRegs.size()), 0) +

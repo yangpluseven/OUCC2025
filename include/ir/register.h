@@ -34,7 +34,7 @@ public:
     default:
       throw std::runtime_error("Invalid type in VReg");
     }
-  };
+  }
 };
 
 } // namespace ir

@@ -34,7 +34,7 @@ public:
 
   int getID() const { return _id; }
 
-  using ValueMap = std::unordered_map<ir::Value *, ir::Value *>;
+  using ValueMap = std::unordered_map<Value *, Value *>;
 
   // Use _cloneTarget to find the old instruction, use the map oldVal -> newVal
   // to map the operands. Set _cloneTarget to nullptr after the process

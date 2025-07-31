@@ -22,7 +22,7 @@ MachineBlock::MachineBlock(std::string name) : BlockBase(-1), _name(name) {}
 
 MachineInst *MachineBlock::pushMInst(std::unique_ptr<MachineInst> inst) {
   auto machineInst =
-      static_cast<MachineInst *>(BlockBase::pushInstruction(std::move(inst)));
+      static_cast<MachineInst *>(pushInstruction(std::move(inst)));
   return machineInst;
 }
 
@@ -65,7 +65,7 @@ void MachineFunc::initLocalOffsets() {
   int localSize = 0;
   auto block = _origin->getFirstBlock();
   for (auto &ptr : *block) {
-    auto ir = static_cast<ir::Instruction *>(ptr.get());
+    auto ir = static_cast<Instruction *>(ptr.get());
     // Must place alloca at the front! (ATTENTION)
     if (!ir->isAlloca()) {
       break;
@@ -133,7 +133,7 @@ void MachineFunc::binary(ir::BinaryInst *inst, MachineBlock *block) {
     src1 = handleArg(static_cast<ir::Argument *>(operand1), block);
     break;
   case ValueKind::Inst:
-    src1 = _instMap[static_cast<ir::Instruction *>(operand1)];
+    src1 = _instMap[static_cast<Instruction *>(operand1)];
     break;
   }
   MachineInst *src2 = nullptr;
@@ -142,7 +142,7 @@ void MachineFunc::binary(ir::BinaryInst *inst, MachineBlock *block) {
     src2 = handleArg(static_cast<ir::Argument *>(operand2), block);
     break;
   case ValueKind::Inst:
-    src2 = _instMap[static_cast<ir::Instruction *>(operand2)];
+    src2 = _instMap[static_cast<Instruction *>(operand2)];
     break;
   }
   if (src1 && src2) {
@@ -194,7 +194,7 @@ void MachineFunc::branch(ir::BranchInst *inst, MachineBlock *block) {
   auto type = cond->getType();
   switch (cond->getValueKind()) {
   case ValueKind::Inst:
-    condInst = _instMap[static_cast<ir::Instruction *>(cond)];
+    condInst = _instMap[static_cast<Instruction *>(cond)];
     break;
   case ValueKind::ConstNum:
     if (type->isF32()) {
@@ -231,7 +231,7 @@ int MachineFunc::call(ir::CallInst *inst, MachineBlock *block) {
       case ValueKind::Inst:
         block->pushMInst(
             make_unique<RR>(RROp::MV, callerRegs[curSize],
-                            _instMap[static_cast<ir::Instruction *>(param)]));
+                            _instMap[static_cast<Instruction *>(param)]));
         break;
       case ValueKind::ConstNum:
         if (isFloat) {
@@ -256,7 +256,7 @@ int MachineFunc::call(ir::CallInst *inst, MachineBlock *block) {
       case ValueKind::Inst:
         block->pushMInst(make_unique<StoreTo>(
             StoreItem::CALL_PARAM,
-            _instMap[static_cast<ir::Instruction *>(param)],
+            _instMap[static_cast<Instruction *>(param)],
             MReg::argsStackOffset(iSize, fSize)));
         break;
       case ValueKind::ConstNum: {
@@ -339,7 +339,7 @@ void MachineFunc::gep(ir::GetElementPtrInst *inst, MachineBlock *block) {
     mul2 = handleArg(static_cast<ir::Argument *>(operand), block);
     break;
   case ValueKind::Inst: {
-    auto tmp = _instMap[static_cast<ir::Instruction *>(operand)];
+    auto tmp = _instMap[static_cast<Instruction *>(operand)];
     if (tmp->getDest()->getRegType()->getBasicKind() == ir::BasicKind::I32) {
       mul2 = tmp;
     } else {
@@ -412,7 +412,7 @@ void MachineFunc::ret(ir::RetInst *inst, MachineBlock *block,
     retInst = handleArg(static_cast<ir::Argument *>(retVal), block);
     break;
   case ValueKind::Inst:
-    retInst = _instMap[static_cast<ir::Instruction *>(retVal)];
+    retInst = _instMap[static_cast<Instruction *>(retVal)];
     break;
   case ValueKind::ConstNum:
     if (retVal->getType()->isF32()) {
@@ -469,7 +469,7 @@ void MachineFunc::store(ir::StoreInst *inst, MachineBlock *block) {
     valueInst = handleArg(static_cast<ir::Argument *>(value), block);
     break;
   case ValueKind::Inst:
-    valueInst = _instMap[static_cast<ir::Instruction *>(value)];
+    valueInst = _instMap[static_cast<Instruction *>(value)];
     break;
   case ValueKind::ConstNum:
     if (value->getType()->isF32()) {
@@ -500,7 +500,7 @@ void MachineFunc::icmp(ir::CmpInst *inst, MachineBlock *block) {
     src1 = handleArg(static_cast<ir::Argument *>(operand1), block);
     break;
   case ValueKind::Inst:
-    src1 = _instMap[static_cast<ir::Instruction *>(operand1)];
+    src1 = _instMap[static_cast<Instruction *>(operand1)];
     break;
   case ValueKind::ConstNum:
     src1 = loadImmI(block,
@@ -513,7 +513,7 @@ void MachineFunc::icmp(ir::CmpInst *inst, MachineBlock *block) {
     src2 = handleArg(static_cast<ir::Argument *>(operand2), block);
     break;
   case ValueKind::Inst:
-    src2 = _instMap[static_cast<ir::Instruction *>(operand2)];
+    src2 = _instMap[static_cast<Instruction *>(operand2)];
     break;
   case ValueKind::ConstNum:
     src2 = loadImmI(block,
@@ -565,7 +565,7 @@ void MachineFunc::fcmp(ir::CmpInst *inst, MachineBlock *block) {
     src1 = handleArg(static_cast<ir::Argument *>(operand1), block);
     break;
   case ValueKind::Inst:
-    src1 = _instMap[static_cast<ir::Instruction *>(operand1)];
+    src1 = _instMap[static_cast<Instruction *>(operand1)];
     break;
   case ValueKind::ConstNum:
     src1 = loadImmF(block,
@@ -578,7 +578,7 @@ void MachineFunc::fcmp(ir::CmpInst *inst, MachineBlock *block) {
     src2 = handleArg(static_cast<ir::Argument *>(operand2), block);
     break;
   case ValueKind::Inst:
-    src2 = _instMap[static_cast<ir::Instruction *>(operand2)];
+    src2 = _instMap[static_cast<Instruction *>(operand2)];
     break;
   case ValueKind::ConstNum:
     src2 = loadImmF(block,
@@ -621,7 +621,7 @@ void MachineFunc::fcmp(ir::CmpInst *inst, MachineBlock *block) {
 using ir::InstKind;
 
 void MachineFunc::bitcast(ir::CastInst *inst, MachineBlock *block) {
-  auto operand = static_cast<ir::Instruction *>(inst->getOperand(0));
+  auto operand = static_cast<Instruction *>(inst->getOperand(0));
   auto src = _instMap[operand];
   if (operand->getInstKind() == InstKind::Alloca) {
     src = block->pushMInst(make_unique<LEA>(
@@ -640,7 +640,7 @@ void MachineFunc::zext(ir::CastInst *inst, MachineBlock *block) {
     src = handleArg(static_cast<ir::Argument *>(operand), block);
     break;
   case ValueKind::Inst:
-    src = _instMap[static_cast<ir::Instruction *>(operand)];
+    src = _instMap[static_cast<Instruction *>(operand)];
     break;
   case ValueKind::ConstNum:
     src =
@@ -662,7 +662,7 @@ void MachineFunc ::sext(ir::CastInst *inst, MachineBlock *block) {
     src = handleArg(static_cast<ir::Argument *>(operand), block);
     break;
   case ValueKind::Inst:
-    src = _instMap[static_cast<ir::Instruction *>(operand)];
+    src = _instMap[static_cast<Instruction *>(operand)];
     break;
   case ValueKind::ConstNum:
     src =
@@ -684,7 +684,7 @@ void MachineFunc::fptosi(ir::CastInst *inst, MachineBlock *block) {
     src = handleArg(static_cast<ir::Argument *>(operand), block);
     break;
   case ValueKind::Inst:
-    src = _instMap[static_cast<ir::Instruction *>(operand)];
+    src = _instMap[static_cast<Instruction *>(operand)];
     break;
   case ValueKind::ConstNum:
     src = loadImmF(block,
@@ -706,7 +706,7 @@ void MachineFunc::sitofp(ir::CastInst *inst, MachineBlock *block) {
     src = handleArg(static_cast<ir::Argument *>(operand), block);
     break;
   case ValueKind::Inst:
-    src = _instMap[static_cast<ir::Instruction *>(operand)];
+    src = _instMap[static_cast<Instruction *>(operand)];
     break;
   case ValueKind::ConstNum:
     src =
