@@ -1,6 +1,7 @@
 #include "riscv/machine_func.h"
 #include "riscv/mir_util.h"
 #include "riscv/registers.h"
+#include <sstream>
 
 namespace riscv {
 
@@ -299,10 +300,10 @@ void MachineFunc::gep(ir::GetElementPtrInst *inst, MachineBlock *block) {
     if (inst->getNumOperands() == 3) {
       mul1 = block->pushMInst(make_unique<LI>(
           MAKE_I32,
-          inst->getType()->getBaseType()->getBaseType()->getSize() / 8));
+          ptr->getType()->getBaseType()->getBaseType()->getSize() / 8));
     } else {
       mul1 = block->pushMInst(make_unique<LI>(
-          MAKE_I32, inst->getType()->getBaseType()->getSize() / 8));
+          MAKE_I32, ptr->getType()->getBaseType()->getSize() / 8));
     }
     auto pInst = static_cast<Instruction *>(ptr);
     if (pInst->getInstKind() == InstKind::Alloca) {
@@ -504,13 +505,11 @@ void MachineFunc::icmp(ir::CmpInst *inst, MachineBlock *block) {
   case CmpOp::EQ:
     // Maybe eq is enough?
     tmp = block->pushMInst(make_unique<RRR>(RRROp::SUB, MAKE_I32, src1, src2));
-    result =
-        block->pushMInst(make_unique<RR>(RROp::SEQZ, MAKE_I32, tmp));
+    result = block->pushMInst(make_unique<RR>(RROp::SEQZ, MAKE_I32, tmp));
     break;
   case CmpOp::NE:
     tmp = block->pushMInst(make_unique<RRR>(RRROp::SUB, MAKE_I32, src1, src2));
-    result =
-        block->pushMInst(make_unique<RR>(RROp::SNEZ, MAKE_I32, tmp));
+    result = block->pushMInst(make_unique<RR>(RROp::SNEZ, MAKE_I32, tmp));
     break;
   case CmpOp::SGE:
     tmp = block->pushMInst(make_unique<RRR>(RRROp::SLT, MAKE_I32, src1, src2));
@@ -702,6 +701,19 @@ void MachineFunc::sitofp(ir::CastInst *inst, MachineBlock *block) {
 
 void MachineFunc::move(ir::MoveInst *inst, MachineBlock *block) {
   // TODO MoveInst is used to handle phi nodes, which are not yet supported
+}
+
+std::string MachineFunc::str() const {
+  std::ostringstream ss;
+  ss << "\t.align 8\n";
+  ss << "\t.global " << getName() << "\n";
+  ss << getName() << ":\n";
+  for (const auto &block : *this) {
+    auto mBlock = static_cast<MachineBlock *>(block.get());
+    ss << mBlock->str();
+  }
+  ss << "\tret\n";
+  return ss.str();
 }
 
 } // namespace riscv

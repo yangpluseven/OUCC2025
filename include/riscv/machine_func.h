@@ -31,7 +31,6 @@ public:
   }
 
   std::string getLabel() const override;
-
   std::string getName() const override;
 };
 
@@ -62,6 +61,7 @@ public:
   ir::ValueKind getValueKind() const override {
     return ir::ValueKind::MachineFunc;
   }
+  std::string str() const override;
 
   void binary(ir::BinaryInst *inst, MachineBlock *block);
   void branch(ir::BranchInst *inst, MachineBlock *block);

@@ -4,4 +4,5 @@
 /.idea
 /cmake-build-debug
 /generated
+/test
 /3rd/*
