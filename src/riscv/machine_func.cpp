@@ -420,7 +420,7 @@ void MachineFunc::load(ir::LoadInst *inst, MachineBlock *block) {
   }
   }
   auto loadInst =
-      block->pushMInst(make_unique<Load>(ptr->makeRegType(), base, 0, size));
+      block->pushMInst(make_unique<Load>(inst->makeRegType(), base, 0, size));
   _instMap[inst] = loadInst;
 }
 
