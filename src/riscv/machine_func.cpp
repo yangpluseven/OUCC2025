@@ -18,12 +18,10 @@ MachineBlock::MachineBlock() : BlockBase(_counter++) {}
 
 MachineBlock::MachineBlock(int id) : BlockBase(id) { _counter = id + 1; }
 
-MachineBlock::MachineBlock(std::string name) : BlockBase(-1), _name(name) {}
+MachineBlock::MachineBlock(std::string name) : BlockBase(-1), _name(std::move(name)) {}
 
 MachineInst *MachineBlock::pushMInst(std::unique_ptr<MachineInst> inst) {
-  auto machineInst =
-      static_cast<MachineInst *>(pushInstruction(std::move(inst)));
-  return machineInst;
+  return dynamic_cast<MachineInst *>(pushInstruction(std::move(inst)));
 }
 
 MachineInst *MachineBlock::getMInst(size_t index) const {
