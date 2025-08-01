@@ -34,7 +34,7 @@ public:
   ir::ValueKind getValueKind() const override {
     return ir::ValueKind::MachineBlock;
   }
-
+  ir::BasicBlock *getOrigin() const { return _origin; }
   std::string getLabel() const override;
   std::string getName() const override;
 };

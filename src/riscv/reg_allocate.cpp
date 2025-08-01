@@ -451,8 +451,53 @@ void FuncRegAlloc::solveSpill() {
     for (const auto &toSpill : spilledRegs) {
       VReg *reg = toSpill.first;
       int offset = toSpill.second;
+      for (size_t i = 0; i < _mFunc->size(); i++) {
+        auto mBlock = static_cast<MachineBlock *>(_mFunc->getBlock(i));
+        auto newMBlock = std::make_unique<MachineBlock>(mBlock->getOrigin());
+        for (auto &instPtr : *mBlock) {
+          auto inst = static_cast<MachineInst *>(instPtr.get());
+          inst->spill(reg, offset, newMBlock.get());
+        }
+        _mFunc->setBlock(i, std::move(newMBlock));
+      }
     }
   } while (toContinueOuter);
+}
+
+std::unordered_map<ir::VReg *, MReg *> FuncRegAlloc::calcVRegToMReg() {
+  std::unordered_map<Reg *, std::unordered_set<Reg *>> conflictMap =
+      calcConflictMap();
+  std::unordered_map<VReg *, MReg *> vRegToMReg;
+  for (const auto &p : conflictMap) {
+    if (auto const vreg = dynamic_cast<VReg *>(p.first)) {
+      const std::vector<MReg *> &regs =
+          vreg->getRegType()->isF32() ? MReg::fRegs : MReg::iRegs;
+      std::unordered_set<MReg *> usedRegs;
+      for (const auto reg : conflictMap.at(vreg)) {
+        if (auto const vreg1 = dynamic_cast<VReg *>(reg)) {
+          MReg *mreg = vRegToMReg[vreg1];
+          if (mreg) {
+            usedRegs.insert(mreg);
+          }
+          continue;
+        }
+        if (auto const mreg = dynamic_cast<MReg *>(reg)) {
+          usedRegs.insert(mreg);
+          continue;
+        }
+        throw std::runtime_error(
+            "unexpected reg type in FuncRegAlloc::calcVRegToMReg");
+      }
+      for (const auto mreg : regs) {
+        if (usedRegs.find(mreg) != usedRegs.end()) {
+          continue;
+        }
+        vRegToMReg[vreg] = mreg;
+        break;
+      }
+    }
+  }
+  return vRegToMReg;
 }
 
 } // namespace riscv

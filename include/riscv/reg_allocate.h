@@ -99,7 +99,19 @@ public:
   }
 
   void allocate() {
-    // TODO
+    solveSpill();
+    auto vRegToMReg = calcVRegToMReg();
+    for (const auto &blockPtr : *_mFunc) {
+      auto mBlock = static_cast<MachineBlock *>(blockPtr.get());
+      for (const auto &instPtr : *mBlock) {
+        auto inst = static_cast<MachineInst *>(instPtr.get());
+        inst->replaceReg(vRegToMReg);
+      }
+    }
+    makeFrameInfo();
+    pushFrame();
+    popFrame();
+    replaceFakeMIRs();
   }
 };
 

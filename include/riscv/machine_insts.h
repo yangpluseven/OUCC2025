@@ -82,25 +82,23 @@ public:
 
   // Get the dest register's name, virtual or real
   std::string getName() const override;
-
   ir::ValueKind getValueKind() const override {
     return ir::ValueKind::MachineInst;
   }
-
   ir::BasicKind getBasicKind() const {
     return static_cast<ir::BasicType *>(getType())->getBasicKind();
   }
-
   ir::Reg *getDest() const { return _dest; }
-
   void setDest(ir::Reg *dest) { _dest = dest; }
-
   ir::Reg *getSrc(size_t index) const {
     return static_cast<MachineInst *>(getOperand(index))->getDest();
   }
+  void setSrc(size_t index, ir::Reg *src) {
+    auto inst = static_cast<MachineInst *>(getOperand(index));
+    inst->setDest(src);
+  }
 
   std::vector<ir::Reg *> getRegs() const;
-
   virtual std::vector<ir::Reg *> getRead() const {
     std::vector<ir::Reg *> vec;
     for (size_t i = 0; i < getNumOperands(); i++) {
@@ -109,17 +107,34 @@ public:
     }
     return vec;
   }
-
   virtual std::vector<ir::Reg *> getWrite() const {
     if (_dest) {
       return {_dest};
     }
     return {};
   }
-
   virtual MInstKind getMInstKind() const { return MInstKind::Fake; }
-
   virtual void spill(ir::Reg *spilledReg, int offset, MachineBlock *block);
+  virtual void
+  replaceReg(const std::unordered_map<ir::VReg *, MReg *> &replaceMap) {
+    for (size_t i = 0; i < getNumOperands(); i++) {
+      if (auto vreg = dynamic_cast<ir::VReg *>(getSrc(i))) {
+        auto it = replaceMap.find(vreg);
+        if (it != replaceMap.end()) {
+          setSrc(i, it->second);
+        }
+      }
+    }
+    if (!_dest) {
+      return;
+    }
+    if (auto vreg = dynamic_cast<ir::VReg *>(_dest)) {
+      auto it = replaceMap.find(vreg);
+      if (it != replaceMap.end()) {
+        setDest(it->second);
+      }
+    }
+  }
 };
 
 class ImmInst : public MachineInst {

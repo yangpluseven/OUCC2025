@@ -88,8 +88,10 @@ std::vector<Reg *> Call::getWrite() const {
 }
 
 void LEA::spill(Reg *spilledReg, int offset, MachineBlock *block) {
-  if (spilledReg != getDest())
-    throw std::runtime_error("in LEA:spill");
+  if (spilledReg != getDest()) {
+    block->pushInstruction(getBlock()->eraseInstruction(this));
+    return;
+  }
 
   auto ptr = block->pushInstruction(std::make_unique<LEA>(
       std::make_unique<BasicType>(BasicKind::I32), offset));
@@ -127,8 +129,10 @@ void Jump::spill(Reg *spilledReg, int offset, MachineBlock *block) {
 }
 
 void LI::spill(Reg *spilledReg, int offset, MachineBlock *block) {
-  if (spilledReg != getDest())
+  if (spilledReg != getDest()) {
+    block->pushInstruction(getBlock()->eraseInstruction(this));
     return;
+  }
 
   auto ptr = block->pushInstruction(std::make_unique<LI>(spilledReg, getImm()));
   block->pushInstruction(std::make_unique<StoreTo>(
