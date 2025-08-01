@@ -19,8 +19,7 @@ int main(int argc, const char *argv[]) {
 
   std::string outputFile;
   app.add_option("-o,--output", outputFile, "Output file")
-      ->default_str("a.out")
-      ->check(CLI::NonexistentPath);
+      ->default_str("a.out");
 
   std::unordered_map<std::string, OptLevelEnum> opt_map{
       {"0", OptLevelEnum::O0}, {"1", OptLevelEnum::O1}};
@@ -40,9 +39,15 @@ int main(int argc, const char *argv[]) {
     return app.exit(e);
   }
 
-  std::ofstream ofs(outputFile);
+  std::ofstream ofs(outputFile, ios_base::out | ios_base::trunc);
   if (!ofs) {
-    std::cerr << "Error opening output file: " << outputFile << std::endl;
+    std::cerr << "[!] Error opening output file: " << outputFile << std::endl;
+    exit(1);
+  }
+
+  yyin = fopen(sourceFile.c_str(), "r");
+  if (!yyin) {
+    std::cerr << "[!] Error opening source file: " << sourceFile << std::endl;
     exit(1);
   }
 
@@ -55,7 +60,7 @@ int main(int argc, const char *argv[]) {
     outputType = OutputTypeEnum::ASM;
 
   std::cout << "compile2025-0 (C) OUCC. 2025" << std::endl;
-  std::cout << "Compiling " << sourceFile << " to " << outputFile << std::endl;
+  std::cout << ">> Compiling " << sourceFile << " to " << outputFile << std::endl;
 
   yyparse();
   GenerateIR genIR;
@@ -63,7 +68,7 @@ int main(int argc, const char *argv[]) {
   auto mod = genIR.getModule();
   switch (outputType) {
   case OutputTypeEnum::LLVM: {
-    std::cout << "Generating LLVM IR..." << std::endl;
+    std::cout << ">> Generating LLVM IR..." << std::endl;
 
     for (const auto &glob : mod->getGlobals())
       ofs << glob->str() << "\n";
@@ -81,27 +86,28 @@ int main(int argc, const char *argv[]) {
       ofs << func->str() << "\n";
     }
 
-    ofs.close();
     if (ofs.fail())
-      std::cerr << "Error writing to output file: " << outputFile << std::endl;
+      std::cerr << "[!] Error writing to output file: " << outputFile << std::endl;
     else
-      std::cout << "LLVM IR written to " << outputFile << std::endl;
+      std::cout << ">> LLVM IR written to " << outputFile << std::endl;
   } break;
   case OutputTypeEnum::MIR:
-    std::cout << "Generating MIR..." << std::endl;
+    std::cout << ">> Generating MIR..." << std::endl;
 
     for (const auto &mFunc : mod->getMFuncs())
       ofs << mFunc->str() << "\n";
 
-    ofs.close();
     if (ofs.fail())
-      std::cerr << "Error writing to output file: " << outputFile << std::endl;
+      std::cerr << "[!] Error writing to output file: " << outputFile << std::endl;
     else
-      std::cout << "MIR written to " << outputFile << std::endl;
+      std::cout << ">> MIR written to " << outputFile << std::endl;
     break;
   case OutputTypeEnum::ASM:
     return 1; // Not implemented yet
   }
 
+  ofs.close();
+  if (yyin)
+    fclose(yyin);
   return 0;
 }
