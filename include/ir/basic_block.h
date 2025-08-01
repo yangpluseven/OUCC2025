@@ -19,6 +19,7 @@ private:
   int _id;
   FuncBase *_function;
   std::vector<std::unique_ptr<InstBase>> _instructions;
+  std::vector<std::unique_ptr<InstBase>> _unreachables;
 
 public:
   explicit BlockBase(int id);
@@ -36,6 +37,7 @@ public:
   InstBase *pushInstruction(std::unique_ptr<InstBase> inst);
   InstBase *insertInstruction(size_t index, std::unique_ptr<InstBase> inst);
   InstBase *getTerminator() const;
+  InstBase *getLastInstruction() const;
   InstBase *getInstruction(size_t index) const;
   InstBase *setInstruction(size_t index, std::unique_ptr<InstBase> inst);
   std::unique_ptr<InstBase> eraseInstruction(size_t index);

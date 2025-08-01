@@ -136,6 +136,7 @@ int main(int argc, const char *argv[]) {
   yyparse();
   GenerateIR genIR;
   root->accept(genIR);
+  genIR.checkTerminator();
   auto mod = genIR.getModule();
   switch (outputType) {
   case OutputTypeEnum::LLVM: {
@@ -186,7 +187,7 @@ int main(int argc, const char *argv[]) {
     riscv::ModuleRegAlloc regAlloc(mod);
     regAlloc.allocate();
     writeGlobals(ofs, mod);
-
+    ofs << "\t.text\n";
     for (const auto &mFunc : mod->getMFuncs()) {
       ofs << mFunc->str();
       ofs << "\tret\n";

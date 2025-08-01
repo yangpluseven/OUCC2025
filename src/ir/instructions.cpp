@@ -149,7 +149,7 @@ std::string CmpInst::str() const {
   if (!Type::isEqual(lhs->getType(), rhs->getType())) {
     throw std::runtime_error("Unmatched types in binary instruction!");
   }
-  return fmt::format("{} = {} {}, {}", getName(), opToString(_op),
+  return fmt::format("{} = {} {} {}, {}", getName(), opToString(_op),
                      lhs->getType()->str(), lhs->getName(), rhs->getName());
 }
 
@@ -355,8 +355,9 @@ std::unique_ptr<Instruction> StoreInst::cloneEmpty() const {
 std::unique_ptr<Type> GetElementPtrInst::calcType(Value *value,
                                                   size_t indexSize) {
   auto type = value->getType();
+  std::unique_ptr<PointerType> bType;
   if (value->isGlobal()) {
-    auto bType = std::make_unique<PointerType>(type->clone());
+    bType = std::make_unique<PointerType>(type->clone());
     type = bType.get();
   }
   for (int i = 0; i < indexSize; i++) {
@@ -383,11 +384,11 @@ std::string GetElementPtrInst::str() const {
 
   const auto ptr = getOperand(0);
   if (ptr->isGlobal())
-    fmt::format_to(std::back_inserter(buf), "{} = getelementptr {}, {}* {}, ",
+    fmt::format_to(std::back_inserter(buf), "{} = getelementptr {}, {}* {}",
                    getName(), ptr->getType()->str(), ptr->getType()->str(),
                    ptr->getName());
   else
-    fmt::format_to(std::back_inserter(buf), "{} = getelementptr {}, {} {}, ",
+    fmt::format_to(std::back_inserter(buf), "{} = getelementptr {}, {} {}",
                    getName(), ptr->getType()->getBaseType()->str(),
                    ptr->getType()->str(), ptr->getName());
 

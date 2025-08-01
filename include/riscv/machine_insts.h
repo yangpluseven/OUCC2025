@@ -194,7 +194,6 @@ public:
   bool hasCond() const { return _op != JumpOp::NUL; }
   MInstKind getMInstKind() const override { return MInstKind::Jump; }
   std::string str() const override;
-  bool isTerminator() const override { return true; }
   MachineBlock *getTargetBlock() const { return _target; }
 };
 

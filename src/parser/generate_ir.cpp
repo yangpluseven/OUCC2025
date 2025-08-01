@@ -56,7 +56,10 @@ void GenerateIR::initSysCalls() {
 
 void GenerateIR::checkTerminator() {
   for (const auto &func : _module->getFunctions()) {
-    for (int i = 0; i < func->size() - 1; i++) {
+    if (func->empty()) {
+      continue;
+    }
+    for (size_t i = 0; i < func->size() - 1; i++) {
       auto block = func->getBlock(i);
       if (!block->hasTerminator()) {
         block->pushInstruction(std::make_unique<BranchInst>(
@@ -774,6 +777,7 @@ void GenerateIR::visit(EqExp &ast) {
       op = CmpOp::OEQ;
       break;
     }
+    break;
   case EqOp::NEQ:
     switch (targetType) {
     case BasicKind::I32:
@@ -785,7 +789,7 @@ void GenerateIR::visit(EqExp &ast) {
     }
     break;
   }
-  auto cmpInst = std::make_unique<CmpInst>(CmpOp::EQ, val1, val2);
+  auto cmpInst = std::make_unique<CmpInst>(op, val1, val2);
   _curVal = cmpInst.get();
   _curBlock->pushInstruction(std::move(cmpInst));
 }

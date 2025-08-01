@@ -31,8 +31,6 @@ private:
   ir::BasicBlock *_curBlock;
   std::unordered_map<ir::Argument *, ir::AllocaInst *> _argToAllocaMap;
 
-  void checkTerminator();
-
   void initBuiltInFuncs();
 
   void initSysCalls();
@@ -67,6 +65,8 @@ public:
     initBuiltInFuncs();
     initSysCalls();
   }
+
+  void checkTerminator();
 
   ir::Module *getModule() const { return _module; }
 

@@ -25,7 +25,7 @@ enum class ValueKind {
 
 class Value {
 private:
-  std::unique_ptr<Type> _type;
+  const std::unique_ptr<Type> _type;
   std::unordered_set<Use *> _uses;
 
 public:

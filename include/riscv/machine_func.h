@@ -27,6 +27,7 @@ public:
 
   MachineInst *pushMInst(std::unique_ptr<MachineInst> inst);
   MachineInst *getMInst(size_t index) const;
+  bool hasUncondJump() const;
   bool hasCondJump() const;
   Jump *getUncondJump() const;
   Jump *getCondJump() const;

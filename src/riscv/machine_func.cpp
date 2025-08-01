@@ -18,7 +18,8 @@ MachineBlock::MachineBlock() : BlockBase(_counter++) {}
 
 MachineBlock::MachineBlock(int id) : BlockBase(id) { _counter = id + 1; }
 
-MachineBlock::MachineBlock(std::string name) : BlockBase(-1), _name(std::move(name)) {}
+MachineBlock::MachineBlock(std::string name)
+    : BlockBase(-1), _name(std::move(name)) {}
 
 MachineInst *MachineBlock::pushMInst(std::unique_ptr<MachineInst> inst) {
   return dynamic_cast<MachineInst *>(pushInstruction(std::move(inst)));
@@ -41,7 +42,7 @@ bool MachineBlock::hasCondJump() const {
 }
 
 Jump *MachineBlock::getUncondJump() const {
-  return static_cast<Jump *>(getTerminator());
+  return dynamic_cast<Jump *>(getLastInstruction());
 }
 
 Jump *MachineBlock::getCondJump() const {
@@ -242,7 +243,7 @@ void MachineFunc::branch(ir::BranchInst *inst, MachineBlock *block) {
 int MachineFunc::call(ir::CallInst *inst, MachineBlock *block) {
   auto func = static_cast<ir::Function *>(inst->getOperand(0));
   int iSize = 0, fSize = 0;
-  for (int i = 0; i < inst->getNumOperands(); i++) {
+  for (int i = 1; i < inst->getNumOperands(); i++) {
     auto param = inst->getOperand(i);
     bool isFloat = param->getType()->isF32();
     auto &callerRegs = isFloat ? MReg::fCallerRegs : MReg::iCallerRegs;
@@ -563,7 +564,7 @@ void MachineFunc::icmp(ir::CmpInst *inst, MachineBlock *block) {
     break;
   case CmpOp::SGT:
     result =
-        block->pushMInst(make_unique<RRR>(RRROp::SGT, MAKE_I32, src2, src1));
+        block->pushMInst(make_unique<RRR>(RRROp::SGT, MAKE_I32, src1, src2));
     break;
   case CmpOp::SLE:
     tmp = block->pushMInst(make_unique<RRR>(RRROp::SGT, MAKE_I32, src1, src2));
