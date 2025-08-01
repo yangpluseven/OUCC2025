@@ -1,84 +1,103 @@
-#include "parser/ast.h"
-#include "parser/define.h"
+#include "CLI/CLI.hpp"
 #include "parser/generate_ir.h"
-#include "riscv/generate_mir.h"
-#include <algorithm>
-#include <fstream>
-#include <iostream>
-#include <memory>
-
-extern unique_ptr<CompUnit> root;
 
 extern int yyparse();
-
 extern FILE *yyin;
+extern unique_ptr<CompUnit> root;
 
-ir::Module *_module;
+enum class OutputTypeEnum { LLVM, MIR, ASM };
 
-void emitLLVM(std::string filename) {
-  std::ofstream ofs(filename);
-  if (!ofs.is_open()) {
-    std::cout << "Open " << filename << " failed" << std::endl;
+int main(int argc, const char *argv[]) {
+  CLI::App app{"A compiler for SysY language", "compile2025-0"};
+  app.require_subcommand(1);
+
+  std::string sourceFile;
+  app.add_option("sources", sourceFile, "Source file to compile")
+      ->required()
+      ->check(CLI::ExistingFile);
+
+  std::string outputFile;
+  app.add_option("-o,--output", outputFile, "Output file")
+      ->default_str("a.out")
+      ->check(CLI::NonexistentPath);
+  std::ofstream ofs(outputFile);
+  if (!ofs) {
+    std::cerr << "Error opening output file: " << outputFile << std::endl;
+    exit(1);
   }
 
-  for (const auto &global : _module->getGlobals()) {
-    ofs << global->str() << "\n";
+  bool isOpt1 = false;
+  app.add_flag("-O1", isOpt1, "Enable optimization level 1");
+
+  bool emitLLVM = false, emitMIR = false, emitASM = false;
+  app.add_flag("-emit-llvm", emitLLVM, "Emit LLVM IR as output");
+  app.add_flag("-emit-mir", emitMIR, "Emit MIR as output");
+  app.add_flag("-S,--assembly", emitASM, "Emit assembly code as output");
+
+  try {
+    app.parse(argc, argv);
+  } catch (const CLI::ParseError &e) {
+    return app.exit(e);
   }
 
-  if (_module->hasGlobal()) {
-    ofs << "\n";
-  }
+  OutputTypeEnum outputType;
+  if (emitLLVM)
+    outputType = OutputTypeEnum::LLVM;
+  else if (emitMIR)
+    outputType = OutputTypeEnum::MIR;
+  else
+    outputType = OutputTypeEnum::ASM;
 
-  auto functions = _module->getFunctions();
-  sort(functions.begin(), functions.end(),
-       [](const ir::Function *func1, const ir::Function *func2) {
-         if (func1->empty() != func2->empty()) {
-           return func1->empty() < func2->empty();
-         }
-         return func1->getRawName() < func2->getRawName();
-       });
-
-  for (const auto &func : functions) {
-    ofs << func->str() << "\n";
-  }
-
-  ofs.close();
-  if (ofs.fail()) {
-    std::cout << "Write " << filename << " failed" << std::endl;
-  }
-}
-
-void testEmitMIR(std::string filename) {
-  std::ofstream ofs(filename);
-  if (!ofs.is_open()) {
-    std::cout << "Open " << filename << " failed" << std::endl;
-    return;
-  }
-
-  for (const auto &mfunc : _module->getMFuncs()) {
-    ofs << mfunc->str() << "\n";
-  }
-
-  ofs.close();
-  if (ofs.fail()) {
-    std::cout << "Write " << filename << " failed" << std::endl;
-  }
-}
-
-int main(int argc, char *argv[]) {
-  char *filename = argv[1];
-  yyin = fopen(filename, "r");
-  if (!yyin) {
-    std::cout << "Open " << filename << " failed" << std::endl;
-    return -1;
-  }
+  std::cout << "compile2025-0 (C) OUCC. 2025" << std::endl;
+  std::cout << "Compiling " << sourceFile << " to " << outputFile
+            << " with optimization level " << (isOpt1 ? "1" : "0") << std::endl;
 
   yyparse();
   GenerateIR genIR;
   root->accept(genIR);
-  _module = genIR.getModule();
-  riscv::GenerateMIR genMIR(_module);
-  genMIR.generate();
-  // emitLLVM("./test/default_output.ll");
-  testEmitMIR("./test/default_output.mir");
+  auto mod = genIR.getModule();
+  switch (outputType) {
+  case OutputTypeEnum::LLVM:
+    std::cout << "Generating LLVM IR..." << std::endl;
+
+    for (const auto &glob : mod->getGlobals())
+      ofs << glob->str() << "\n";
+    if (mod->hasGlobal())
+      ofs << "\n";
+
+    auto funcs = mod->getFunctions();
+    std::sort(funcs.begin(), funcs.end(), [](const auto &lhs, const auto &rhs) {
+      if (lhs.empty() != rhs.empty())
+        return lhs.empty() < rhs.empty();
+      return lhs.getRawName() < rhs.getRawName();
+    });
+
+    for (const auto &func : funcs) {
+      ofs << func->str() << "\n";
+    }
+
+    ofs.close();
+    if (ofs.fail())
+      std::cerr << "Error writing to output file: " << outputFile << std::endl;
+    else
+      std::cout << "LLVM IR written to " << outputFile << std::endl;
+    break;
+
+  case OutputTypeEnum::MIR:
+    std::cout << "Generating MIR..." << std::endl;
+
+    for (const auto &mFunc : mod->getMFuncs())
+      ofs << mFunc->str() << "\n";
+
+    ofs.close();
+    if (ofs.fail())
+      std::cerr << "Error writing to output file: " << outputFile << std::endl;
+    else
+      std::cout << "MIR written to " << outputFile << std::endl;
+    break;
+  case OutputTypeEnum::ASM:
+    return 1; // Not implemented yet
+  }
+
+  return 0;
 }
