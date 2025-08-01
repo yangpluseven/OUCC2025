@@ -593,7 +593,7 @@ public:
   std::string str() const override {
     std::string_view instStrV;
     auto srcType = getSrc(0)->getRegType()->getBasicKind();
-    if (srcType == ir::BasicKind::I32)
+    if (srcType == ir::BasicKind::F32)
       instStrV = "fsw";
     else if (srcType == ir::BasicKind::I32)
       if (_size == 4)

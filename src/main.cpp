@@ -1,5 +1,7 @@
 #include "CLI/CLI.hpp"
 #include "parser/generate_ir.h"
+#include "riscv/generate_mir.h"
+#include "riscv/reg_allocate.h"
 #include <unordered_map>
 
 extern int yyparse();
@@ -8,6 +10,74 @@ extern unique_ptr<CompUnit> root;
 
 enum class OutputTypeEnum { LLVM, MIR, ASM };
 enum class OptLevelEnum { O0, O1 };
+
+void writeGlobals(std::ofstream &ofs, ir::Module *module) {
+  std::vector<ir::GlobalVariable *> symbolsInData;
+  std::vector<ir::GlobalVariable *> symbolsInBss;
+  for (const auto &global : module->getGlobals()) {
+    if (!global->isSingle() && global->isInBss()) {
+      symbolsInBss.push_back(global);
+    } else {
+      symbolsInData.push_back(global);
+    }
+  }
+  if (!symbolsInBss.empty()) {
+    ofs << "\t.bss\n";
+  }
+  for (const auto &global : symbolsInBss) {
+    const int size = static_cast<int>(global->getTypeSize() / 8);
+    ofs << "\t.align 8\n";
+    ofs << "\t.size " << global->getRawName() << ", " << std::to_string(size)
+        << '\n';
+    ofs << global->getRawName() << ":\n";
+    ofs << "\t.space " << std::to_string(size) << '\n';
+  }
+  if (!symbolsInData.empty()) {
+    ofs << "\t.data\n";
+  }
+  for (const auto &global : symbolsInData) {
+    const int size = static_cast<int>(global->getTypeSize()) / 8;
+    ofs << "\t.align 8\n";
+    ofs << "\t.size " << global->getRawName() << ", " << std::to_string(size)
+        << '\n';
+    ofs << global->getRawName() << ":\n";
+    const int num = size / 4;
+    if (global->isSingle()) {
+      ofs << "\t.word ";
+      std::string value;
+      const auto type = global->getType();
+      if (type->isF32()) {
+        float f = global->getFloat();
+        value = std::to_string(*reinterpret_cast<int *>(&f));
+      } else if (type->isI32()) {
+        value = std::to_string(global->getInt());
+      } else {
+        throw std::runtime_error(
+            "Unsupported type in CodeGenerator::buildGlobals");
+      }
+      ofs << value << '\n';
+    } else {
+      auto type = global->getType();
+      while (auto arrayType = dynamic_cast<const ir::ArrayType *>(type)) {
+        type = arrayType->getBaseType();
+      }
+      for (int i = 0; i < num; i++) {
+        ofs << "\t.word ";
+        std::string value;
+        if (type->isF32()) {
+          float f = global->getFloat(i);
+          value = std::to_string(*reinterpret_cast<int *>(&f));
+        } else if (type->isI32()) {
+          value = std::to_string(global->getInt(i));
+        } else {
+          throw std::runtime_error(
+              "Unsupported type in CodeGenerator::buildGlobals");
+        }
+        ofs << value << '\n';
+      }
+    }
+  }
+}
 
 int main(int argc, const char *argv[]) {
   CLI::App app{"A compiler for SysY language", "compile2025-0"};
@@ -60,7 +130,8 @@ int main(int argc, const char *argv[]) {
     outputType = OutputTypeEnum::ASM;
 
   std::cout << "compile2025-0 (C) OUCC. 2025" << std::endl;
-  std::cout << ">> Compiling " << sourceFile << " to " << outputFile << std::endl;
+  std::cout << ">> Compiling " << sourceFile << " to " << outputFile
+            << std::endl;
 
   yyparse();
   GenerateIR genIR;
@@ -87,23 +158,40 @@ int main(int argc, const char *argv[]) {
     }
 
     if (ofs.fail())
-      std::cerr << "[!] Error writing to output file: " << outputFile << std::endl;
+      std::cerr << "[!] Error writing to output file: " << outputFile
+                << std::endl;
     else
       std::cout << ">> LLVM IR written to " << outputFile << std::endl;
   } break;
-  case OutputTypeEnum::MIR:
+  case OutputTypeEnum::MIR: {
     std::cout << ">> Generating MIR..." << std::endl;
+    riscv::GenerateMIR genMIR(mod);
+    genMIR.generate();
 
-    for (const auto &mFunc : mod->getMFuncs())
-      ofs << mFunc->str() << "\n";
+    for (const auto &mFunc : mod->getMFuncs()) {
+      ofs << mFunc->str();
+      ofs << "\tret\n";
+    }
 
     if (ofs.fail())
-      std::cerr << "[!] Error writing to output file: " << outputFile << std::endl;
+      std::cerr << "[!] Error writing to output file: " << outputFile
+                << std::endl;
     else
       std::cout << ">> MIR written to " << outputFile << std::endl;
-    break;
-  case OutputTypeEnum::ASM:
-    return 1; // Not implemented yet
+  } break;
+  case OutputTypeEnum::ASM: {
+    riscv::GenerateMIR genMIR(mod);
+    genMIR.generate();
+    std::cout << "Generating ASM..." << std::endl;
+    riscv::ModuleRegAlloc regAlloc(mod);
+    regAlloc.allocate();
+    writeGlobals(ofs, mod);
+
+    for (const auto &mFunc : mod->getMFuncs()) {
+      ofs << mFunc->str();
+      ofs << "\tret\n";
+    }
+  } break;
   }
 
   ofs.close();

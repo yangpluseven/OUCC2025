@@ -1,9 +1,11 @@
 #ifndef RISCV_REG_ALLOCATE_H
 #define RISCV_REG_ALLOCATE_H
 
+#include "ir/module.h"
 #include "ir/register.h"
 #include "riscv/machine_func.h"
 #include "riscv/registers.h"
+
 #include <unordered_map>
 #include <unordered_set>
 
@@ -117,18 +119,14 @@ public:
 
 class ModuleRegAlloc {
 private:
-  std::vector<MachineFunc *> _funcs;
+  ir::Module *_module;
 
 public:
-  explicit ModuleRegAlloc(
-      const std::unordered_map<std::string, MachineFunc *> &funcs) {
-    for (const auto &[name, func] : funcs) {
-      this->_funcs.push_back(func);
-    }
-  }
+  explicit ModuleRegAlloc(ir::Module *module) : _module(module) {}
 
   void allocate() {
-    for (const auto func : _funcs) {
+    for (size_t i = 0; i < _module->numMFuncs(); i++) {
+      auto func = static_cast<MachineFunc *>(_module->getMFunction(i));
       FuncRegAlloc(func).allocate();
     }
   }

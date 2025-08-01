@@ -240,14 +240,16 @@ void FuncRegAlloc::replaceFakeMIRs() {
         int totalSize =
             _funcParamSize + _alignSize + _spillSize + leaInst->getImm();
         if (totalSize < 2048) {
-          mBlock->setInstruction(
-              i, std::make_unique<RRI>(RRIOp::ADDI, leaInst->getDest(),
-                                       MReg::spInst, totalSize));
+          auto newInst = std::make_unique<RRI>(RRIOp::ADDI, leaInst->getDest(),
+                                               MReg::spInst, totalSize);
+          leaInst->replaceAllUsesWith(newInst.get());
+          mBlock->setInstruction(i, std::move(newInst));
         } else {
+          auto newInst = std::make_unique<RRR>(RRROp::ADD, leaInst->getDest(),
+                                               MReg::spInst, MReg::t0Inst);
+          leaInst->replaceAllUsesWith(newInst.get());
           mBlock->setInstruction(i, std::make_unique<LI>(MReg::t0, totalSize));
-          mBlock->insertInstruction(
-              i + 1, std::make_unique<RRR>(RRROp::ADD, leaInst->getDest(),
-                                           MReg::spInst, MReg::t0Inst));
+          mBlock->insertInstruction(i + 1, std::move(newInst));
           i++;
         }
         continue;
@@ -286,17 +288,19 @@ void FuncRegAlloc::replaceFakeMIRs() {
           }
         }
         if (totalSize < 2048) {
-          mBlock->setInstruction(
-              i, std::make_unique<Load>(loadFromInst->getDest(), MReg::spInst,
-                                        totalSize, size));
+          auto newInst = std::make_unique<Load>(loadFromInst->getDest(),
+                                                MReg::spInst, totalSize, size);
+          loadFromInst->replaceAllUsesWith(newInst.get());
+          mBlock->setInstruction(i, std::move(newInst));
         } else {
+          auto newInst = std::make_unique<Load>(loadFromInst->getDest(),
+                                                MReg::t0Inst, 0, size);
+          loadFromInst->replaceAllUsesWith(newInst.get());
           mBlock->setInstruction(i, std::make_unique<LI>(MReg::t0, totalSize));
           mBlock->insertInstruction(
               i + 1, std::make_unique<RRR>(RRROp::ADD, MReg::t0, MReg::spInst,
                                            MReg::t0Inst));
-          mBlock->insertInstruction(
-              i + 2, std::make_unique<Load>(loadFromInst->getDest(),
-                                            MReg::t0Inst, 0, size));
+          mBlock->insertInstruction(i + 2, std::move(newInst));
           i += 2;
         }
         continue;
@@ -343,14 +347,14 @@ void FuncRegAlloc::replaceFakeMIRs() {
                      static_cast<MachineInst *>(storeToInst->getOperand(0)),
                      MReg::spInst, totalSize, size));
         } else {
+          auto newInst = std::make_unique<Store>(
+              static_cast<MachineInst *>(storeToInst->getOperand(0)),
+              MReg::t0Inst, 0, size);
           mBlock->setInstruction(i, std::make_unique<LI>(MReg::t0, totalSize));
           mBlock->insertInstruction(
               i + 1, std::make_unique<RRR>(RRROp::ADD, MReg::t0, MReg::spInst,
                                            MReg::t0Inst));
-          mBlock->insertInstruction(
-              i + 2, std::make_unique<Store>(
-                         static_cast<MachineInst *>(storeToInst->getOperand(0)),
-                         MReg::t0Inst, 0, size));
+          mBlock->insertInstruction(i + 2, std::move(newInst));
           i += 2;
         }
       }
@@ -451,6 +455,7 @@ void FuncRegAlloc::solveSpill() {
     for (const auto &toSpill : spilledRegs) {
       VReg *reg = toSpill.first;
       int offset = toSpill.second;
+      vector<std::unique_ptr<MachineBlock>> newBlocks;
       for (size_t i = 0; i < _mFunc->size(); i++) {
         auto mBlock = static_cast<MachineBlock *>(_mFunc->getBlock(i));
         auto newMBlock = std::make_unique<MachineBlock>(mBlock->getOrigin());
@@ -458,7 +463,16 @@ void FuncRegAlloc::solveSpill() {
           auto inst = static_cast<MachineInst *>(instPtr.get());
           inst->spill(reg, offset, newMBlock.get());
         }
-        _mFunc->setBlock(i, std::move(newMBlock));
+        newBlocks.push_back(std::move(newMBlock));
+      }
+      // Move all blocks in newBlocks to _mFunc
+      for (size_t i = 0; i < newBlocks.size(); i++) {
+        auto newMBlock = std::move(newBlocks[i]);
+        if (i < _mFunc->size()) {
+          _mFunc->setBlock(i, std::move(newMBlock));
+        } else {
+          _mFunc->pushBlock(std::move(newMBlock));
+        }
       }
     }
   } while (toContinueOuter);
