@@ -1,6 +1,8 @@
 #ifndef IR_TYPE_H
 #define IR_TYPE_H
 
+#undef VOID
+
 #include <cassert>
 #include <memory>
 #include <string>

@@ -1,15 +1,16 @@
 #include "CLI/CLI.hpp"
 #include "parser/generate_ir.h"
+#include <unordered_map>
 
 extern int yyparse();
 extern FILE *yyin;
 extern unique_ptr<CompUnit> root;
 
 enum class OutputTypeEnum { LLVM, MIR, ASM };
+enum class OptLevelEnum { O0, O1 };
 
 int main(int argc, const char *argv[]) {
   CLI::App app{"A compiler for SysY language", "compile2025-0"};
-  app.require_subcommand(1);
 
   std::string sourceFile;
   app.add_option("sources", sourceFile, "Source file to compile")
@@ -20,24 +21,29 @@ int main(int argc, const char *argv[]) {
   app.add_option("-o,--output", outputFile, "Output file")
       ->default_str("a.out")
       ->check(CLI::NonexistentPath);
-  std::ofstream ofs(outputFile);
-  if (!ofs) {
-    std::cerr << "Error opening output file: " << outputFile << std::endl;
-    exit(1);
-  }
 
-  bool isOpt1 = false;
-  app.add_flag("-O1", isOpt1, "Enable optimization level 1");
+  std::unordered_map<std::string, OptLevelEnum> opt_map{
+      {"0", OptLevelEnum::O0}, {"1", OptLevelEnum::O1}};
+  OptLevelEnum optLevel;
+  app.add_flag("-O,--optimize", optLevel, "Enable optimization level 1")
+      ->default_val(OptLevelEnum::O0)
+      ->transform(CLI::CheckedTransformer(opt_map, CLI::ignore_case));
 
   bool emitLLVM = false, emitMIR = false, emitASM = false;
-  app.add_flag("-emit-llvm", emitLLVM, "Emit LLVM IR as output");
-  app.add_flag("-emit-mir", emitMIR, "Emit MIR as output");
+  app.add_flag("--emit-llvm", emitLLVM, "Emit LLVM IR as output");
+  app.add_flag("--emit-mir", emitMIR, "Emit MIR as output");
   app.add_flag("-S,--assembly", emitASM, "Emit assembly code as output");
 
   try {
     app.parse(argc, argv);
   } catch (const CLI::ParseError &e) {
     return app.exit(e);
+  }
+
+  std::ofstream ofs(outputFile);
+  if (!ofs) {
+    std::cerr << "Error opening output file: " << outputFile << std::endl;
+    exit(1);
   }
 
   OutputTypeEnum outputType;
@@ -49,15 +55,14 @@ int main(int argc, const char *argv[]) {
     outputType = OutputTypeEnum::ASM;
 
   std::cout << "compile2025-0 (C) OUCC. 2025" << std::endl;
-  std::cout << "Compiling " << sourceFile << " to " << outputFile
-            << " with optimization level " << (isOpt1 ? "1" : "0") << std::endl;
+  std::cout << "Compiling " << sourceFile << " to " << outputFile << std::endl;
 
   yyparse();
   GenerateIR genIR;
   root->accept(genIR);
   auto mod = genIR.getModule();
   switch (outputType) {
-  case OutputTypeEnum::LLVM:
+  case OutputTypeEnum::LLVM: {
     std::cout << "Generating LLVM IR..." << std::endl;
 
     for (const auto &glob : mod->getGlobals())
@@ -67,9 +72,9 @@ int main(int argc, const char *argv[]) {
 
     auto funcs = mod->getFunctions();
     std::sort(funcs.begin(), funcs.end(), [](const auto &lhs, const auto &rhs) {
-      if (lhs.empty() != rhs.empty())
-        return lhs.empty() < rhs.empty();
-      return lhs.getRawName() < rhs.getRawName();
+      if (lhs->empty() != rhs->empty())
+        return lhs->empty() < rhs->empty();
+      return lhs->getRawName() < rhs->getRawName();
     });
 
     for (const auto &func : funcs) {
@@ -81,8 +86,7 @@ int main(int argc, const char *argv[]) {
       std::cerr << "Error writing to output file: " << outputFile << std::endl;
     else
       std::cout << "LLVM IR written to " << outputFile << std::endl;
-    break;
-
+  } break;
   case OutputTypeEnum::MIR:
     std::cout << "Generating MIR..." << std::endl;
 
