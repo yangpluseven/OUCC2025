@@ -1,13 +1,17 @@
 #include "ir/function.h"
+
+#include "fmt/core.h"
 #include "ir/basic_block.h"
 #include <cassert>
 #include <sstream>
 
 namespace ir {
 
-std::string Argument::getName() const { return "%" + _name; }
+std::string Argument::getName() const { return fmt::format("%{}", _name); }
 
-std::string Argument::str() const { return getType()->str() + getName(); }
+std::string Argument::str() const {
+  return fmt::format("{} {}", getType()->str(), getName());
+}
 
 void Function::addArg(std::unique_ptr<Argument> arg) {
   assert(arg && "Cannot add nullptr argument");
@@ -61,41 +65,38 @@ std::unique_ptr<BlockBase> FuncBase::eraseBlock(size_t index) {
 
 std::string FuncBase::getRawName() const { return _name; }
 
-std::string Function::getName() const { return "@" + getRawName(); }
+std::string Function::getName() const {
+  return fmt::format("@{}", getRawName());
+}
 
 std::string Function::str() const {
-  bool isDeclare = empty();
-  std::ostringstream oss;
-  std::ostringstream args;
-
-  args << "(";
+  const bool isDeclare = empty();
+  fmt::memory_buffer buf;
+  fmt::format_to(std::back_inserter(buf), "{} {} @{}",
+                 isDeclare ? "declare" : "define", getType()->str(),
+                 getRawName());
+  buf.push_back('(');
   for (size_t i = 0; i < _args.size(); ++i) {
     if (i > 0)
-      args << ", ";
+      buf.append(", ");
+
     if (isDeclare)
-      args << _args[i]->getType()->str();
+      buf.append(_args[i]->getType()->str());
     else
-      args << _args[i]->str();
+      buf.append(_args[i]->str());
   }
-  args << ")";
+  buf.push_back(')');
 
   if (isDeclare)
-    oss << "declare ";
-  else
-    oss << "define ";
-
-  oss << getType()->str() << " @" << getRawName() << args.str();
-
-  if (isDeclare)
-    return oss.str() + "\n";
-
-  oss << " {\n";
-  for (const auto &block : *this) {
-    oss << block->str();
+    buf.push_back('\n');
+  else {
+    buf.append("{\n");
+    for (const auto &block : *this)
+      buf.append(block->str());
+    buf.append("}\n");
   }
-  oss << "}\n";
 
-  return oss.str();
+  return fmt::to_string(buf);
 }
 
 FuncBase::iterator FuncBase::begin() { return _blocks.begin(); }

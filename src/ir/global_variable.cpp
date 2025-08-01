@@ -1,4 +1,5 @@
 #include "ir/global_variable.h"
+#include "fmt/core.h"
 #include <stdexcept>
 #include <utility>
 
@@ -92,10 +93,12 @@ float GlobalVariable::getFloat(size_t index) const {
 
 std::string GlobalVariable::getRawName() const { return _name; }
 
-std::string GlobalVariable::getName() const { return "@" + _name; }
+std::string GlobalVariable::getName() const {
+  return fmt::format("@{}", _name);
+}
 
 std::string GlobalVariable::str() const {
-  return getName() + " = global " + _value->str();
+  return fmt::format("{} = global {}", getName(), _value->str());
 }
 
 } // namespace ir

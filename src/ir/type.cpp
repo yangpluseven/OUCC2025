@@ -1,4 +1,6 @@
 #include "ir/type.h"
+#include "fmt/core.h"
+
 #include <cassert>
 #include <memory>
 #include <sstream>
@@ -102,9 +104,7 @@ size_t ArrayType::getSize() const {
 }
 
 std::string ArrayType::str() const {
-  std::ostringstream oss;
-  oss << "[" << _arrayLength << " x " << _elementType->str() << "]";
-  return oss.str();
+  return fmt::format("[{} x {}]", _arrayLength, _elementType->str());
 }
 
 std::vector<size_t> ArrayType::getDimensions() const {

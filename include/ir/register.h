@@ -1,6 +1,7 @@
 #ifndef IR_REGISTER_H
 #define IR_REGISTER_H
 
+#include "fmt/core.h"
 #include "ir/type.h"
 #include <stdexcept>
 
@@ -28,9 +29,9 @@ public:
   std::string str() const override {
     switch (getRegType()->getBasicKind()) {
     case BasicKind::I32:
-      return "$i" + std::to_string(_id);
+      return fmt::format("$i{}", _id);
     case BasicKind::F32:
-      return "$f" + std::to_string(_id);
+      return fmt::format("$f{}", _id);
     default:
       throw std::runtime_error("Invalid type in VReg");
     }

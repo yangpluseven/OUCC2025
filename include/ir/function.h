@@ -20,7 +20,7 @@ public:
   ValueKind getValueKind() const override { return ValueKind::Arg; }
   std::string getRawName() const { return _name; }
   // Get the LLVM like SSA name, example: %a
-  std::string getName() const;
+  std::string getName() const override;
   // Get the LLVM like full name, example: i32 %a
   std::string str() const override;
 };

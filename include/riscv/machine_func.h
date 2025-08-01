@@ -64,7 +64,7 @@ public:
   int getICallerNum() const { return _iCallerNum; }
   int getLocalSize() const { return _localSize; }
   ir::Function *getOriginalFunc() const { return _origin; }
-  std::string getName() const { return getRawName(); }
+  std::string getName() const override { return getRawName(); }
   ir::ValueKind getValueKind() const override {
     return ir::ValueKind::MachineFunc;
   }

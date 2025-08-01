@@ -1,4 +1,6 @@
 #include "ir/constant.h"
+
+#include "fmt/core.h"
 #include "ir/type.h"
 #include "ir/value.h"
 
@@ -51,11 +53,8 @@ std::string ConstantNumber::getLiteralStr() const {
   case BasicKind::I32:
     return std::to_string(intValue());
   case BasicKind::F32: {
-    float value = floatValue();
-    std::stringstream ss;
-    ss << "0x" << std::hex << std::uppercase
-       << *reinterpret_cast<unsigned int *>(&value);
-    return ss.str();
+    auto value = floatValue();
+    return fmt::format("0x{:X}", *reinterpret_cast<unsigned int *>(&value));
   }
   default:
     throw std::runtime_error("Unexpected type");
@@ -63,7 +62,7 @@ std::string ConstantNumber::getLiteralStr() const {
 }
 
 std::string ConstantNumber::str() const {
-  return getType()->str() + " " + getLiteralStr();
+  return fmt::format("{} {}", getType()->str(), getLiteralStr());
 }
 
 std::string ConstantNumber::getName() const { return getLiteralStr(); }
@@ -71,7 +70,7 @@ std::string ConstantNumber::getName() const { return getLiteralStr(); }
 // General operators for integer/float
 
 #define DEFINE_BINARY_OP(OPNAME, OP)                                           \
-  ConstantNumber ConstantNumber::operator OPNAME(const ConstantNumber &rhs)    \
+  ConstantNumber ConstantNumber::operator OPNAME(const ConstantNumber & rhs)   \
       const {                                                                  \
     auto basicKind = static_cast<BasicType *>(getType())->getBasicKind();      \
     switch (basicKind) {                                                       \
@@ -151,7 +150,7 @@ ConstantNumber ConstantNumber::operator!() const {
 std::string ConstantZero::getName() const { return "zeroinitializer"; }
 
 std::string ConstantZero::str() const {
-  return getType()->str() + " " + getName();
+  return fmt::format("{} {}", getType()->str(), getName());
 }
 
 Constant *ConstantArray::getValue(size_t index) const {
@@ -160,19 +159,22 @@ Constant *ConstantArray::getValue(size_t index) const {
 }
 
 std::string ConstantArray::getName() const {
-  std::ostringstream oss;
-  oss << "[";
+  fmt::memory_buffer buf;
+  buf.push_back('[');
+
   for (size_t i = 0; i < _values.size(); ++i) {
-    oss << _values[i]->str();
-    if (i + 1 < _values.size())
-      oss << ", ";
+    if (i > 0) {
+      buf.append(", ");
+    }
+    buf.append(_values[i]->str());
   }
-  oss << "]";
-  return oss.str();
+
+  buf.push_back(']');
+  return fmt::to_string(buf);
 }
 
 std::string ConstantArray::str() const {
-  return getType()->str() + " " + getName();
+  return fmt::format("{} {}", getType()->str(), getName());
 }
 
 #undef DEFINE_BINARY_OP

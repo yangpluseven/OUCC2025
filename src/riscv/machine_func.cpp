@@ -56,9 +56,9 @@ Jump *MachineBlock::getCondJump() const {
 // Currently the name must match the original LLVM IR basicblock (ATTENTION)
 std::string MachineBlock::getLabel() const {
   if (getID() == -1) {
-    return "." + _name;
+    return fmt::format(".{}", _name);
   }
-  return ".bb" + std::to_string(getID());
+  return fmt::format(".bb{}", getID());
 }
 
 std::string MachineBlock::getName() const { return getLabel(); }
@@ -752,16 +752,15 @@ void MachineFunc::move(ir::MoveInst *inst, MachineBlock *block) {
 }
 
 std::string MachineFunc::str() const {
-  std::ostringstream ss;
-  ss << "\t.align 8\n";
-  ss << "\t.global " << getName() << "\n";
-  ss << getName() << ":\n";
+  fmt::memory_buffer buf;
+  fmt::format_to(std::back_inserter(buf), "\t.align 8\n\t.global {}\n{}:\n",
+                 getName(), getName());
   for (const auto &block : *this) {
     auto mBlock = static_cast<MachineBlock *>(block.get());
-    ss << mBlock->str();
+    buf.append(mBlock->str());
   }
-  ss << "\tret\n";
-  return ss.str();
+
+  return fmt::to_string(buf);
 }
 
 } // namespace riscv

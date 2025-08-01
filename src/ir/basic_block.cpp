@@ -1,4 +1,6 @@
 #include "ir/basic_block.h"
+
+#include "fmt/format.h"
 #include "ir/function.h"
 #include "ir/instruction.h"
 #include <cassert>
@@ -119,18 +121,15 @@ BlockBase::const_iterator BlockBase::cend() const {
 int BasicBlock::_counter = 0;
 
 std::string BasicBlock::getLabel() const {
-  std::ostringstream oss;
-  oss << "bb" << getID();
-  return oss.str();
+  return fmt::format("bb{}", getID());
 }
 
 std::string BlockBase::str() const {
-  std::ostringstream oss;
-  oss << getLabel() << ":\n";
-  for (auto &instPtr : *this) {
-    oss << "  " << instPtr->str() << "\n";
-  }
-  return oss.str();
+  fmt::memory_buffer buf;
+  fmt::format_to(std::back_inserter(buf), "{}:\n", getLabel());
+  for (const auto &instPtr : *this)
+    fmt::format_to(std::back_inserter(buf), "  {}\n", instPtr->str());
+  return fmt::to_string(buf);
 }
 
 } // namespace ir

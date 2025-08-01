@@ -15,7 +15,7 @@ enum class BinaryOp { ADD, SUB, MUL, SDIV, SREM, XOR, FADD, FSUB, FMUL, FDIV };
 class BinaryInst : public Instruction {
 private:
   BinaryOp _op;
-  static std::string opToString(BinaryOp op);
+  static std::string_view opToString(BinaryOp op);
 
 public:
   BinaryInst(BinaryOp op, Value *lhs, Value *rhs);
@@ -48,7 +48,7 @@ enum class CmpOp {
 class CmpInst : public Instruction {
 private:
   CmpOp _op;
-  static std::string opToString(CmpOp op);
+  static std::string_view opToString(CmpOp op);
 
 public:
   CmpInst(CmpOp op, Value *lhs, Value *rhs);
@@ -67,7 +67,7 @@ enum class CastOp { BitCast, FPToSI, SIToFP, SExt, ZExt };
 class CastInst : public Instruction {
 private:
   CastOp _op;
-  static std::string opToString(CastOp op);
+  static std::string_view opToString(CastOp op);
 
 public:
   CastInst(std::unique_ptr<Type> targetType, CastOp op, Value *val);
@@ -171,6 +171,7 @@ public:
   PhiInst *getTarget() const { return _target; }
   // TODO
   std::string str() const override {
+
     return "fake mv " + getName() + "\ttarget: " + getOperand(0)->str() +
            "\tsrc: " + getOperand(1)->getName();
   }

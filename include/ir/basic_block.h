@@ -1,6 +1,7 @@
 #ifndef IR_BASIC_BLOCK_H
 #define IR_BASIC_BLOCK_H
 
+#include "fmt/core.h"
 #include "ir/function.h"
 #include "ir/instruction.h"
 #include "ir/value.h"
@@ -67,7 +68,9 @@ public:
   ValueKind getValueKind() const override { return ValueKind::Block; }
   // Get the LLVM like block label, example: bb0 bb1
   std::string getLabel() const override;
-  std::string getName() const override { return "%" + getLabel(); }
+  std::string getName() const override {
+    return fmt::format("%{}", getLabel());
+  }
 };
 
 } // namespace ir

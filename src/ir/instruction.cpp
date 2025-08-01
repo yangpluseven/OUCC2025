@@ -1,4 +1,7 @@
 #include "ir/instruction.h"
+
+#include "fmt/core.h"
+
 #include <cassert>
 #include <stdexcept>
 
@@ -21,7 +24,7 @@ Instruction::Instruction(std::unique_ptr<Type> type,
     : InstBase(std::move(type), useOperands, _counter++) {}
 
 std::string Instruction::getName() const {
-  return "%v" + std::to_string(getID());
+  return fmt::format("%v{}", getID());
 }
 
 void InstBase::remapValues(const ValueMap &map) {

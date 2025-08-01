@@ -17,8 +17,6 @@ void GenerateIR::initBuiltInFuncs() {
       std::make_unique<Argument>(std::make_unique<PointerType>(MAKE_I32), "a"));
   _module->addFunction(std::move(func));
   func = _symbolTable->makeFunction(MAKE_I32, "getfarray");
-
-  // TODO: Really?
   func->addArg(
       std::make_unique<Argument>(std::make_unique<PointerType>(MAKE_F32), "a"));
   _module->addFunction(std::move(func));
@@ -35,7 +33,6 @@ void GenerateIR::initBuiltInFuncs() {
   func = _symbolTable->makeFunction(MAKE_VOID, "putfloat");
   func->addArg(std::make_unique<Argument>(MAKE_F32, "a"));
   _module->addFunction(std::move(func));
-  // TODO: Real?
   func = _symbolTable->makeFunction(MAKE_VOID, "putfarray");
   func->addArg(std::make_unique<Argument>(MAKE_I32, "n"));
   func->addArg(std::make_unique<Argument>(MAKE_F32, "a"));
@@ -777,7 +774,6 @@ void GenerateIR::visit(EqExp &ast) {
       op = CmpOp::OEQ;
       break;
     }
-    break;
   case EqOp::NEQ:
     switch (targetType) {
     case BasicKind::I32:

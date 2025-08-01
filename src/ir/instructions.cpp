@@ -1,4 +1,6 @@
 #include "ir/instructions.h"
+
+#include "fmt/core.h"
 #include "ir/function.h"
 #include <cassert>
 #include <sstream>
@@ -7,7 +9,7 @@ namespace ir {
 
 //===---------------- Binary ----------------===//
 
-std::string BinaryInst::opToString(BinaryOp op) {
+std::string_view BinaryInst::opToString(BinaryOp op) {
   switch (op) {
   case BinaryOp::ADD:
     return "add";
@@ -62,8 +64,8 @@ std::string BinaryInst::str() const {
       std::swap(first, second);
     }
   }
-  return getName() + " = " + opToString(_op) + " " + lhs->getType()->str() +
-         " " + first + ", " + second;
+  return fmt::format("{} = {} {} {}, {}", getName(), opToString(_op),
+                     lhs->getType()->str(), first, second);
 }
 
 std::unique_ptr<Instruction> BinaryInst::cloneEmpty() const {
@@ -75,7 +77,7 @@ std::unique_ptr<Instruction> BinaryInst::cloneEmpty() const {
 
 //===---------------- Cmp ----------------===//
 
-std::string CmpInst::opToString(CmpOp op) {
+std::string_view CmpInst::opToString(CmpOp op) {
   switch (op) {
   case CmpOp::EQ:
     return "icmp eq";
@@ -147,8 +149,8 @@ std::string CmpInst::str() const {
   if (!Type::isEqual(lhs->getType(), rhs->getType())) {
     throw std::runtime_error("Unmatched types in binary instruction!");
   }
-  return getName() + " = " + opToString(_op) + " " + lhs->getType()->str() +
-         " " + lhs->getName() + ", " + rhs->getName();
+  return fmt::format("{} = {} {}, {}", getName(), opToString(_op),
+                     lhs->getType()->str(), lhs->getName(), rhs->getName());
 }
 
 std::unique_ptr<Instruction> CmpInst::cloneEmpty() const {
@@ -160,7 +162,7 @@ std::unique_ptr<Instruction> CmpInst::cloneEmpty() const {
 
 //===---------------- Cast ----------------===//
 
-std::string CastInst::opToString(CastOp op) {
+std::string_view CastInst::opToString(CastOp op) {
   switch (op) {
   case CastOp::BitCast:
     return "bitcast";
@@ -200,11 +202,9 @@ InstKind CastInst::getInstKind() const {
 }
 
 std::string CastInst::str() const {
-  std::ostringstream oss;
-  oss << getName() << " = " << opToString(_op) << " "
-      << getOperand(0)->getType()->str() << " " << getOperand(0)->getName()
-      << " to " << getType()->str();
-  return oss.str();
+  return fmt::format("{} = {} {} {} to {}", getName(), opToString(_op),
+                     getOperand(0)->getType()->str(), getOperand(0)->getName(),
+                     getType()->str());
 }
 
 std::unique_ptr<Instruction> CastInst::cloneEmpty() const {
@@ -228,8 +228,8 @@ std::string RetInst::str() const {
   if (empty()) {
     return "ret void";
   }
-  auto retVal = getOperand(0);
-  return "ret " + retVal->getType()->str() + " " + retVal->getName();
+  const auto retVal = getOperand(0);
+  return fmt::format("ret {} {}", retVal->getType()->str(), retVal->getName());
 }
 
 std::unique_ptr<Instruction> RetInst::cloneEmpty() const {
@@ -265,8 +265,8 @@ std::string BranchInst::str() const {
     auto condBlock = static_cast<BasicBlock *>(getOperand(0));
     auto trueBlock = static_cast<BasicBlock *>(getOperand(1));
     auto falseBlock = static_cast<BasicBlock *>(getOperand(2));
-    return "br i1 " + condBlock->getName() + ", label " + trueBlock->getName() +
-           ", label " + falseBlock->getName();
+    return fmt::format("br i1 {}, label {}, label {}", condBlock->getName(),
+                       trueBlock->getName(), falseBlock->getName());
   }
 }
 
@@ -290,7 +290,8 @@ InstKind AllocaInst::getInstKind() const { return InstKind::Alloca; }
 
 std::string AllocaInst::str() const {
   assert(getType()->isArray() || getType()->isPointer());
-  return getName() + " = alloca " + getType()->getBaseType()->str();
+  return fmt::format("{} = alloca {}", getName(),
+                     getType()->getBaseType()->str());
 }
 
 std::unique_ptr<Instruction> AllocaInst::cloneEmpty() const {
@@ -311,13 +312,13 @@ LoadInst::LoadInst(std::unique_ptr<Type> loadedType, Value *ptr)
 InstKind LoadInst::getInstKind() const { return InstKind::Load; }
 
 std::string LoadInst::str() const {
-  auto ptr = getOperand(0);
-  if (ptr->isGlobal()) {
-    return getName() + " = load " + getType()->str() + ", " +
-           ptr->getType()->str() + "* " + ptr->getName();
-  }
-  return getName() + " = load " + getType()->str() + ", " +
-         ptr->getType()->str() + " " + ptr->getName();
+  const auto ptr = getOperand(0);
+  if (ptr->isGlobal())
+    return fmt::format("{} = load {}, {}* {}", getName(), getType()->str(),
+                       ptr->getType()->str(), ptr->getName());
+
+  return fmt::format("{} = load {}, {} {}", getName(), getType()->str(),
+                     ptr->getType()->str(), ptr->getName());
 }
 
 std::unique_ptr<Instruction> LoadInst::cloneEmpty() const {
@@ -334,14 +335,14 @@ InstKind StoreInst::getInstKind() const { return InstKind::Store; }
 
 // Not sure (ATTENTION)
 std::string StoreInst::str() const {
-  auto val = getOperand(0);
-  auto ptr = getOperand(1);
+  const auto val = getOperand(0);
+  const auto ptr = getOperand(1);
   if (ptr->isGlobal()) {
-    return "store " + val->getType()->str() + " " + val->getName() + ", " +
-           ptr->getType()->str() + "* " + ptr->getName();
+    return fmt::format("store {} {}, {}* {}", val->getType()->str(),
+                       val->getName(), ptr->getType()->str(), ptr->getName());
   }
-  return "store " + val->getType()->str() + " " + val->getName() + ", " +
-         ptr->getType()->str() + " " + ptr->getName();
+  return fmt::format("store {} {}, {} {}", val->getType()->str(),
+                     val->getName(), ptr->getType()->str(), ptr->getName());
 }
 
 std::unique_ptr<Instruction> StoreInst::cloneEmpty() const {
@@ -378,24 +379,25 @@ GetElementPtrInst::GetElementPtrInst(std::unique_ptr<Type> targetType)
 InstKind GetElementPtrInst::getInstKind() const { return InstKind::GEP; }
 
 std::string GetElementPtrInst::str() const {
-  std::ostringstream oss;
+  fmt::memory_buffer buf;
 
-  auto ptr = getOperand(0);
-  if (ptr->isGlobal()) {
-    oss << getName() << " = getelementptr " << ptr->getType()->str() << ", "
-        << ptr->getType()->str() << "*" << " " << ptr->getName();
-  } else {
-    oss << getName() << " = getelementptr "
-        << ptr->getType()->getBaseType()->str() << ", " << ptr->getType()->str()
-        << " " << ptr->getName();
-  }
+  const auto ptr = getOperand(0);
+  if (ptr->isGlobal())
+    fmt::format_to(std::back_inserter(buf), "{} = getelementptr {}, {}* {}, ",
+                   getName(), ptr->getType()->str(), ptr->getType()->str(),
+                   ptr->getName());
+  else
+    fmt::format_to(std::back_inserter(buf), "{} = getelementptr {}, {} {}, ",
+                   getName(), ptr->getType()->getBaseType()->str(),
+                   ptr->getType()->str(), ptr->getName());
 
   for (int i = 1; i < getNumOperands(); i++) {
-    auto operand = getOperand(i);
-    oss << ", " << operand->getType()->str() << " " << operand->getName();
+    const auto operand = getOperand(i);
+    fmt::format_to(std::back_inserter(buf), ", {} {}",
+                   operand->getType()->str(), operand->getName());
   }
 
-  return oss.str();
+  return fmt::to_string(buf);
 }
 
 std::unique_ptr<Instruction> GetElementPtrInst::cloneEmpty() const {
@@ -416,21 +418,26 @@ CallInst::CallInst(Function *func, const std::vector<Value *> &args)
 InstKind CallInst::getInstKind() const { return InstKind::Call; }
 
 std::string CallInst::str() const {
-  std::ostringstream oss;
-  oss << "(";
+  fmt::memory_buffer buf;
+  const auto type = getOperand(0)->getType();
+  if (type->isBasic() &&
+      static_cast<BasicType *>(type)->getBasicKind() == BasicKind::VOID)
+    fmt::format_to(std::back_inserter(buf), "call {} {}", type->str(),
+                   getOperand(0)->getName());
+  else
+    fmt::format_to(std::back_inserter(buf), "{} = call {} {}", getName(),
+                   type->str(), getOperand(0)->getName());
+
+  buf.push_back('(');
   for (size_t i = 1; i < getNumOperands(); i++) {
     if (i > 1)
-      oss << ", ";
-    oss << getOperand(i)->getType()->str() << " " << getOperand(i)->getName();
+      buf.append(", ");
+    fmt::format_to(std::back_inserter(buf), "{} {}",
+                   getOperand(i)->getType()->str(), getOperand(i)->getName());
   }
-  oss << ")";
-  auto type = getOperand(0)->getType();
-  if (type->isBasic() &&
-      static_cast<BasicType *>(type)->getBasicKind() == BasicKind::VOID) {
-    return "call " + type->str() + " " + getOperand(0)->getName() + oss.str();
-  }
-  return getName() + " = call " + type->str() + " " + getOperand(0)->getName() +
-         oss.str();
+  buf.push_back(')');
+
+  return fmt::to_string(buf);
 }
 
 std::unique_ptr<Instruction> CallInst::cloneEmpty() const {
