@@ -5,7 +5,6 @@
 #include "ir/value.h"
 
 #include <cassert>
-#include <sstream>
 #include <utility>
 
 namespace ir {
@@ -164,7 +163,7 @@ std::string ConstantArray::getName() const {
 
   for (size_t i = 0; i < _values.size(); ++i) {
     if (i > 0) {
-      buf.append(", ");
+      buf.append(std::string_view(", "));
     }
     buf.append(_values[i]->str());
   }

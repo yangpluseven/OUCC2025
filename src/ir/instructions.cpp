@@ -431,7 +431,7 @@ std::string CallInst::str() const {
   buf.push_back('(');
   for (size_t i = 1; i < getNumOperands(); i++) {
     if (i > 1)
-      buf.append(", ");
+      buf.append(std::string_view(", "));
     fmt::format_to(std::back_inserter(buf), "{} {}",
                    getOperand(i)->getType()->str(), getOperand(i)->getName());
   }

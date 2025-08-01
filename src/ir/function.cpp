@@ -85,7 +85,7 @@ std::string Function::str() const {
   buf.push_back('(');
   for (size_t i = 0; i < _args.size(); ++i) {
     if (i > 0)
-      buf.append(", ");
+      buf.append(std::string_view(", "));
 
     if (isDeclare)
       buf.append(_args[i]->getType()->str());
@@ -97,10 +97,10 @@ std::string Function::str() const {
   if (isDeclare)
     buf.push_back('\n');
   else {
-    buf.append("{\n");
+    buf.append(std::string_view("{\n"));
     for (const auto &block : *this)
       buf.append(block->str());
-    buf.append("}\n");
+    buf.append(std::string_view("}\n"));
   }
 
   return fmt::to_string(buf);
