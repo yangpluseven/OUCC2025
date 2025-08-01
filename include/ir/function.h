@@ -38,6 +38,7 @@ public:
   bool empty() const { return _blocks.empty(); }
 
   void pushBlock(std::unique_ptr<BlockBase> block);
+  void setBlock(size_t index, std::unique_ptr<BlockBase> block);
   std::unique_ptr<BlockBase> eraseBlock(size_t index);
 
   BlockBase *getBlock(size_t index) const;

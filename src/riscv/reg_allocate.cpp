@@ -172,10 +172,10 @@ void FuncRegAlloc::pushFrame() {
   toSaveRegs.insert(toSaveRegs.end(), _fCalleeRegs.begin(), _fCalleeRegs.end());
   for (int i = 0; i < toSaveRegs.size(); i++) {
     MReg *toSaveReg = toSaveRegs[i];
-    headIRs.insert(
-        headIRs.begin(),
-        std::make_unique<Store>(toSaveReg, MReg::spInst, -8 * (i + 1),
-                                toSaveReg->getRegType()->isI32() ? 8 : 4));
+    headIRs.insert(headIRs.begin(),
+                   std::make_unique<Store>(
+                       new MachineInst(toSaveReg), MReg::spInst, -8 * (i + 1),
+                       toSaveReg->getRegType()->isI32() ? 8 : 4));
   }
   int totalSize = static_cast<int>(toSaveRegs.size()) * 8 + _funcParamSize +
                   _alignSize + _spillSize + _localSize;
@@ -295,8 +295,8 @@ void FuncRegAlloc::replaceFakeMIRs() {
               i + 1, std::make_unique<RRR>(RRROp::ADD, MReg::t0, MReg::spInst,
                                            MReg::t0Inst));
           mBlock->insertInstruction(
-              i + 2, std::make_unique<Load>(loadFromInst->getDest(), MReg::t0,
-                                            0, size));
+              i + 2, std::make_unique<Load>(loadFromInst->getDest(),
+                                            MReg::t0Inst, 0, size));
           i += 2;
         }
         continue;
@@ -339,16 +339,18 @@ void FuncRegAlloc::replaceFakeMIRs() {
         }
         if (totalSize < 2048) {
           mBlock->setInstruction(
-              i, std::make_unique<Store>(storeToInst->getSrc(0), MReg::spInst,
-                                         totalSize, size));
+              i, std::make_unique<Store>(
+                     static_cast<MachineInst *>(storeToInst->getOperand(0)),
+                     MReg::spInst, totalSize, size));
         } else {
           mBlock->setInstruction(i, std::make_unique<LI>(MReg::t0, totalSize));
           mBlock->insertInstruction(
               i + 1, std::make_unique<RRR>(RRROp::ADD, MReg::t0, MReg::spInst,
                                            MReg::t0Inst));
           mBlock->insertInstruction(
-              i + 2, std::make_unique<Store>(storeToInst->getSrc(0), MReg::t0,
-                                             0, size));
+              i + 2, std::make_unique<Store>(
+                         static_cast<MachineInst *>(storeToInst->getOperand(0)),
+                         MReg::t0Inst, 0, size));
           i += 2;
         }
       }
@@ -449,7 +451,6 @@ void FuncRegAlloc::solveSpill() {
     for (const auto &toSpill : spilledRegs) {
       VReg *reg = toSpill.first;
       int offset = toSpill.second;
-      // TODO replace the VReg with a MReg
     }
   } while (toContinueOuter);
 }

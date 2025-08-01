@@ -38,6 +38,13 @@ void FuncBase::pushBlock(std::unique_ptr<BlockBase> block) {
   _blocks.push_back(std::move(block));
 }
 
+void FuncBase::setBlock(size_t index, std::unique_ptr<BlockBase> block) {
+  assert(index < _blocks.size() && "Block index out of bounds");
+  assert(block && "Cannot set nullptr block");
+  block->setFunction(this);
+  _blocks[index] = std::move(block);
+}
+
 BlockBase *FuncBase::getBlock(size_t index) const {
   assert(index < _blocks.size() && "Block index out of bounds");
   return _blocks[index].get();
