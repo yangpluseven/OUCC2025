@@ -54,6 +54,26 @@ void MachineInst::spill(Reg *spilledReg, int offset, MachineBlock *block) {
   block->pushInstruction(getBlock()->eraseInstruction(this));
 }
 
+void MachineInst::replaceReg(std::unordered_map<VReg *, MReg *> &replaceMap) {
+  for (size_t i = 0; i < getNumOperands(); i++) {
+    if (auto vreg = dynamic_cast<ir::VReg *>(getSrc(i))) {
+      auto it = replaceMap.find(vreg);
+      if (it != replaceMap.end()) {
+        setSrc(i, it->second);
+      }
+    }
+  }
+  if (!_dest) {
+    return;
+  }
+  if (auto vreg = dynamic_cast<ir::VReg *>(_dest)) {
+    auto it = replaceMap.find(vreg);
+    if (it != replaceMap.end()) {
+      setDest(it->second);
+    }
+  }
+}
+
 std::string Jump::str() const {
   if (!hasCond()) {
     return fmt::format("j\t{}", _target->getLabel());

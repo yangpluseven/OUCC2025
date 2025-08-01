@@ -6,6 +6,7 @@
 #include "ir/register.h"
 #include "ir/type.h"
 #include "riscv/machine_func.h"
+#include "riscv/registers.h"
 
 #include <fmt/core.h>
 
@@ -14,6 +15,7 @@
 namespace riscv {
 
 class MachineBlock;
+class MReg;
 
 enum class MInstKind {
   Fake,
@@ -115,26 +117,7 @@ public:
   }
   virtual MInstKind getMInstKind() const { return MInstKind::Fake; }
   virtual void spill(ir::Reg *spilledReg, int offset, MachineBlock *block);
-  virtual void
-  replaceReg(const std::unordered_map<ir::VReg *, MReg *> &replaceMap) {
-    for (size_t i = 0; i < getNumOperands(); i++) {
-      if (auto vreg = dynamic_cast<ir::VReg *>(getSrc(i))) {
-        auto it = replaceMap.find(vreg);
-        if (it != replaceMap.end()) {
-          setSrc(i, it->second);
-        }
-      }
-    }
-    if (!_dest) {
-      return;
-    }
-    if (auto vreg = dynamic_cast<ir::VReg *>(_dest)) {
-      auto it = replaceMap.find(vreg);
-      if (it != replaceMap.end()) {
-        setDest(it->second);
-      }
-    }
-  }
+  virtual void replaceReg(std::unordered_map<ir::VReg *, MReg *> &replaceMap);
 };
 
 class ImmInst : public MachineInst {
