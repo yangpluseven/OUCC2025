@@ -29,6 +29,14 @@ MachineInst *MachineBlock::getMInst(size_t index) const {
   return static_cast<MachineInst *>(getInstruction(index));
 }
 
+bool MachineBlock::hasUncondJump() const {
+  auto jump = dynamic_cast<Jump *>(getLastInstruction());
+  if (jump && !jump->hasCond()) {
+    return true;
+  }
+  return false;
+}
+
 bool MachineBlock::hasCondJump() const {
   if (!_origin->hasTerminator()) {
     return false;
@@ -42,7 +50,10 @@ bool MachineBlock::hasCondJump() const {
 }
 
 Jump *MachineBlock::getUncondJump() const {
-  return dynamic_cast<Jump *>(getLastInstruction());
+  if (!hasUncondJump()) {
+    return nullptr;
+  }
+  return static_cast<Jump *>(getLastInstruction());
 }
 
 Jump *MachineBlock::getCondJump() const {

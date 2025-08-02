@@ -2,6 +2,7 @@
 #define IR_MODULE_H
 
 #include "ir/function.h"
+#include "riscv/machine_func.h"
 #include "ir/global_variable.h"
 #include <unordered_map>
 #include <vector>
@@ -37,7 +38,7 @@ public:
   // Return a viewport instead of the actual ownership
   std::vector<Function *> getFunctions() const;
   // Return a viewport instead of the actual ownership
-  std::vector<FuncBase *> getMFuncs() const;
+  std::vector<riscv::MachineFunc *> getMFuncs() const;
 };
 
 } // namespace ir

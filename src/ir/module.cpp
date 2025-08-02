@@ -51,11 +51,12 @@ std::vector<Function *> Module::getFunctions() const {
   return result;
 }
 
-std::vector<FuncBase *> Module::getMFuncs() const {
-  std::vector<FuncBase *> result;
+std::vector<riscv::MachineFunc *> Module::getMFuncs() const {
+  std::vector<riscv::MachineFunc *> result;
   result.reserve(_mFuncs.size());
   for (const auto &ptr : _mFuncs) {
-    result.push_back(ptr.get());
+    auto func = static_cast<riscv::MachineFunc *>(ptr.get());
+    result.push_back(func);
   }
   return result;
 }

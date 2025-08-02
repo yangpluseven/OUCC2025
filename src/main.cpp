@@ -1,5 +1,6 @@
 #include "CLI/CLI.hpp"
 #include "parser/generate_ir.h"
+#include "pass/pass_manager.h"
 #include "riscv/generate_mir.h"
 #include "riscv/reg_allocate.h"
 #include <unordered_map>
@@ -181,11 +182,14 @@ int main(int argc, const char *argv[]) {
       std::cout << ">> MIR written to " << outputFile << std::endl;
   } break;
   case OutputTypeEnum::ASM: {
+    pass::PassManager passManager(mod);
+    passManager.run();
     riscv::GenerateMIR genMIR(mod);
     genMIR.generate();
     std::cout << "Generating ASM..." << std::endl;
     riscv::ModuleRegAlloc regAlloc(mod);
     regAlloc.allocate();
+    passManager.runLast();
     writeGlobals(ofs, mod);
     ofs << "\t.text\n";
     for (const auto &mFunc : mod->getMFuncs()) {
