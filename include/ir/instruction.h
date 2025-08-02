@@ -14,13 +14,13 @@ class BlockBase;
 class InstBase : public User {
 private:
   int _id;
-  int _indexInBlock = -1;
   BlockBase *_block = nullptr;
 
 protected:
   // Only used during clone process
   InstBase *_cloneTarget = nullptr;
   bool _notRemapped = false;
+    int _indexInBlock = -1;
   InstBase(std::unique_ptr<Type> type, int id);
   InstBase(std::unique_ptr<Type> type, const std::vector<Value *> &useOperands,
            int id);
@@ -31,6 +31,7 @@ public:
   BlockBase *getBlock() const { return _block; }
   // Used in optimization mostly
   void setBlock(BlockBase *block) { _block = block; }
+  void setIndexInBlock(int index) { _indexInBlock = index; }
 
   int getID() const { return _id; }
 

@@ -33,11 +33,11 @@ public:
   size_t numMFuncs() const { return _mFuncs.size(); }
 
   // Return a viewport instead of the actual ownership
-  std::vector<GlobalVariable *> getGlobals();
+  std::vector<GlobalVariable *> getGlobals() const;
   // Return a viewport instead of the actual ownership
-  std::vector<Function *> getFunctions();
+  std::vector<Function *> getFunctions() const;
   // Return a viewport instead of the actual ownership
-  std::vector<FuncBase *> getMFuncs();
+  std::vector<FuncBase *> getMFuncs() const;
 };
 
 } // namespace ir

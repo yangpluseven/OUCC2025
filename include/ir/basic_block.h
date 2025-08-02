@@ -42,11 +42,14 @@ public:
   InstBase *setInstruction(size_t index, std::unique_ptr<InstBase> inst);
   std::unique_ptr<InstBase> eraseInstruction(size_t index);
   std::unique_ptr<InstBase> eraseInstruction(InstBase *inst);
+  std::unique_ptr<InstBase> getOwnership(size_t index);
+  std::unique_ptr<InstBase> getOwnership(InstBase *inst);
   size_t size() const { return _instructions.size(); }
   void clear() {
     _instructions.clear();
     _unreachables.clear();
   }
+  void setIndexInBlock() const;
 
   using iterator = std::vector<std::unique_ptr<InstBase>>::iterator;
   using const_iterator = std::vector<std::unique_ptr<InstBase>>::const_iterator;

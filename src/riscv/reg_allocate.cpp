@@ -1,5 +1,6 @@
 #include "riscv/reg_allocate.h"
 #include <algorithm>
+#include <iostream>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -452,6 +453,8 @@ void FuncRegAlloc::solveSpill() {
         }
       }
     } while (toContinueInner);
+    // // DEBUG
+    // std::cout << "size: " << spilledRegs.size() << std::endl;
     for (const auto &toSpill : spilledRegs) {
       VReg *reg = toSpill.first;
       int offset = toSpill.second;
@@ -459,16 +462,10 @@ void FuncRegAlloc::solveSpill() {
       for (size_t i = 0; i < _mFunc->size(); i++) {
         auto mBlock = static_cast<MachineBlock *>(_mFunc->getBlock(i));
         auto newMBlock = std::make_unique<MachineBlock>(mBlock->getOrigin());
-        // for (auto &instPtr : *mBlock) {
-        //   auto inst = static_cast<MachineInst *>(instPtr.get());
-        //   inst->spill(reg, offset, newMBlock.get());
-        // }
+        mBlock->setIndexInBlock();
         for (size_t i = 0; i < mBlock->size(); i++) {
           auto inst = mBlock->getMInst(i);
-          auto hasErased = inst->spill(reg, offset, newMBlock.get());
-          if (hasErased) {
-            i--;
-          }
+          inst->spill(reg, offset, newMBlock.get());
         }
         newBlocks.push_back(std::move(newMBlock));
       }

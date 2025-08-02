@@ -172,7 +172,7 @@ public:
   // TODO
   std::string str() const override {
 
-    return "fake mv " + getName() + "\ttarget: " + getOperand(0)->str() +
+    return "move " + getName() + "\ttarget: " + getOperand(0)->str() +
            "\tsrc: " + getOperand(1)->getName();
   }
   std::unique_ptr<Instruction> cloneEmpty() const override {

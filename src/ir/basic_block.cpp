@@ -94,6 +94,35 @@ std::unique_ptr<InstBase> BlockBase::eraseInstruction(InstBase *inst) {
   return nullptr;
 }
 
+std::unique_ptr<InstBase> BlockBase::getOwnership(size_t index) {
+  assert(index < _instructions.size());
+  auto it = _instructions.begin() + index;
+  std::unique_ptr<InstBase> inst = std::move(*it);
+  if (inst->getBlock() == this) {
+    inst->setBlock(nullptr);
+  }
+  return inst;
+}
+
+std::unique_ptr<InstBase> BlockBase::getOwnership(InstBase *inst) {
+  for (auto it = _instructions.begin(); it != _instructions.end(); ++it) {
+    if (it->get() == inst) {
+      std::unique_ptr<InstBase> instPtr = std::move(*it);
+      if (instPtr->getBlock() == this) {
+        instPtr->setBlock(nullptr);
+      }
+      return instPtr;
+    }
+  }
+  return nullptr;
+}
+
+void BlockBase::setIndexInBlock() const {
+  for (size_t i = 0; i < _instructions.size(); i++) {
+    _instructions[i]->setIndexInBlock(i);
+  }
+}
+
 InstBase *BlockBase::getInstruction(iterator pos) const { return pos->get(); }
 
 BlockBase::iterator

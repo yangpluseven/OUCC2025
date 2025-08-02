@@ -33,28 +33,28 @@ FuncBase *Module::getMFunction(size_t index) {
   return _mFuncs.at(index).get();
 }
 
-std::vector<GlobalVariable *> Module::getGlobals() {
+std::vector<GlobalVariable *> Module::getGlobals() const {
   std::vector<GlobalVariable *> result;
   result.reserve(_globals.size());
-  for (auto &[name, ptr] : _globals) {
+  for (const auto &[name, ptr] : _globals) {
     result.push_back(ptr.get());
   }
   return result;
 }
 
-std::vector<Function *> Module::getFunctions() {
+std::vector<Function *> Module::getFunctions() const {
   std::vector<Function *> result;
   result.reserve(_functions.size());
-  for (auto &[name, ptr] : _functions) {
+  for (const auto &[name, ptr] : _functions) {
     result.push_back(ptr.get());
   }
   return result;
 }
 
-std::vector<FuncBase *> Module::getMFuncs() {
+std::vector<FuncBase *> Module::getMFuncs() const {
   std::vector<FuncBase *> result;
   result.reserve(_mFuncs.size());
-  for (auto &ptr : _mFuncs) {
+  for (const auto &ptr : _mFuncs) {
     result.push_back(ptr.get());
   }
   return result;
