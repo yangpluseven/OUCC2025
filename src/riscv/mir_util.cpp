@@ -100,12 +100,12 @@ MachineInst *divRegRegI(MachineBlock *block, MachineInst *src0,
 
 MachineInst *divImmRegF(MachineBlock *block, float imm, MachineInst *src) {
   auto inst = loadImmF(block, imm);
-  return divRegRegF(block, src, inst);
+  return divRegRegF(block, inst, src);
 }
 
 MachineInst *divImmRegI(MachineBlock *block, int imm, MachineInst *src) {
   auto inst = loadImmI(block, imm);
-  return divRegRegI(block, src, inst);
+  return divRegRegI(block, inst, src);
 }
 
 MachineInst *divRegImmF(MachineBlock *block, MachineInst *src, float imm) {

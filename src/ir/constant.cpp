@@ -60,8 +60,8 @@ std::string ConstantNumber::getLiteralStr() const {
   case BasicKind::I32:
     return std::to_string(intValue());
   case BasicKind::F32: {
-    auto value = floatValue();
-    return fmt::format("0x{:X}", *reinterpret_cast<unsigned int *>(&value));
+    auto value = static_cast<double>(floatValue());
+    return fmt::format("0x{:X}", *reinterpret_cast<unsigned long long *>(&value));
     // return std::to_string(floatValue());
   }
   default:
