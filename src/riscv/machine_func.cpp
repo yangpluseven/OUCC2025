@@ -123,7 +123,7 @@ void MachineFunc::initArgOffsets() {
     auto type = arg->getType();
     if (type->isF32()) {
       if (fSize < MReg::fCallerRegs.size()) {
-        _argOffsets[arg] = {true, (iCallerNum - fSize - 1) * 8};
+        _argOffsets[arg] = {true, (fCallerNum - fSize - 1) * 8};
       } else {
         _argOffsets[arg] = {false, MReg::argsStackOffset(iSize, fSize)};
       }
