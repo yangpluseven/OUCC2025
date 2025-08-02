@@ -414,7 +414,7 @@ void GenerateIR::visit(Call &ast) {
       } else {
         typeKind = BasicKind::I32;
       }
-      typeConversion(param, typeKind);
+      param = typeConversion(param, typeKind);
     }
     args.push_back(param);
   }

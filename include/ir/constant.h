@@ -29,6 +29,7 @@ private:
 
   static std::unique_ptr<BasicType> determineType(const Number &num);
   // BasicKind getBasicKind() const;
+  static BasicKind autoTypePromotion(BasicKind type1, BasicKind type2);
 
 public:
   explicit ConstantNumber(bool value);

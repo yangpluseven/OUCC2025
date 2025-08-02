@@ -8,7 +8,20 @@ Value::Value(std::unique_ptr<Type> type) : _type(std::move(type)) {
   assert(_type);
 }
 
-Value::~Value() =default;
+Value::~Value() {
+  if (_uses.empty())
+    return; // No uses to clear
+  // for (auto *use : _uses) {
+  //   use->setValue(nullptr); // Clear the use's value to avoid dangling
+  //   pointers
+  // }
+  while (!_uses.empty()) {
+    auto it = _uses.begin();
+    Use *use = *it;
+    use->setValue(nullptr); // Clear the use's value to avoid dangling pointers
+  }
+  _uses.clear();
+}
 
 std::unique_ptr<BasicType> Value::makeRegType() const {
   if (_type->isBasic() &&

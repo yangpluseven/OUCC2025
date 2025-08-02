@@ -21,6 +21,14 @@ std::unique_ptr<BasicType> ConstantNumber::determineType(const Number &num) {
     throw std::runtime_error("Unsupported number type");
 }
 
+BasicKind ConstantNumber::autoTypePromotion(BasicKind type1, BasicKind type2) {
+  if (type1 == BasicKind::F32 || type2 == BasicKind::F32)
+    return BasicKind::F32;
+  if (type1 == BasicKind::I32 || type2 == BasicKind::I32)
+    return BasicKind::I32;
+  return BasicKind::I1;
+}
+
 ConstantNumber::ConstantNumber(bool value)
     : Constant(std::make_unique<BasicType>(BasicKind::I1)),
       _value(value ? 1 : 0) {}
@@ -54,6 +62,7 @@ std::string ConstantNumber::getLiteralStr() const {
   case BasicKind::F32: {
     auto value = floatValue();
     return fmt::format("0x{:X}", *reinterpret_cast<unsigned int *>(&value));
+    // return std::to_string(floatValue());
   }
   default:
     throw std::runtime_error("Unexpected type");
@@ -69,9 +78,11 @@ std::string ConstantNumber::getName() const { return getLiteralStr(); }
 // General operators for integer/float
 
 #define DEFINE_BINARY_OP(OPNAME, OP)                                           \
-  ConstantNumber ConstantNumber::operator OPNAME(const ConstantNumber & rhs)   \
+  ConstantNumber ConstantNumber::operator OPNAME(const ConstantNumber &rhs)    \
       const {                                                                  \
-    auto basicKind = static_cast<BasicType *>(getType())->getBasicKind();      \
+    auto basicKind1 = static_cast<BasicType *>(getType())->getBasicKind();     \
+    auto basicKind2 = static_cast<BasicType *>(rhs.getType())->getBasicKind(); \
+    auto basicKind = autoTypePromotion(basicKind1, basicKind2);                \
     switch (basicKind) {                                                       \
     case BasicKind::I1:                                                        \
     case BasicKind::I32:                                                       \

@@ -110,8 +110,7 @@ void MachineFunc::initArgOffsets() {
   auto args = _origin->getArgs();
   for (auto arg : args) {
     auto type = arg->getType();
-    if (type->isBasic() && static_cast<ir::BasicType *>(type)->getBasicKind() ==
-                               ir::BasicKind::F32) {
+    if (type->isF32()) {
       fCallerNum++;
     } else {
       iCallerNum++;
@@ -122,17 +121,16 @@ void MachineFunc::initArgOffsets() {
   int iSize = 0, fSize = 0;
   for (auto arg : args) {
     auto type = arg->getType();
-    if (type->isBasic() && static_cast<ir::BasicType *>(type)->getBasicKind() ==
-                               ir::BasicKind::F32) {
+    if (type->isF32()) {
       if (fSize < MReg::fCallerRegs.size()) {
-        _argOffsets[arg] = {true, (fCallerNum - fSize - 1) * 8};
+        _argOffsets[arg] = {true, (iCallerNum - fSize - 1) * 8};
       } else {
         _argOffsets[arg] = {false, MReg::argsStackOffset(iSize, fSize)};
       }
       fSize++;
     } else {
       if (iSize < MReg::iCallerRegs.size()) {
-        _argOffsets[arg] = {true, (iCallerNum - iSize - 1) * 8};
+        _argOffsets[arg] = {true, (iCallerNum + fCallerNum - iSize - 1) * 8};
       } else {
         _argOffsets[arg] = {false, MReg::argsStackOffset(iSize, fSize)};
       }
@@ -183,8 +181,8 @@ void MachineFunc::binary(ir::BinaryInst *inst, MachineBlock *block) {
     return;
   }
   if (src2 && operand1->isConstNum()) {
-    auto tmp = binRegImm(block, inst, src2,
-                         static_cast<ir::ConstantNumber *>(operand1));
+    auto tmp = binImmReg(block, inst,
+                         static_cast<ir::ConstantNumber *>(operand1), src2);
     _instMap[inst] = tmp;
     return;
   }

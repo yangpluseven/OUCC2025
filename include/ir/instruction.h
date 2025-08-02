@@ -26,7 +26,7 @@ protected:
            int id);
 
 public:
-  virtual ~InstBase() = default;
+  // virtual ~InstBase() = default;
 
   BlockBase *getBlock() const { return _block; }
   // Used in optimization mostly

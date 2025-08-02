@@ -17,7 +17,7 @@ public:
   using Value::Value;
   explicit User(std::unique_ptr<Type> type,
                 const std::vector<Value *> &useOperands);
-  ~User() override = default;
+  // ~User() override = default;
 
   void addOperand(Value *v);
   void setOperand(size_t index, Value *v);

@@ -80,7 +80,7 @@ public:
 
   MachineInst() : InstBase(MAKE_VOID, _counter++) {}
 
-  virtual ~MachineInst() = default;
+  // virtual ~MachineInst() = default;
 
   // Get the dest register's name, virtual or real
   std::string getName() const override;
