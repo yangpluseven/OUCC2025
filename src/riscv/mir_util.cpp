@@ -89,7 +89,7 @@ MachineInst *addRegImmI(MachineBlock *block, MachineInst *src, int imm) {
 MachineInst *divRegRegF(MachineBlock *block, MachineInst *src0,
                         MachineInst *src1) {
   return block->pushMInst(
-      std::make_unique<RRR>(RRROp::DIV, MAKE_I32, src0, src1));
+      std::make_unique<RRR>(RRROp::DIV, MAKE_F32, src0, src1));
 }
 
 MachineInst *divRegRegI(MachineBlock *block, MachineInst *src0,

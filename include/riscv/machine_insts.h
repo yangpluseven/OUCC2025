@@ -116,7 +116,7 @@ public:
     return {};
   }
   virtual MInstKind getMInstKind() const { return MInstKind::Fake; }
-  virtual void spill(ir::Reg *spilledReg, int offset, MachineBlock *block);
+  virtual bool spill(ir::Reg *spilledReg, int offset, MachineBlock *block);
   virtual void replaceReg(std::unordered_map<ir::VReg *, MReg *> &replaceMap);
 };
 
@@ -149,7 +149,7 @@ public:
 
   MInstKind getMInstKind() const override { return MInstKind::LEA; }
 
-  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
+  bool spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
 
   std::string str() const override {
     return fmt::format("add\t{}, $local, #{}", getDest()->str(), getImm());
@@ -190,7 +190,7 @@ public:
 
   Jump(MachineBlock *target) : _target(target) {}
 
-  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
+  bool spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   bool hasCond() const { return _op != JumpOp::NUL; }
   MInstKind getMInstKind() const override { return MInstKind::Jump; }
   std::string str() const override;
@@ -218,7 +218,7 @@ public:
   LI(std::unique_ptr<ir::Type> type, int imm) : ImmInst(std::move(type), imm) {}
   LI(ir::Reg *dest, int imm) : ImmInst(dest, imm) {}
 
-  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
+  bool spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   MInstKind getMInstKind() const override { return MInstKind::LI; }
   std::string str() const override {
     return fmt::format("li\t{}, {}", getDest()->str(), getImm());
@@ -236,7 +236,7 @@ public:
   LLA(ir::Reg *dest, ir::GlobalVariable *global)
       : MachineInst(dest), _global(global) {}
 
-  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
+  bool spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   MInstKind getMInstKind() const override { return MInstKind::LLA; }
   std::string str() const override {
     return fmt::format("lla\t{}, {}", getDest()->str(), _global->getRawName());
@@ -269,7 +269,7 @@ public:
   LoadFrom(LoadItem item, ir::Reg *dest, int imm)
       : ImmInst(dest, imm), _item(item) {}
 
-  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
+  bool spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   MInstKind getMInstKind() const override { return MInstKind::LoadFrom; }
   LoadItem getItem() const { return _item; }
   std::string str() const override {
@@ -289,7 +289,7 @@ public:
   Load(ir::Reg *dest, MachineInst *src, int imm, int size)
       : ImmInst(dest, {src}, imm), _size(size) {}
 
-  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
+  bool spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   MInstKind getMInstKind() const override { return MInstKind::Load; }
   std::string str() const override {
     std::string_view ldStrV;
@@ -340,7 +340,7 @@ public:
   RR(RROp op, ir::Reg *dest, MachineInst *src)
       : MachineInst(dest, {src}), _op(op) {}
 
-  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
+  bool spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   MInstKind getMInstKind() const override { return MInstKind::RR; }
   std::string str() const override {
     const auto destType = getDest()->getRegType()->getBasicKind();
@@ -422,7 +422,7 @@ public:
   RRI(RRIOp op, ir::Reg *dest, MachineInst *src, int imm)
       : ImmInst(dest, {src}, imm), _op(op) {}
 
-  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
+  bool spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   MInstKind getMInstKind() const override { return MInstKind::RRI; }
   std::string str() const override {
     return fmt::format("{}\t{}, {}, {}", opToString(), getDest()->str(),
@@ -485,7 +485,7 @@ public:
   RRR(RRROp op, ir::Reg *dest, MachineInst *src0, MachineInst *src1)
       : MachineInst(dest, {src0, src1}), _op(op) {}
 
-  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
+  bool spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   MInstKind getMInstKind() const override { return MInstKind::RRR; }
   std::string str() const override {
     bool useFpFormat = false, opIsValid = false;
@@ -570,7 +570,7 @@ public:
   StoreTo(StoreItem item, MachineInst *src, int imm)
       : ImmInst(MAKE_VOID, {src}, imm), _item(item) {}
 
-  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
+  bool spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   MInstKind getMInstKind() const override { return MInstKind::StoreTo; }
   StoreItem getItem() const { return _item; }
   std::string str() const override {
@@ -587,7 +587,7 @@ public:
   Store(MachineInst *src0, MachineInst *src1, int imm, int size)
       : ImmInst(MAKE_VOID, {src0, src1}, imm), _size(size) {}
 
-  void spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
+  bool spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   MInstKind getMInstKind() const override { return MInstKind::Store; }
   std::string str() const override {
     std::string_view instStrV;

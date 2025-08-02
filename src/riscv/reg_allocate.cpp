@@ -459,9 +459,16 @@ void FuncRegAlloc::solveSpill() {
       for (size_t i = 0; i < _mFunc->size(); i++) {
         auto mBlock = static_cast<MachineBlock *>(_mFunc->getBlock(i));
         auto newMBlock = std::make_unique<MachineBlock>(mBlock->getOrigin());
-        for (auto &instPtr : *mBlock) {
-          auto inst = static_cast<MachineInst *>(instPtr.get());
-          inst->spill(reg, offset, newMBlock.get());
+        // for (auto &instPtr : *mBlock) {
+        //   auto inst = static_cast<MachineInst *>(instPtr.get());
+        //   inst->spill(reg, offset, newMBlock.get());
+        // }
+        for (size_t i = 0; i < mBlock->size(); i++) {
+          auto inst = mBlock->getMInst(i);
+          auto hasErased = inst->spill(reg, offset, newMBlock.get());
+          if (hasErased) {
+            i--;
+          }
         }
         newBlocks.push_back(std::move(newMBlock));
       }
@@ -469,7 +476,12 @@ void FuncRegAlloc::solveSpill() {
       for (size_t i = 0; i < newBlocks.size(); i++) {
         auto newMBlock = std::move(newBlocks[i]);
         if (i < _mFunc->size()) {
-          _mFunc->setBlock(i, std::move(newMBlock));
+          // _mFunc->setBlock(i, std::move(newMBlock));
+          auto mBlock = static_cast<MachineBlock *>(_mFunc->getBlock(i));
+          mBlock->clear();
+          for (auto &instPtr : *newMBlock) {
+            mBlock->pushInstruction(std::move(instPtr));
+          }
         } else {
           _mFunc->pushBlock(std::move(newMBlock));
         }
