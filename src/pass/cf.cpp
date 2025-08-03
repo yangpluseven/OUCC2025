@@ -1,5 +1,4 @@
-#include "pass/passes.h"
-
+#include "passes.h"
 namespace pass {
 
 bool ConstProp::onFunction(ir::Function *function) {

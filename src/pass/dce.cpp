@@ -1,4 +1,4 @@
-#include "pass/passes.h"
+#include "passes.h"
 
 namespace pass {
 

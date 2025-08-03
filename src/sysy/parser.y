@@ -6,8 +6,8 @@
     #include <memory>
     #include <stdarg.h>
 
-    #include "parser/ast.h"
-    #include "parser/define.h"
+    #include "ast.h"
+    #include "define.h"
 
     using namespace std;
     unique_ptr<CompUnit> root;

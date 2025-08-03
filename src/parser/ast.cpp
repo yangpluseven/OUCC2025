@@ -1,4 +1,4 @@
-#include "parser/ast.h"
+#include "../../include/ast.h"
 
 void CompUnit::accept(ASTVisitor &visitor) { visitor.visit(*this); }
 

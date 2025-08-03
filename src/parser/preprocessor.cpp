@@ -1,4 +1,4 @@
-#include "parser/preprocessor.h"
+#include "../../include/preprocessor.h"
 
 const std::regex Preprocessor::ESCAPED_NEW_LINE_PATTERN(R"(\\\n)");
 const std::regex Preprocessor::COMMENT_PATTERN(R"(//.*|/\*[\s\S]*?\*/)");

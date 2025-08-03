@@ -1,7 +1,6 @@
-#include "ir/instructions.h"
-
-#include "fmt/core.h"
-#include "ir/function.h"
+#include "instructions.h"
+#include "core.h"
+#include "function.h"
 #include <cassert>
 #include <sstream>
 

@@ -1,8 +1,7 @@
-#include "ir/constant.h"
-
-#include "fmt/core.h"
-#include "ir/type.h"
-#include "ir/value.h"
+#include "constant.h"
+#include "type.h"
+#include "value.h"
+#include "core.h"
 
 #include <cassert>
 #include <utility>

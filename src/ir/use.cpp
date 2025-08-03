@@ -1,5 +1,5 @@
-#include "ir/use.h"
-#include "ir/value.h"
+#include "../../include/use.h"
+#include "../../include/value.h"
 
 namespace ir {
 

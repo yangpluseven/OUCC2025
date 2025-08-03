@@ -1,6 +1,6 @@
-#include "parser/generate_ir.h"
-#include "ir/instructions.h"
-#include "ir/number.h"
+#include "../../include/generate_ir.h"
+#include "../../include/instructions.h"
+#include "../../include/number.h"
 #include <algorithm>
 using namespace ir;
 

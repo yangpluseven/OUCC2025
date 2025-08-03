@@ -1,4 +1,4 @@
-#include "ir/value.h"
+#include "../../include/value.h"
 #include <cassert>
 #include <memory>
 

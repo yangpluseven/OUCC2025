@@ -1,9 +1,7 @@
-#include "ir/type.h"
-#include "fmt/core.h"
-
+#include "type.h"
+#include "core.h"
 #include <cassert>
 #include <memory>
-#include <sstream>
 
 namespace ir {
 

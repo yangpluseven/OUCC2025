@@ -1,6 +1,6 @@
-#include "riscv/machine_func.h"
-#include "riscv/mir_util.h"
-#include "riscv/registers.h"
+#include "../../include/machine_func.h"
+#include "../../include/mir_util.h"
+#include "../../include/registers.h"
 #include <sstream>
 
 namespace riscv {

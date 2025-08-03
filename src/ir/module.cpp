@@ -1,4 +1,4 @@
-#include "ir/module.h"
+#include "../../include/module.h"
 
 namespace ir {
 

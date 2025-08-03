@@ -1,9 +1,9 @@
-#include "CLI/CLI.hpp"
-#include "parser/generate_ir.h"
-#include "parser/preprocessor.h"
-#include "pass/pass_manager.h"
-#include "riscv/generate_mir.h"
-#include "riscv/reg_allocate.h"
+#include "CLI11.hpp"
+#include "generate_ir.h"
+#include "generate_mir.h"
+#include "pass_manager.h"
+#include "preprocessor.h"
+#include "reg_allocate.h"
 #include <unordered_map>
 
 extern int yyparse();

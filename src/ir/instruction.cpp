@@ -1,8 +1,5 @@
-#include "ir/instruction.h"
-
-#include "fmt/core.h"
-
-#include <cassert>
+#include "instruction.h"
+#include "core.h"
 #include <stdexcept>
 
 namespace ir {

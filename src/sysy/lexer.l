@@ -3,7 +3,7 @@
 %{
     #include <string>
 
-    #include "parser/ast.h"
+    #include "ast.h"
     #include "parser.tab.hpp"
     
     //extern "C" int yywrap() {}
