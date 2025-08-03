@@ -171,15 +171,22 @@ void FuncRegAlloc::pushFrame() {
   toSaveRegs.insert(toSaveRegs.end(), _fCallerRegs.begin(), _fCallerRegs.end());
   toSaveRegs.insert(toSaveRegs.end(), _iCalleeRegs.begin(), _iCalleeRegs.end());
   toSaveRegs.insert(toSaveRegs.end(), _fCalleeRegs.begin(), _fCalleeRegs.end());
-  for (int i = 0; i < toSaveRegs.size(); i++) {
-    MReg *toSaveReg = toSaveRegs[i];
+  int saveRegsSize = static_cast<int>(toSaveRegs.size()) * 8;
+  if (saveRegsSize > 0) {
     headIRs.insert(headIRs.begin(),
-                   std::make_unique<Store>(
-                       new MachineInst(toSaveReg), MReg::spInst, -8 * (i + 1),
-                       toSaveReg->getRegType()->isI32() ? 8 : 4));
+                   std::make_unique<RRI>(RRIOp::ADDI, MReg::sp, MReg::spInst,
+                                         -saveRegsSize));
+    for (int i = 0; i < toSaveRegs.size(); i++) {
+      MReg *toSaveReg = toSaveRegs[i];
+      headIRs.insert(
+          headIRs.begin(),
+          std::make_unique<Store>(new MachineInst(toSaveReg), MReg::spInst,
+                                  saveRegsSize - 8 * (i + 1),
+                                  toSaveReg->getRegType()->isI32() ? 8 : 4));
+    }
   }
-  int totalSize = static_cast<int>(toSaveRegs.size()) * 8 + _funcParamSize +
-                  _alignSize + _spillSize + _localSize;
+
+  int totalSize = _funcParamSize + _alignSize + _spillSize + _localSize;
   if (totalSize > 0 && totalSize <= 255) {
     headIRs.insert(
         headIRs.begin(),

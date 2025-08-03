@@ -43,7 +43,7 @@ file(GLOB_RECURSE SOURCES
         src/reg/*.cpp
         src/riscv/*.cpp
         src/pass/*.cpp
-        *.cpp
+        src/*.cpp
 )
 
 set(COMPILER_SOURCES
