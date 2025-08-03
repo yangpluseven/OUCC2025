@@ -96,7 +96,7 @@ int main(int argc, const char *argv[]) {
   std::unordered_map<std::string, OptLevelEnum> opt_map{
       {"0", OptLevelEnum::O0}, {"1", OptLevelEnum::O1}};
   OptLevelEnum optLevel;
-  app.add_flag("-O,--optimize", optLevel, "Enable optimization level 1")
+  app.add_option("-O,--optimize", optLevel, "Enable optimization level 1")
       ->default_val(OptLevelEnum::O0)
       ->transform(CLI::CheckedTransformer(opt_map, CLI::ignore_case));
 
@@ -133,9 +133,9 @@ int main(int argc, const char *argv[]) {
   else
     outputType = OutputTypeEnum::ASM;
 
-  std::cout << "compile2025-0 (C) OUCC. 2025" << std::endl;
-  std::cout << ">> Compiling " << sourceFile << " to " << outputFile
-            << std::endl;
+  // std::cout << "compile2025-0 (C) OUCC. 2025" << std::endl;
+  // std::cout << ">> Compiling " << sourceFile << " to " << outputFile
+  //           << std::endl;
 
   yyparse();
   GenerateIR genIR;
@@ -186,10 +186,13 @@ int main(int argc, const char *argv[]) {
   } break;
   case OutputTypeEnum::ASM: {
     pass::PassManager passManager(mod);
-    passManager.run();
+    if (optLevel == OptLevelEnum::O1) {
+      // std::cout << ">> Running optimization passes..." << std::endl;
+      passManager.run();
+    }
     riscv::GenerateMIR genMIR(mod);
     genMIR.generate();
-    std::cout << "Generating ASM..." << std::endl;
+    // std::cout << "Generating ASM..." << std::endl;
     riscv::ModuleRegAlloc regAlloc(mod);
     regAlloc.allocate();
     passManager.runLast();
