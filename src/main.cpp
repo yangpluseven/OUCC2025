@@ -1,5 +1,6 @@
 #include "CLI/CLI.hpp"
 #include "parser/generate_ir.h"
+#include "parser/preprocessor.h"
 #include "riscv/generate_mir.h"
 #include "riscv/reg_allocate.h"
 #include <unordered_map>
@@ -115,7 +116,9 @@ int main(int argc, const char *argv[]) {
     exit(1);
   }
 
-  yyin = fopen(sourceFile.c_str(), "r");
+  Preprocessor preprocessor(sourceFile);
+  std::string preprocessed = preprocessor.preprocess();
+  yyin = fmemopen((void *)preprocessed.data(), preprocessed.size(), "r");
   if (!yyin) {
     std::cerr << "[!] Error opening source file: " << sourceFile << std::endl;
     exit(1);

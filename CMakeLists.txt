@@ -50,22 +50,22 @@ set(COMPILER_SOURCES
         ${BISON_Parser_OUTPUTS} ${FLEX_Lexer_OUTPUTS}
 )
 
-# [[add_subdirectory(3rd/fmt)]]
-# [[add_subdirectory(3rd/CLI11)]]
+add_subdirectory(3rd/fmt)
+add_subdirectory(3rd/CLI11)
 
-include(FetchContent)
+# include(FetchContent)
 
-FetchContent_Declare(
-        fmt
-        GIT_REPOSITORY https://github.com/fmtlib/fmt
-        GIT_TAG 11.2.0)
+# FetchContent_Declare(
+#         fmt
+#         GIT_REPOSITORY https://github.com/fmtlib/fmt
+#         GIT_TAG 11.2.0)
 
-FetchContent_Declare(
-        cli11_proj
-        GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
-        GIT_TAG v2.5.0)
+# FetchContent_Declare(
+#         cli11_proj
+#         GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
+#         GIT_TAG v2.5.0)
 
-FetchContent_MakeAvailable(fmt cli11_proj)
+# FetchContent_MakeAvailable(fmt cli11_proj)
 add_executable(compiler2025-0 ${COMPILER_SOURCES})
 
 target_link_libraries(compiler2025-0 fmt::fmt CLI11::CLI11)
