@@ -1,6 +1,6 @@
-#include "../../include/generate_ir.h"
-#include "../../include/instructions.h"
-#include "../../include/number.h"
+#include "generate_ir.h"
+#include "instructions.h"
+#include "number.h"
 #include <algorithm>
 using namespace ir;
 

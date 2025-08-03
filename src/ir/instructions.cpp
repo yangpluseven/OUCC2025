@@ -447,6 +447,50 @@ std::unique_ptr<Instruction> CallInst::cloneEmpty() const {
   return cloned;
 }
 
+PhiInst::PhiInst(std::unique_ptr<Type> type) : Instruction(std::move(type)) {}
+
+void PhiInst::addIncoming(Value *value, BasicBlock *block) {
+  // assert(value->getType() == getType() && "Value type must match Phi type");
+  addOperand(value);
+  _incoming[value] = block;
+}
+
+BasicBlock *PhiInst::getIncomingBlock(size_t index) const {
+  // assert(index < _incoming.size() && "Index out of range");
+  auto it = _incoming.find(getOperand(index));
+  if (it != _incoming.end()) {
+    return it->second;
+  }
+  throw std::runtime_error("Incoming block not found for the given index");
+}
+
+void PhiInst::setIncomingBlock(size_t index, BasicBlock *block) {
+  // assert(index < _incoming.size() && "Index out of range");
+  auto it = _incoming.find(getOperand(index));
+  if (it != _incoming.end()) {
+    it->second = block;
+  } else {
+    throw std::runtime_error("Incoming block not found for the given index");
+  }
+}
+
+std::string PhiInst::str() const {
+  fmt::memory_buffer buf;
+  fmt::format_to(std::back_inserter(buf), "{} = phi {} ", getName(),
+                 getType()->str());
+  for (const auto &pair : _incoming) {
+    const auto *value = pair.first;
+    const auto *block = pair.second;
+    fmt::format_to(std::back_inserter(buf), "[{}, %{}], ", value->getName(),
+                   block->getLabel());
+  }
+  // Remove the last comma and space
+  if (buf.size() >= 2) {
+    buf.resize(buf.size() - 2);
+  }
+  return fmt::to_string(buf);
+}
+
 MoveInst::MoveInst(PhiInst *target, Value *src)
     : Instruction(target->getType()->clone(), {src}), _target(target) {}
 

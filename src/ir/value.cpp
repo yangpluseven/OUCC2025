@@ -1,4 +1,4 @@
-#include "../../include/value.h"
+#include "value.h"
 #include <cassert>
 #include <memory>
 

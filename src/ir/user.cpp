@@ -1,4 +1,4 @@
-#include "../../include/user.h"
+#include "user.h"
 #include <cassert>
 
 namespace ir {

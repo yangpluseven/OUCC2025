@@ -1,4 +1,4 @@
-#include "../../include/symbol_table.h"
+#include "symbol_table.h"
 
 ir::Value *SymbolTable::getItem(const std::string &name) const {
   for (auto item : _table) {

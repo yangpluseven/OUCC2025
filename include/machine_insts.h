@@ -4,10 +4,10 @@
 #define FMT_HEADER_ONLY
 #include "global_variable.h"
 #include "instruction.h"
-#include "type.h"
 #include "machine_func.h"
 #include "register.h"
 #include "registers.h"
+#include "type.h"
 
 #include "core.h"
 
@@ -31,7 +31,8 @@ enum class MInstKind {
   RRI,
   RRR,
   StoreTo,
-  Store
+  Store,
+  PhiNode,
 };
 
 enum class RRIOp { ADDI, ANDI, SLLIW, SRAIW, SRLI, SRLIW, XORI, SLTI };
@@ -609,6 +610,18 @@ public:
                        getSrc(1)->str());
   }
 };
+
+// PhiNode is used to hold a virtual register, no need to be printed
+class PhiNode : public MachineInst {
+public:
+  PhiNode(std::unique_ptr<ir::Type> type) : MachineInst(std::move(type)) {}
+  PhiNode(ir::Reg *dest) : MachineInst(dest) {}
+
+  MInstKind getMInstKind() const override { return MInstKind::PhiNode; }
+  // Printing a PhiNode is not allowed
+  std::string str() const override { return ""; }
+};
+
 } // namespace riscv
 
 #undef MAKE_VOID

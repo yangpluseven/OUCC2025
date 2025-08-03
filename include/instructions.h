@@ -156,8 +156,21 @@ public:
 //===---------------- Fake Instructions ----------------===//
 
 class PhiInst : public Instruction {
+private:
+  std::unordered_map<Value *, BasicBlock *> _incoming;
+
 public:
+  PhiInst(std::unique_ptr<Type> type);
+
   InstKind getInstKind() const override { return InstKind::Phi; }
+  void addIncoming(Value *value, BasicBlock *block);
+  BasicBlock *getIncomingBlock(size_t index) const;
+  void setIncomingBlock(size_t index, BasicBlock *block);
+  std::string str() const override;
+  std::unique_ptr<Instruction> cloneEmpty() const override {
+    // TODO
+    return nullptr;
+  }
 };
 
 // Used to eliminate Phi Inst

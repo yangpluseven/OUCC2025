@@ -1,4 +1,4 @@
-#include "../../include/generate_mir.h"
+#include "generate_mir.h"
 
 namespace riscv {
 
@@ -25,6 +25,34 @@ unique_ptr<MachineFunc> GenerateMIR::funcToMIR(ir::Function *func) {
   auto exitMBlock = make_unique<MachineBlock>(exitBBlock.get());
   machineFunc->blockMap[exitBBlock.get()] = exitMBlock.get();
   makeMachineBlocks(machineFunc.get());
+
+  for (auto &block : *func) {
+    for (size_t i = 0; i < block->size(); i++) {
+      auto inst = static_cast<ir::Instruction *>(block->getInstruction(i));
+      auto instKind = inst->getInstKind();
+      if (instKind == InstKind::Phi) {
+        auto phiInst = static_cast<ir::PhiInst *>(inst);
+
+        // Add phiNode to hold the virtual register
+        auto phiNode = machineFunc->pushPhiNode(
+            make_unique<PhiNode>(phiInst->makeRegType()));
+        machineFunc->addInstPair(phiInst, phiNode);
+
+        // Add move instructions for each incoming value
+        for (size_t j = 0; j < phiInst->getNumOperands(); j++) {
+          auto incomingBlock = phiInst->getIncomingBlock(j);
+          auto value = phiInst->getOperand(j);
+          incomingBlock->pushInstruction(
+              make_unique<ir::MoveInst>(phiInst, value));
+        }
+
+        // Remove the phi instruction from the block
+        block->eraseInstruction(i);
+        i--; // Adjust index after erasing the instruction
+      }
+    }
+  }
+
   for (auto &block : *func) {
     auto mBlock =
         machineFunc->blockMap[static_cast<ir::BasicBlock *>(block.get())];
@@ -82,7 +110,8 @@ unique_ptr<MachineFunc> GenerateMIR::funcToMIR(ir::Function *func) {
         machineFunc->fptosi(static_cast<ir::CastInst *>(inst), mBlock);
         continue;
       case InstKind::Move:
-        // TODO Move is used to handle phi nodes, not supported right now
+        machineFunc->move(static_cast<ir::MoveInst *>(inst), mBlock);
+        continue;
       default:
         throw std::runtime_error(
             "Unsupported instruction kind in MIR generation: " +

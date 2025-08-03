@@ -1,4 +1,4 @@
-#include "../../include/reg_allocate.h"
+#include "reg_allocate.h"
 #include <algorithm>
 #include <iostream>
 #include <unordered_map>

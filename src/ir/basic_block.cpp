@@ -166,8 +166,11 @@ std::string BasicBlock::getLabel() const {
 std::string BlockBase::str() const {
   fmt::memory_buffer buf;
   fmt::format_to(std::back_inserter(buf), "{}:\n", getLabel());
-  for (const auto &instPtr : *this)
-    fmt::format_to(std::back_inserter(buf), "  {}\n", instPtr->str());
+  for (const auto &instPtr : *this) {
+    auto instStr = instPtr->str();
+    if (!instStr.empty())
+      fmt::format_to(std::back_inserter(buf), "  {}\n", instStr);
+  }
   return fmt::to_string(buf);
 }
 

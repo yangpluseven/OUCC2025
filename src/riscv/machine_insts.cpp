@@ -1,5 +1,5 @@
-#include "../../include/machine_insts.h"
-#include "../../include/registers.h"
+#include "machine_insts.h"
+#include "registers.h"
 #include <stdexcept>
 using namespace ir;
 

@@ -1,5 +1,5 @@
-#include "../../include/registers.h"
-#include "../../include/type.h"
+#include "registers.h"
+#include "type.h"
 
 #define DECLARE_INT_REG(name)                                                  \
   MReg *const MReg::name = new MReg(MReg::i32_t.get(), #name)

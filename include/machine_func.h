@@ -10,6 +10,7 @@ namespace riscv {
 
 class MachineFunc;
 class MachineInst;
+class PhiNode;
 class Jump;
 
 class MachineBlock : public ir::BlockBase {
@@ -47,6 +48,7 @@ private:
   std::unordered_map<ir::AllocaInst *, int> _localOffsets;
   std::unordered_map<ir::Argument *, std::pair<bool, int>> _argOffsets;
   std::unordered_map<ir::Instruction *, MachineInst *> _instMap;
+  std::vector<std::unique_ptr<PhiNode>> _phiNodes;
 
   void initCallerNums();
   void initLocalOffsets();
@@ -60,6 +62,12 @@ public:
 
   // Not sure about the type but I guess it's fine (ATTENTION)
   MachineFunc(ir::Function *func);
+
+  PhiNode *pushPhiNode(std::unique_ptr<PhiNode> phiNode);
+  void addInstPair(ir::Instruction *inst, MachineInst *mInst) {
+    if (inst && mInst)
+      _instMap[inst] = mInst;
+  }
 
   int getFCallerNum() const { return _fCallerNum; }
   int getICallerNum() const { return _iCallerNum; }

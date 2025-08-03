@@ -1,6 +1,6 @@
-#include "../../include/machine_func.h"
-#include "../../include/mir_util.h"
-#include "../../include/registers.h"
+#include "machine_func.h"
+#include "mir_util.h"
+#include "registers.h"
 #include <sstream>
 
 namespace riscv {
@@ -23,6 +23,12 @@ MachineBlock::MachineBlock(std::string name)
 
 MachineInst *MachineBlock::pushMInst(std::unique_ptr<MachineInst> inst) {
   return dynamic_cast<MachineInst *>(pushInstruction(std::move(inst)));
+}
+
+PhiNode *MachineFunc::pushPhiNode(std::unique_ptr<PhiNode> phiNode) {
+  auto node = phiNode.get();
+  _phiNodes.push_back(std::move(phiNode));
+  return node;
 }
 
 MachineInst *MachineBlock::getMInst(size_t index) const {
@@ -756,7 +762,36 @@ void MachineFunc::sitofp(ir::CastInst *inst, MachineBlock *block) {
 }
 
 void MachineFunc::move(ir::MoveInst *inst, MachineBlock *block) {
-  // TODO MoveInst is used to handle phi nodes, which are not yet supported
+  auto phi = static_cast<ir::PhiInst *>(inst->getOperand(0));
+  auto node = _instMap[phi];
+  auto dest = node->getDest();
+  auto src = inst->getOperand(1);
+  MachineInst *srcInst = nullptr;
+  switch (src->getValueKind()) {
+  case ValueKind::Arg:
+    srcInst = handleArg(static_cast<ir::Argument *>(src), block);
+    break;
+  case ValueKind::Inst:
+    srcInst = _instMap[static_cast<Instruction *>(src)];
+    break;
+  case ValueKind::ConstNum:
+    if (src->getType()->isF32()) {
+      srcInst =
+          loadImmF(block, static_cast<ir::ConstantNumber *>(src)->floatValue());
+    } else {
+      srcInst =
+          loadImmI(block, static_cast<ir::ConstantNumber *>(src)->intValue());
+    }
+    break;
+  default:
+    throw std::runtime_error("Invalid source for move instruction");
+  }
+  if (!srcInst) {
+    throw std::runtime_error("Source for move instruction is null");
+  }
+
+  auto res = block->pushMInst(make_unique<RR>(RROp::MV, dest, srcInst));
+  _instMap[inst] = res;
 }
 
 std::string MachineFunc::str() const {
