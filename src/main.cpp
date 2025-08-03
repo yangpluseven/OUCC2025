@@ -195,7 +195,7 @@ int main(int argc, const char *argv[]) {
     // std::cout << "Generating ASM..." << std::endl;
     riscv::ModuleRegAlloc regAlloc(mod);
     regAlloc.allocate();
-    passManager.runLast();
+    // passManager.runLast();
     writeGlobals(ofs, mod);
     ofs << "\t.text\n";
     for (const auto &mFunc : mod->getMFuncs()) {
