@@ -144,7 +144,7 @@ int main(int argc, const char *argv[]) {
   auto mod = genIR.getModule();
   pass::PassManager passManager(mod);
   // ATTENTION!
-  if (true) {
+  if (optLevel == OptLevelEnum::O1) {
     // std::cout << ">> Running optimization passes..." << std::endl;
     passManager.run();
   }
