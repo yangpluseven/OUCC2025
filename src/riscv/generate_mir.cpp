@@ -42,13 +42,14 @@ unique_ptr<MachineFunc> GenerateMIR::funcToMIR(ir::Function *func) {
         for (size_t j = 0; j < phiInst->getNumOperands(); j++) {
           auto incomingBlock = phiInst->getIncomingBlock(j);
           auto value = phiInst->getOperand(j);
-          incomingBlock->pushInstruction(
+          incomingBlock->insertInstruction(
+              static_cast<int>(incomingBlock->size()) - 1,
               make_unique<ir::MoveInst>(phiInst, value));
         }
 
-        // Remove the phi instruction from the block
-        block->eraseInstruction(i);
-        i--; // Adjust index after erasing the instruction
+        // // Remove the phi instruction from the block
+        // block->eraseInstruction(i);
+        // i--; // Adjust index after erasing the instruction
       }
     }
   }

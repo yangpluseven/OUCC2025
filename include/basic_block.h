@@ -50,6 +50,7 @@ public:
     _instructions.clear();
     _unreachables.clear();
   }
+  void clearUnreachables() { _unreachables.clear(); }
   void setIndexInBlock() const;
 
   using iterator = std::vector<std::unique_ptr<InstBase>>::iterator;

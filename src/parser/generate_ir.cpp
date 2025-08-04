@@ -61,6 +61,7 @@ void GenerateIR::checkTerminator() {
     }
     for (size_t i = 0; i < func->size() - 1; i++) {
       auto block = func->getBlock(i);
+      block->clearUnreachables();
       if (!block->hasTerminator()) {
         block->pushInstruction(std::make_unique<BranchInst>(
             static_cast<BasicBlock *>(func->getBlock(i + 1))));
@@ -1017,8 +1018,10 @@ void GenerateIR::handleScalarVar(LVal &ast) {
   }
   if (type->isArray()) {
     auto arrType = static_cast<ArrayType *>(type);
-    std::vector<Value *> indices(arrType->getDimensions().size(),
-                                 new ConstantNumber(Number(0)));
+    // std::vector<Value *> indices(arrType->getDimensions().size(),
+    //                              new ConstantNumber(Number(0)));
+    std::vector<Value *> indices(2,
+                             new ConstantNumber(Number(0)));
     auto gepInst = std::make_unique<GetElementPtrInst>(ptr, indices);
     _curVal = gepInst.get();
     _curBlock->pushInstruction(std::move(gepInst));

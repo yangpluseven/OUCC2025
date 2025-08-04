@@ -143,7 +143,8 @@ int main(int argc, const char *argv[]) {
   genIR.checkTerminator();
   auto mod = genIR.getModule();
   pass::PassManager passManager(mod);
-  if (optLevel == OptLevelEnum::O1) {
+  // ATTENTION!
+  if (true) {
     // std::cout << ">> Running optimization passes..." << std::endl;
     passManager.run();
   }

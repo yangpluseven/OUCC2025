@@ -452,25 +452,26 @@ PhiInst::PhiInst(std::unique_ptr<Type> type) : Instruction(std::move(type)) {}
 void PhiInst::addIncoming(Value *value, BasicBlock *block) {
   // assert(value->getType() == getType() && "Value type must match Phi type");
   addOperand(value);
-  _incoming[value] = block;
+  _incoming.push_back(block);
 }
 
 BasicBlock *PhiInst::getIncomingBlock(size_t index) const {
-  // assert(index < _incoming.size() && "Index out of range");
-  auto it = _incoming.find(getOperand(index));
-  if (it != _incoming.end()) {
-    return it->second;
-  }
-  throw std::runtime_error("Incoming block not found for the given index");
+  assert(index < _incoming.size() && "Index out of range");
+  return _incoming.at(index);
 }
 
 void PhiInst::setIncomingBlock(size_t index, BasicBlock *block) {
-  // assert(index < _incoming.size() && "Index out of range");
-  auto it = _incoming.find(getOperand(index));
-  if (it != _incoming.end()) {
-    it->second = block;
-  } else {
-    throw std::runtime_error("Incoming block not found for the given index");
+  assert(index < _incoming.size() && "Index out of range");
+  _incoming.at(index) = block;
+}
+
+void PhiInst::removeIncoming(size_t index) {
+  assert(index < _incoming.size() && "Index out of range");
+  _incoming.erase(_incoming.begin() + index);
+  eraseOperand(index);
+  if (getNumOperands() == 1) {
+    replaceAllUsesWith(getOperand(0));
+    getBlock()->eraseInstruction(this);
   }
 }
 
@@ -478,9 +479,9 @@ std::string PhiInst::str() const {
   fmt::memory_buffer buf;
   fmt::format_to(std::back_inserter(buf), "{} = phi {} ", getName(),
                  getType()->str());
-  for (const auto &pair : _incoming) {
-    const auto *value = pair.first;
-    const auto *block = pair.second;
+  for (size_t i = 0; i < getNumOperands(); i++) {
+    auto value = getOperand(i);
+    auto block = _incoming[i];
     fmt::format_to(std::back_inserter(buf), "[{}, %{}], ", value->getName(),
                    block->getLabel());
   }

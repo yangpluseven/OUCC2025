@@ -123,52 +123,55 @@ MachineInst *divRegImmI(MachineBlock *block, MachineInst *src, int imm) {
         block->pushMInst(std::make_unique<RR>(RROp::NEG, MAKE_F32, src));
     return negInst;
   }
-  int div = imm;
-  bool isPos = true;
-  if (div < 0) {
-    isPos = false;
-    div = -div;
-  }
-  int shift = 0;
-  while (1L << (shift + 32) <= (0x7fffffffL - 0x80000000L % div) *
-                                   (div - (1L << (shift + 32)) % div)) {
-    shift++;
-  }
-  int magic = static_cast<int>((1L << (shift + 32)) / div + 1);
-  auto tmp1 = loadImmI(block, magic);
-  MachineInst *mid1, *mid2;
-  if (magic >= 0) {
-    auto tmp2 = block->pushMInst(
-        std::make_unique<RRR>(RRROp::MUL, MAKE_I32, src, tmp1));
-    auto tmp3 = block->pushMInst(
-        std::make_unique<RRI>(RRIOp::SRLI, MAKE_I32, tmp2, 32));
-    mid1 = tmp3;
-  } else {
-    auto tmp2 = block->pushMInst(
-        std::make_unique<RRR>(RRROp::MUL, MAKE_I32, src, tmp1));
-    auto tmp3 = block->pushMInst(
-        std::make_unique<RRI>(RRIOp::SRLI, MAKE_I32, tmp2, 32));
-    auto tmp4 = block->pushMInst(
-        std::make_unique<RRR>(RRROp::ADD, MAKE_I32, tmp3, src));
-    mid1 = tmp4;
-  }
-  if (shift != 0) {
-    auto tmp2 = block->pushMInst(
-        std::make_unique<RRI>(RRIOp::SRAIW, MAKE_I32, mid1, shift));
-    mid2 = tmp2;
-  } else {
-    mid2 = mid1; // No shift needed
-  }
-  if (isPos) {
-    auto tmp2 = block->pushMInst(
-        std::make_unique<RRI>(RRIOp::SRLIW, MAKE_I32, src, 31));
-    return block->pushMInst(
-        std::make_unique<RRR>(RRROp::ADDW, MAKE_I32, mid2, tmp2));
-  }
-  auto tmp2 =
-      block->pushMInst(std::make_unique<RRI>(RRIOp::SRAIW, MAKE_I32, src, 31));
-  return block->pushMInst(
-      std::make_unique<RRR>(RRROp::SUBW, MAKE_I32, mid2, tmp2));
+  auto immInst = loadImmI(block, imm);
+  return divRegRegI(block, src, immInst);
+  // int div = imm;
+  // bool isPos = true;
+  // if (div < 0) {
+  //   isPos = false;
+  //   div = -div;
+  // }
+  // int shift = 0;
+  // while (1L << (shift + 32) <= (0x7fffffffL - 0x80000000L % div) *
+  //                                  (div - (1L << (shift + 32)) % div)) {
+  //   shift++;
+  // }
+  // int magic = static_cast<int>((1L << (shift + 32)) / div + 1);
+  // auto tmp1 = loadImmI(block, magic);
+  // MachineInst *mid1, *mid2;
+  // if (magic >= 0) {
+  //   auto tmp2 = block->pushMInst(
+  //       std::make_unique<RRR>(RRROp::MUL, MAKE_I32, src, tmp1));
+  //   auto tmp3 = block->pushMInst(
+  //       std::make_unique<RRI>(RRIOp::SRLI, MAKE_I32, tmp2, 32));
+  //   mid1 = tmp3;
+  // } else {
+  //   auto tmp2 = block->pushMInst(
+  //       std::make_unique<RRR>(RRROp::MUL, MAKE_I32, src, tmp1));
+  //   auto tmp3 = block->pushMInst(
+  //       std::make_unique<RRI>(RRIOp::SRLI, MAKE_I32, tmp2, 32));
+  //   auto tmp4 = block->pushMInst(
+  //       std::make_unique<RRR>(RRROp::ADD, MAKE_I32, tmp3, src));
+  //   mid1 = tmp4;
+  // }
+  // if (shift != 0) {
+  //   auto tmp2 = block->pushMInst(
+  //       std::make_unique<RRI>(RRIOp::SRAIW, MAKE_I32, mid1, shift));
+  //   mid2 = tmp2;
+  // } else {
+  //   mid2 = mid1; // No shift needed
+  // }
+  // if (isPos) {
+  //   auto tmp2 = block->pushMInst(
+  //       std::make_unique<RRI>(RRIOp::SRLIW, MAKE_I32, src, 31));
+  //   return block->pushMInst(
+  //       std::make_unique<RRR>(RRROp::ADDW, MAKE_I32, mid2, tmp2));
+  // }
+  // auto tmp2 =
+  //     block->pushMInst(std::make_unique<RRI>(RRIOp::SRAIW, MAKE_I32, src,
+  //     31));
+  // return block->pushMInst(
+  //     std::make_unique<RRR>(RRROp::SUBW, MAKE_I32, mid2, tmp2));
 }
 
 MachineInst *modRegReg(MachineBlock *block, MachineInst *src0,

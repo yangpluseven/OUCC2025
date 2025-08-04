@@ -762,10 +762,10 @@ void MachineFunc::sitofp(ir::CastInst *inst, MachineBlock *block) {
 }
 
 void MachineFunc::move(ir::MoveInst *inst, MachineBlock *block) {
-  auto phi = static_cast<ir::PhiInst *>(inst->getOperand(0));
+  auto phi = static_cast<ir::PhiInst *>(inst->getTarget());
   auto node = _instMap[phi];
   auto dest = node->getDest();
-  auto src = inst->getOperand(1);
+  auto src = inst->getOperand(0);
   MachineInst *srcInst = nullptr;
   switch (src->getValueKind()) {
   case ValueKind::Arg:

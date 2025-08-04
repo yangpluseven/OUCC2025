@@ -65,8 +65,8 @@ public:
 
   PhiNode *pushPhiNode(std::unique_ptr<PhiNode> phiNode);
   void addInstPair(ir::Instruction *inst, MachineInst *mInst) {
-    if (inst && mInst)
-      _instMap[inst] = mInst;
+    assert(inst && mInst);
+    _instMap[inst] = mInst;
   }
 
   int getFCallerNum() const { return _fCallerNum; }

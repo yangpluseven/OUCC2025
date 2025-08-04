@@ -2,6 +2,7 @@
 #define PASS_PASSES_HPP
 
 #include "module.h"
+#include <stack>
 
 namespace pass {
 
@@ -24,6 +25,9 @@ public:
   bool onModule() override {
     bool modified = false;
     for (auto function : module->getFunctions()) {
+      if (function->empty()) {
+        continue; // Skip empty functions
+      }
       modified |= onFunction(function);
     }
     return modified;
@@ -47,12 +51,12 @@ public:
   virtual bool onFunction(riscv::MachineFunc *function) = 0;
 };
 
-// class BranchOpti : public FunctionPass {
-// public:
-//   explicit BranchOpti(const ir::Module *module) : FunctionPass(module) {}
+class BranchOpti : public FunctionPass {
+public:
+  explicit BranchOpti(const ir::Module *module) : FunctionPass(module) {}
 
-//   bool onFunction(ir::Function *function) override;
-// };
+  bool onFunction(ir::Function *function) override;
+};
 
 class ConstProp : public FunctionPass {
 public:
@@ -70,33 +74,32 @@ public:
   bool onFunction(ir::Function *function) override;
 };
 
-// class MemoryProm : public FunctionPass {
-// private:
-//   std::unordered_map<ir::BasicBlock *,
-//                      std::unordered_map<ir::AllocaInst *, ir::PHINode *>>
-//       _globalPhiMap;
-//   std::unordered_set<ir::AllocaInst *> static analyzePromotableAllocaInsts(
-//       ir::Function *function);
-//   static bool isPromotable(ir::AllocaInst *allocaInst);
-//   void insertPhi(ir::Function *func,
-//                  std::unordered_map<ir::BasicBlock *,
-//                                     std::unordered_set<ir::BasicBlock *>>
-//                                     &df,
-//                  std::unordered_set<ir::AllocaInst *> &allocaInsts);
-//   void replace(
-//       ir::BasicBlock *block,
-//       std::unordered_map<ir::AllocaInst *, std::stack<ir::Value *>>
-//       &replaceMap, std::unordered_set<ir::AllocaInst *> &allocaInsts,
-//       std::unordered_map<ir::BasicBlock *, std::unordered_set<ir::BasicBlock
-//       *>>
-//           &domTree);
-//   void clearPhi(ir::Function *func);
+class MemoryProm : public FunctionPass {
+private:
+  std::unordered_map<ir::BasicBlock *,
+                     std::unordered_map<ir::AllocaInst *, ir::PhiInst *>>
+      _globalPhiMap;
+  std::unordered_set<ir::AllocaInst *> static analyzePromotableAllocaInsts(
+      ir::Function *function);
+  static bool isPromotable(ir::AllocaInst *allocaInst);
+  void removeUnreachableBlocks(ir::Function *func);
+  void insertPhi(ir::Function *func,
+                 std::unordered_map<ir::BasicBlock *,
+                                    std::unordered_set<ir::BasicBlock *>> &df,
+                 std::unordered_set<ir::AllocaInst *> &allocaInsts);
+  void replace(
+      ir::BasicBlock *block,
+      std::unordered_map<ir::AllocaInst *, std::stack<ir::Value *>> &replaceMap,
+      std::unordered_set<ir::AllocaInst *> &allocaInsts,
+      std::unordered_map<ir::BasicBlock *, std::unordered_set<ir::BasicBlock *>>
+          &domTree);
+  void clearPhi(ir::Function *func);
 
-// public:
-//   explicit MemoryProm(const ir::Module *module) : FunctionPass(module) {}
+public:
+  explicit MemoryProm(const ir::Module *module) : FunctionPass(module) {}
 
-//   bool onFunction(ir::Function *function) override;
-// };
+  bool onFunction(ir::Function *function) override;
+};
 
 // class ReducePhi : public FunctionPass {
 // public:

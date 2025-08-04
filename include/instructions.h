@@ -157,7 +157,7 @@ public:
 
 class PhiInst : public Instruction {
 private:
-  std::unordered_map<Value *, BasicBlock *> _incoming;
+  std::vector<BasicBlock *> _incoming;
 
 public:
   PhiInst(std::unique_ptr<Type> type);
@@ -166,6 +166,7 @@ public:
   void addIncoming(Value *value, BasicBlock *block);
   BasicBlock *getIncomingBlock(size_t index) const;
   void setIncomingBlock(size_t index, BasicBlock *block);
+  void removeIncoming(size_t index);
   std::string str() const override;
   std::unique_ptr<Instruction> cloneEmpty() const override {
     // TODO
