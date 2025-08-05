@@ -39,12 +39,12 @@ make -j
 ### 使用方式
 
 ```bash
-./build/compiler2025-0 path/to/source.sy -o output.s
+./build/compiler2025-0 path/to/source.sy -S -o output.s
 ```
 
 可将 SysY 源码编译为 RISC-V 汇编代码。
 
-> **提示：** 项目已提交由我们本地生成的 `parser` 和 `lexer` 文件，使用者可选择重新生成或直接使用，无需重新执行 Flex/Bison。
+> **提示：** 项目已提交由我们本地生成的 `parser` 和 `lexer` 文件，使用者可选择重新生成或直接使用。
 
 使用-h选项查看完整命令行参数
 
@@ -85,9 +85,9 @@ oucc2025/
 
 ### 中间表示（IR）
 
-* 基本结构设计遵循 **LLVM IR 子集**
+* 基本结构设计遵循 **LLVM IR** ，可视为其简化子集
 * 支持函数、基本块、指令级优化
-* 所有 IR 对象使用智能指针管理生命周期（`std::shared_ptr` / `std::unique_ptr`）
+* 所有 IR 对象使用智能指针管理生命周期（如`std::unique_ptr`）
 * 初赛提交优化仅包括：
 
   * 死代码删除（DCE）
