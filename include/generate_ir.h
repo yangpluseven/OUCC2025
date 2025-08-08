@@ -10,11 +10,8 @@ class GenerateIR : public ASTVisitor {
 private:
   ir::BasicKind _curTypeKind;
   bool _isConst;
-  // bool _useConst = false;
-  // std::vector<std::unique_ptr<Argument>> _arguments;
   ir::Value *_retVal;
   ir::BasicBlock *_retBlock;
-  // bool _isNewFunction = false;
   bool _isRealLVal = false;
   ir::Function *_curFunction = nullptr;
   ir::Value *_curVal = nullptr;
@@ -23,8 +20,6 @@ private:
   ir::BasicBlock *_trueBlock = nullptr;
   ir::BasicBlock *_falseBlock = nullptr;
   ir::BasicBlock *_breakBlock = nullptr;
-  // // continue, break, return stmt should set this to true;
-  // bool _hasBranch = false;
 
   ir::Module *const _module = new ir::Module();
   SymbolTable *const _symbolTable = new SymbolTable();
@@ -37,25 +32,25 @@ private:
 
   void processCond(ir::Value *value);
 
-  void makeInitVal(std::vector<int> &dimensions, std::map<int, AddExp *> &exps,
-                   int base, const InitVal *initVal);
+  void makeInitVal(std::vector<int> &dimensions, std::map<int, AddExpNode *> &exps,
+                   int base, const InitValNode *initVal);
 
   ir::Value *typeConversion(ir::Value *value, ir::BasicKind targetType);
 
   static ir::BasicKind autoTypePromotion(ir::BasicKind type1,
                                          ir::BasicKind type2);
 
-  void handleScalarDef(Def &ast);
+  void handleScalarDef(DefNode &ast);
 
-  void handleArrayDef(Def &ast);
+  void handleArrayDef(DefNode &ast);
 
-  void handleScalarVar(LVal &ast);
+  void handleScalarVar(LValNode &ast);
 
-  void handleArrayVar(LVal &ast);
+  void handleArrayVar(LValNode &ast);
 
-  void handleAssignStmt(Stmt &ast);
+  void handleAssignStmt(StmtNode &ast);
 
-  void handleIfElseStmt(IfStmt &ast);
+  void handleIfElseStmt(IfStmtNode &ast);
 
   std::unique_ptr<ir::BasicType> handleType(BType &type);
 
@@ -70,49 +65,49 @@ public:
 
   ir::Module *getModule() const { return _module; }
 
-  void visit(CompUnit &ast) override;
+  void visit(CompUnitNode &ast) override;
 
-  void visit(Decl &ast) override;
+  void visit(DeclNode &ast) override;
 
-  void visit(Def &ast) override;
+  void visit(DefNode &ast) override;
 
-  void visit(InitVal &ast) override;
+  void visit(InitValNode &ast) override;
 
-  void visit(FuncDef &ast) override;
+  void visit(FuncDefNode &ast) override;
 
-  void visit(FuncFParam &ast) override;
+  void visit(FuncFParamNode &ast) override;
 
-  void visit(Block &ast) override;
+  void visit(BlockNode &ast) override;
 
-  void visit(BlockItem &ast) override;
+  void visit(BlockItemNode &ast) override;
 
-  void visit(Stmt &ast) override;
+  void visit(StmtNode &ast) override;
 
-  void visit(ReturnStmt &ast) override;
+  void visit(ReturnStmtNode &ast) override;
 
-  void visit(IfStmt &ast) override;
+  void visit(IfStmtNode &ast) override;
 
-  void visit(WhileStmt &ast) override;
+  void visit(WhileStmtNode &ast) override;
 
-  void visit(AddExp &ast) override;
+  void visit(AddExpNode &ast) override;
 
-  void visit(MulExp &ast) override;
+  void visit(MulExpNode &ast) override;
 
-  void visit(UnaryExp &ast) override;
+  void visit(UnaryExpNode &ast) override;
 
-  void visit(PrimaryExp &ast) override;
+  void visit(PrimaryExpNode &ast) override;
 
-  void visit(LVal &ast) override;
+  void visit(LValNode &ast) override;
 
   void visit(NumberNode &ast) override;
 
-  void visit(Call &ast) override;
+  void visit(CallNode &ast) override;
 
-  void visit(RelExp &ast) override;
+  void visit(RelExpNode &ast) override;
 
-  void visit(EqExp &ast) override;
+  void visit(EqExpNode &ast) override;
 
-  void visit(LAndExp &ast) override;
+  void visit(LAndExpNode &ast) override;
 
-  void visit(LOrExp &ast) override;
+  void visit(LOrExpNode &ast) override;
 };

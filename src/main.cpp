@@ -8,7 +8,7 @@
 
 extern int yyparse();
 extern FILE *yyin;
-extern unique_ptr<CompUnit> root;
+extern unique_ptr<CompUnitNode> root;
 
 enum class OutputTypeEnum { LLVM, MIR, ASM };
 enum class OptLevelEnum { O0, O1 };

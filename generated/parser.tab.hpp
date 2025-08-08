@@ -99,38 +99,36 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 23 "/home/yang/playground/src/sysy/parser.y"
 
-    CompUnit* compUnit;
-    DeclDef* declDef;
-    Decl* decl;
+    CompUnitNode* compUnit;
+    DeclNode* decl;
     DefList* defList;
-    Def* def;
+    DefNode* def;
     ArrayList* arrays;
     InitValList* initValList;
-    InitVal* initVal;
-    FuncDef* funcDef;
+    InitValNode* initVal;
+    FuncDefNode* funcDef;
     FuncFParamList* funcFParamList;
-    FuncFParam* funcFParam;
-    Block* block;
+    FuncFParamNode* funcFParam;
+    BlockNode* block;
     BlockItemList* blockItemList;
-    BlockItem* blockItem;
-    Stmt* stmt;
-    ReturnStmt* returnStmt;
-    IfStmt* ifStmt;
-    WhileStmt* whileStmtAST;
-    LVal* lVal;
-    PrimaryExp* primaryExp;
+    BlockItemNode* blockItem;
+    StmtNode* stmt;
+    ReturnStmtNode* returnStmt;
+    IfStmtNode* ifStmt;
+    WhileStmtNode* whileStmtAST;
+    LValNode* lVal;
+    PrimaryExpNode* primaryExp;
     NumberNode* number;
-    UnaryExp* unaryExp;
-    Call* call;
+    UnaryExpNode* unaryExp;
+    CallNode* call;
     FuncCParamList* funcCParamList;
-    MulExp* mulExp;
-    AddExp* addExp;
-    RelExp* relExp;
-    EqExp* eqExp;
-    LAndExp* lAndExp;
-    LOrExp* lOrExp;
+    MulExpNode* mulExp;
+    AddExpNode* addExp;
+    RelExpNode* relExp;
+    EqExpNode* eqExp;
+    LAndExpNode* lAndExp;
+    LOrExpNode* lOrExp;
 
     BType ty;
     UnaryOp op;
@@ -138,7 +136,6 @@ union YYSTYPE
     int int_val;
     float float_val;
 
-#line 142 "/home/yang/playground/generated/parser.tab.hpp"
 
 };
 typedef union YYSTYPE YYSTYPE;

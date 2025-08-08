@@ -9,36 +9,35 @@ using namespace std;
 
 class BaseNode;
 
-class CompUnit;
-class DeclDef;
-class Decl;
+class CompUnitNode;
+class DeclNode;
 class DefList;
-class Def;
+class DefNode;
 class ArrayList;
 class InitValList;
-class InitVal;
-class FuncDef;
+class InitValNode;
+class FuncDefNode;
 class FuncFParamList;
-class FuncFParam;
-class Block;
+class FuncFParamNode;
+class BlockNode;
 class BlockItemList;
-class BlockItem;
-class Stmt;
-class ReturnStmt;
-class IfStmt;
-class WhileStmt;
-class LVal;
-class PrimaryExp;
+class BlockItemNode;
+class StmtNode;
+class ReturnStmtNode;
+class IfStmtNode;
+class WhileStmtNode;
+class LValNode;
+class PrimaryExpNode;
 class NumberNode;
-class UnaryExp;
-class Call;
+class UnaryExpNode;
+class CallNode;
 class FuncCParamList;
-class MulExp;
-class AddExp;
-class RelExp;
-class EqExp;
-class LAndExp;
-class LOrExp;
+class MulExpNode;
+class AddExpNode;
+class RelExpNode;
+class EqExpNode;
+class LAndExpNode;
+class LOrExpNode;
 
 class ASTVisitor;
 
@@ -51,145 +50,145 @@ public:
   virtual ~BaseNode() = default;
 };
 
-class CompUnit : public BaseNode {
+class CompUnitNode : public BaseNode {
 public:
-  vector<unique_ptr<Decl>> declList;
-  vector<unique_ptr<FuncDef>> funcDefList;
+  vector<unique_ptr<DeclNode>> declList;
+  vector<unique_ptr<FuncDefNode>> funcDefList;
   void accept(ASTVisitor &visitor) override;
 };
 
-class Decl final : public BaseNode {
+class DeclNode final : public BaseNode {
 public:
   BType bType = BType::VOID;
   bool isConst = false;
-  vector<unique_ptr<Def>> defList;
+  vector<unique_ptr<DefNode>> defList;
   void accept(ASTVisitor &visitor) override;
 };
 
 class DefList {
 public:
-  vector<unique_ptr<Def>> list;
+  vector<unique_ptr<DefNode>> list;
 };
 
-class Def : public BaseNode {
+class DefNode : public BaseNode {
 public:
   unique_ptr<string> id;
-  vector<unique_ptr<AddExp>> arrays;
-  unique_ptr<InitVal> initVal;
+  vector<unique_ptr<AddExpNode>> arrays;
+  unique_ptr<InitValNode> initVal;
   void accept(ASTVisitor &visitor) override;
 };
 
 class ArrayList {
 public:
-  vector<unique_ptr<AddExp>> list;
+  vector<unique_ptr<AddExpNode>> list;
 };
 
-class InitVal : public BaseNode {
+class InitValNode : public BaseNode {
 public:
-  unique_ptr<AddExp> exp;
-  vector<unique_ptr<InitVal>> initValList;
+  unique_ptr<AddExpNode> exp;
+  vector<unique_ptr<InitValNode>> initValList;
   void accept(ASTVisitor &visitor) override;
 };
 
 class InitValList {
 public:
-  vector<unique_ptr<InitVal>> list;
+  vector<unique_ptr<InitValNode>> list;
 };
 
-class FuncDef : public BaseNode {
+class FuncDefNode : public BaseNode {
 public:
   BType returnType = BType::VOID;
   unique_ptr<string> id;
-  vector<unique_ptr<FuncFParam>> funcFParamList;
-  unique_ptr<Block> block = nullptr;
+  vector<unique_ptr<FuncFParamNode>> funcFParamList;
+  unique_ptr<BlockNode> block = nullptr;
   void accept(ASTVisitor &visitor) override;
 };
 
 class FuncFParamList {
 public:
-  vector<unique_ptr<FuncFParam>> list;
+  vector<unique_ptr<FuncFParamNode>> list;
 };
 
-class FuncFParam : public BaseNode {
+class FuncFParamNode : public BaseNode {
 public:
   BType bType;
   unique_ptr<string> id;
   bool isArray = false;
-  vector<unique_ptr<AddExp>> arrays;
+  vector<unique_ptr<AddExpNode>> arrays;
   void accept(ASTVisitor &visitor) override;
 };
 
-class Block : public BaseNode {
+class BlockNode : public BaseNode {
 public:
-  vector<unique_ptr<BlockItem>> blockItemList;
+  vector<unique_ptr<BlockItemNode>> blockItemList;
   void accept(ASTVisitor &visitor) override;
 };
 
 class BlockItemList {
 public:
-  vector<unique_ptr<BlockItem>> list;
+  vector<unique_ptr<BlockItemNode>> list;
 };
 
-class BlockItem : public BaseNode {
+class BlockItemNode : public BaseNode {
 public:
-  unique_ptr<Decl> decl = nullptr;
-  unique_ptr<Stmt> stmt = nullptr;
+  unique_ptr<DeclNode> decl = nullptr;
+  unique_ptr<StmtNode> stmt = nullptr;
   void accept(ASTVisitor &visitor) override;
 };
 
-class Stmt : public BaseNode {
+class StmtNode : public BaseNode {
 public:
   StmtType sType;
-  unique_ptr<LVal> lVal = nullptr;
-  unique_ptr<AddExp> exp = nullptr;
-  unique_ptr<ReturnStmt> returnStmt = nullptr;
-  unique_ptr<IfStmt> ifStmt = nullptr;
-  unique_ptr<WhileStmt> whileStmtAST = nullptr;
-  unique_ptr<Block> block = nullptr;
+  unique_ptr<LValNode> lVal = nullptr;
+  unique_ptr<AddExpNode> exp = nullptr;
+  unique_ptr<ReturnStmtNode> returnStmt = nullptr;
+  unique_ptr<IfStmtNode> ifStmt = nullptr;
+  unique_ptr<WhileStmtNode> whileStmtAST = nullptr;
+  unique_ptr<BlockNode> block = nullptr;
   void accept(ASTVisitor &visitor) override;
 };
 
-class ReturnStmt : public BaseNode {
+class ReturnStmtNode : public BaseNode {
 public:
-  unique_ptr<AddExp> exp = nullptr;
+  unique_ptr<AddExpNode> exp = nullptr;
   void accept(ASTVisitor &visitor) override;
 };
 
-class IfStmt : public BaseNode {
+class IfStmtNode : public BaseNode {
 public:
-  unique_ptr<LOrExp> cond;
-  unique_ptr<Stmt> ifStmt, elseStmt;
+  unique_ptr<LOrExpNode> cond;
+  unique_ptr<StmtNode> ifStmt, elseStmt;
   void accept(ASTVisitor &visitor) override;
 };
 
-class WhileStmt : public BaseNode {
+class WhileStmtNode : public BaseNode {
 public:
-  unique_ptr<LOrExp> cond;
-  unique_ptr<Stmt> stmt;
+  unique_ptr<LOrExpNode> cond;
+  unique_ptr<StmtNode> stmt;
   void accept(ASTVisitor &visitor) override;
 };
 
-class UnaryExp : public BaseNode {
+class UnaryExpNode : public BaseNode {
 public:
-  unique_ptr<PrimaryExp> primaryExp;
-  unique_ptr<Call> call;
-  unique_ptr<UnaryExp> unaryExp;
+  unique_ptr<PrimaryExpNode> primaryExp;
+  unique_ptr<CallNode> call;
+  unique_ptr<UnaryExpNode> unaryExp;
   UnaryOp op;
   void accept(ASTVisitor &visitor) override;
 };
 
-class AddExp : public BaseNode {
+class AddExpNode : public BaseNode {
 public:
-  unique_ptr<AddExp> addExp;
-  unique_ptr<MulExp> mulExp;
+  unique_ptr<AddExpNode> addExp;
+  unique_ptr<MulExpNode> mulExp;
   AddOp op;
   void accept(ASTVisitor &visitor) override;
 };
 
-class MulExp : public BaseNode {
+class MulExpNode : public BaseNode {
 public:
-  unique_ptr<UnaryExp> unaryExp;
-  unique_ptr<MulExp> mulExp;
+  unique_ptr<UnaryExpNode> unaryExp;
+  unique_ptr<MulExpNode> mulExp;
   MulOp op;
   void accept(ASTVisitor &visitor) override;
 };
@@ -205,108 +204,108 @@ public:
   void accept(ASTVisitor &visitor) override;
 };
 
-class PrimaryExp : public BaseNode {
+class PrimaryExpNode : public BaseNode {
 public:
-  unique_ptr<AddExp> exp;
-  unique_ptr<LVal> lval;
+  unique_ptr<AddExpNode> exp;
+  unique_ptr<LValNode> lval;
   unique_ptr<NumberNode> number;
   void accept(ASTVisitor &visitor) override;
 };
 
-class LVal : public BaseNode {
+class LValNode : public BaseNode {
 public:
   unique_ptr<string> id;
-  vector<unique_ptr<AddExp>> arrays;
+  vector<unique_ptr<AddExpNode>> arrays;
   void accept(ASTVisitor &visitor) override;
 };
 
-class Call : public BaseNode {
+class CallNode : public BaseNode {
 public:
   unique_ptr<string> id;
-  vector<unique_ptr<AddExp>> funcCParamList;
+  vector<unique_ptr<AddExpNode>> funcCParamList;
   void accept(ASTVisitor &visitor) override;
 };
 
 class FuncCParamList {
 public:
-  vector<unique_ptr<AddExp>> list;
+  vector<unique_ptr<AddExpNode>> list;
 };
 
-class RelExp : public BaseNode {
+class RelExpNode : public BaseNode {
 public:
-  unique_ptr<AddExp> addExp;
-  unique_ptr<RelExp> relExp;
+  unique_ptr<AddExpNode> addExp;
+  unique_ptr<RelExpNode> relExp;
   RelOp op;
   void accept(ASTVisitor &visitor) override;
 };
 
-class EqExp : public BaseNode {
+class EqExpNode : public BaseNode {
 public:
-  unique_ptr<RelExp> relExp;
-  unique_ptr<EqExp> eqExp;
+  unique_ptr<RelExpNode> relExp;
+  unique_ptr<EqExpNode> eqExp;
   EqOp op;
   void accept(ASTVisitor &visitor) override;
 };
 
-class LAndExp : public BaseNode {
+class LAndExpNode : public BaseNode {
 public:
-  unique_ptr<EqExp> eqExp;
-  unique_ptr<LAndExp> lAndExp;
+  unique_ptr<EqExpNode> eqExp;
+  unique_ptr<LAndExpNode> lAndExp;
   void accept(ASTVisitor &visitor) override;
 };
 
-class LOrExp : public BaseNode {
+class LOrExpNode : public BaseNode {
 public:
-  unique_ptr<LOrExp> lOrExp;
-  unique_ptr<LAndExp> lAndExp;
+  unique_ptr<LOrExpNode> lOrExp;
+  unique_ptr<LAndExpNode> lAndExp;
   void accept(ASTVisitor &visitor) override;
 };
 
 class ASTVisitor {
 public:
-  virtual void visit(CompUnit &ast) = 0;
+  virtual void visit(CompUnitNode &ast) = 0;
 
-  virtual void visit(Decl &ast) = 0;
+  virtual void visit(DeclNode &ast) = 0;
 
-  virtual void visit(Def &ast) = 0;
+  virtual void visit(DefNode &ast) = 0;
 
-  virtual void visit(InitVal &ast) = 0;
+  virtual void visit(InitValNode &ast) = 0;
 
-  virtual void visit(FuncDef &ast) = 0;
+  virtual void visit(FuncDefNode &ast) = 0;
 
-  virtual void visit(FuncFParam &ast) = 0;
+  virtual void visit(FuncFParamNode &ast) = 0;
 
-  virtual void visit(Block &ast) = 0;
+  virtual void visit(BlockNode &ast) = 0;
 
-  virtual void visit(BlockItem &ast) = 0;
+  virtual void visit(BlockItemNode &ast) = 0;
 
-  virtual void visit(Stmt &ast) = 0;
+  virtual void visit(StmtNode &ast) = 0;
 
-  virtual void visit(ReturnStmt &ast) = 0;
+  virtual void visit(ReturnStmtNode &ast) = 0;
 
-  virtual void visit(IfStmt &ast) = 0;
+  virtual void visit(IfStmtNode &ast) = 0;
 
-  virtual void visit(WhileStmt &ast) = 0;
+  virtual void visit(WhileStmtNode &ast) = 0;
 
-  virtual void visit(AddExp &ast) = 0;
+  virtual void visit(AddExpNode &ast) = 0;
 
-  virtual void visit(MulExp &ast) = 0;
+  virtual void visit(MulExpNode &ast) = 0;
 
-  virtual void visit(UnaryExp &ast) = 0;
+  virtual void visit(UnaryExpNode &ast) = 0;
 
-  virtual void visit(PrimaryExp &ast) = 0;
+  virtual void visit(PrimaryExpNode &ast) = 0;
 
-  virtual void visit(LVal &ast) = 0;
+  virtual void visit(LValNode &ast) = 0;
 
   virtual void visit(NumberNode &ast) = 0;
 
-  virtual void visit(Call &ast) = 0;
+  virtual void visit(CallNode &ast) = 0;
 
-  virtual void visit(RelExp &ast) = 0;
+  virtual void visit(RelExpNode &ast) = 0;
 
-  virtual void visit(EqExp &ast) = 0;
+  virtual void visit(EqExpNode &ast) = 0;
 
-  virtual void visit(LAndExp &ast) = 0;
+  virtual void visit(LAndExpNode &ast) = 0;
 
-  virtual void visit(LOrExp &ast) = 0;
+  virtual void visit(LOrExpNode &ast) = 0;
 };

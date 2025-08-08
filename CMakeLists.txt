@@ -26,12 +26,14 @@ BISON_TARGET(
         "${CMAKE_CURRENT_SOURCE_DIR}/src/sysy/parser.y"
         "${GENERATED_DIR}/parser.tab.cpp"
         DEFINES_FILE "${GENERATED_DIR}/parser.tab.hpp"
+        COMPILE_FLAGS "--no-lines"
 )
 
 FLEX_TARGET(
         Lexer
         "${CMAKE_CURRENT_SOURCE_DIR}/src/sysy/lexer.l"
         "${GENERATED_DIR}/lexer.cpp"
+        COMPILE_FLAGS "-Cfe"
 )
 
 ADD_FLEX_BISON_DEPENDENCY(Lexer Parser)

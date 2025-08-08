@@ -67,7 +67,6 @@
 
 
 /* First part of user prologue.  */
-#line 4 "/home/yang/playground/src/sysy/parser.y"
 
     #include <cstring>
     #include <memory>
@@ -77,7 +76,7 @@
     #include "define.h"
 
     using namespace std;
-    unique_ptr<CompUnit> root;
+    unique_ptr<CompUnitNode> root;
 
     extern int yylineno;
     extern int yylex();
@@ -85,7 +84,6 @@
     extern void initFileName(char *name);
     char filename[100];
 
-#line 89 "/home/yang/playground/generated/parser.tab.cpp"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -156,10 +154,10 @@ enum yysymbol_kind_t
   YYSYMBOL_YYACCEPT = 40,                  /* $accept  */
   YYSYMBOL_Program = 41,                   /* Program  */
   YYSYMBOL_CompUnit = 42,                  /* CompUnit  */
-  YYSYMBOL_Decl = 43,                      /* Decl  */
-  YYSYMBOL_BType = 44,                     /* BType  */
-  YYSYMBOL_VoidType = 45,                  /* VoidType  */
-  YYSYMBOL_DefList = 46,                   /* DefList  */
+  YYSYMBOL_DefList = 43,                   /* DefList  */
+  YYSYMBOL_Decl = 44,                      /* Decl  */
+  YYSYMBOL_BType = 45,                     /* BType  */
+  YYSYMBOL_VoidType = 46,                  /* VoidType  */
   YYSYMBOL_Def = 47,                       /* Def  */
   YYSYMBOL_Arrays = 48,                    /* Arrays  */
   YYSYMBOL_InitVal = 49,                   /* InitVal  */
@@ -174,21 +172,20 @@ enum yysymbol_kind_t
   YYSYMBOL_IfStmt = 58,                    /* IfStmt  */
   YYSYMBOL_IterationStmt = 59,             /* IterationStmt  */
   YYSYMBOL_ReturnStmt = 60,                /* ReturnStmt  */
-  YYSYMBOL_Exp = 61,                       /* Exp  */
-  YYSYMBOL_Cond = 62,                      /* Cond  */
-  YYSYMBOL_LVal = 63,                      /* LVal  */
-  YYSYMBOL_PrimaryExp = 64,                /* PrimaryExp  */
-  YYSYMBOL_Number = 65,                    /* Number  */
-  YYSYMBOL_UnaryExp = 66,                  /* UnaryExp  */
-  YYSYMBOL_Call = 67,                      /* Call  */
-  YYSYMBOL_UnaryOp = 68,                   /* UnaryOp  */
-  YYSYMBOL_FuncCParamList = 69,            /* FuncCParamList  */
-  YYSYMBOL_MulExp = 70,                    /* MulExp  */
-  YYSYMBOL_AddExp = 71,                    /* AddExp  */
-  YYSYMBOL_RelExp = 72,                    /* RelExp  */
-  YYSYMBOL_EqExp = 73,                     /* EqExp  */
-  YYSYMBOL_LAndExp = 74,                   /* LAndExp  */
-  YYSYMBOL_LOrExp = 75                     /* LOrExp  */
+  YYSYMBOL_Cond = 61,                      /* Cond  */
+  YYSYMBOL_LVal = 62,                      /* LVal  */
+  YYSYMBOL_PrimaryExp = 63,                /* PrimaryExp  */
+  YYSYMBOL_Number = 64,                    /* Number  */
+  YYSYMBOL_UnaryExp = 65,                  /* UnaryExp  */
+  YYSYMBOL_Call = 66,                      /* Call  */
+  YYSYMBOL_UnaryOp = 67,                   /* UnaryOp  */
+  YYSYMBOL_FuncCParamList = 68,            /* FuncCParamList  */
+  YYSYMBOL_MulExp = 69,                    /* MulExp  */
+  YYSYMBOL_AddExp = 70,                    /* AddExp  */
+  YYSYMBOL_RelExp = 71,                    /* RelExp  */
+  YYSYMBOL_EqExp = 72,                     /* EqExp  */
+  YYSYMBOL_LAndExp = 73,                   /* LAndExp  */
+  YYSYMBOL_LOrExp = 74                     /* LOrExp  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -519,16 +516,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  12
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   225
+#define YYLAST   234
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  40
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  36
+#define YYNNTS  35
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  91
+#define YYNRULES  90
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  161
+#define YYNSTATES  160
 
 /* YYMAXUTOK -- Last valid token kind.  */
 #define YYMAXUTOK   294
@@ -581,16 +578,16 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   124,   124,   130,   134,   138,   142,   149,   155,   164,
-     167,   173,   179,   183,   190,   196,   201,   206,   213,   217,
-     224,   228,   231,   238,   242,   249,   256,   262,   269,   278,
-     282,   289,   295,   301,   311,   314,   321,   325,   332,   336,
-     342,   346,   352,   357,   361,   365,   370,   375,   380,   388,
-     393,   402,   410,   414,   420,   426,   432,   436,   444,   448,
-     452,   459,   464,   472,   476,   480,   488,   492,   500,   503,
-     506,   512,   516,   523,   527,   533,   539,   548,   552,   558,
-     567,   571,   577,   583,   589,   598,   602,   608,   617,   621,
-     629,   633
+       0,   123,   123,   129,   133,   137,   141,   148,   152,   159,
+     165,   174,   177,   183,   189,   195,   200,   205,   212,   216,
+     223,   227,   230,   237,   241,   248,   255,   261,   268,   277,
+     281,   288,   294,   300,   310,   313,   320,   324,   331,   335,
+     341,   345,   351,   356,   360,   364,   369,   374,   379,   387,
+     392,   401,   409,   413,   419,   425,   429,   437,   441,   445,
+     452,   457,   465,   469,   473,   481,   485,   493,   496,   499,
+     505,   509,   516,   520,   526,   532,   541,   545,   551,   560,
+     564,   570,   576,   582,   591,   595,   601,   610,   614,   622,
+     626
 };
 #endif
 
@@ -611,12 +608,12 @@ static const char *const yytname[] =
   "CONST", "RETURN", "IF", "ELSE", "WHILE", "BREAK", "CONTINUE", "LP",
   "RP", "LB", "RB", "LC", "RC", "COMMA", "SEMICOLON", "NOT", "ASSIGN",
   "MINUS", "ADD", "MUL", "DIV", "MOD", "AND", "OR", "LOWER_THEN_ELSE",
-  "$accept", "Program", "CompUnit", "Decl", "BType", "VoidType", "DefList",
+  "$accept", "Program", "CompUnit", "DefList", "Decl", "BType", "VoidType",
   "Def", "Arrays", "InitVal", "InitValList", "FuncDef", "FuncFParamList",
   "FuncFParam", "Block", "BlockItemList", "BlockItem", "Stmt", "IfStmt",
-  "IterationStmt", "ReturnStmt", "Exp", "Cond", "LVal", "PrimaryExp",
-  "Number", "UnaryExp", "Call", "UnaryOp", "FuncCParamList", "MulExp",
-  "AddExp", "RelExp", "EqExp", "LAndExp", "LOrExp", YY_NULLPTR
+  "IterationStmt", "ReturnStmt", "Cond", "LVal", "PrimaryExp", "Number",
+  "UnaryExp", "Call", "UnaryOp", "FuncCParamList", "MulExp", "AddExp",
+  "RelExp", "EqExp", "LAndExp", "LOrExp", YY_NULLPTR
 };
 
 static const char *
@@ -626,7 +623,7 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-132)
+#define YYPACT_NINF (-114)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -640,23 +637,22 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-     118,  -132,  -132,  -132,    59,    23,   118,  -132,    31,    34,
-    -132,    45,  -132,  -132,  -132,    51,    88,  -132,     7,   -11,
-     106,    -1,   192,   156,    -5,    45,  -132,    12,  -132,    30,
-      57,    10,  -132,  -132,  -132,    77,   192,  -132,  -132,  -132,
-      54,  -132,  -132,  -132,  -132,  -132,   192,    24,   130,   144,
-    -132,  -132,   192,   156,  -132,    30,    26,    93,  -132,    52,
-      30,    59,   176,    63,    67,  -132,  -132,   192,   192,   192,
-     192,   192,  -132,  -132,   137,    70,  -132,  -132,    30,   188,
-      80,    85,    82,    89,  -132,  -132,  -132,    45,  -132,   124,
-    -132,  -132,  -132,  -132,  -132,    92,   107,    99,  -132,  -132,
-    -132,  -132,    66,  -132,  -132,  -132,  -132,    24,    24,  -132,
-     156,  -132,  -132,  -132,   113,   192,   192,  -132,  -132,  -132,
-    -132,  -132,   192,   128,  -132,   192,  -132,  -132,   132,   130,
-     194,   157,   121,   131,   152,   158,    63,  -132,    48,   192,
-     192,   192,   192,   192,   192,   192,   192,    48,  -132,   167,
-     130,   130,   130,   130,   194,   194,   157,   121,  -132,    48,
-    -132
+     195,  -114,  -114,  -114,    15,     5,   195,  -114,    20,    65,
+    -114,    71,  -114,  -114,  -114,    57,    66,  -114,    37,    -8,
+      83,    -3,   201,    45,     7,    71,  -114,     9,  -114,    94,
+     102,    46,  -114,  -114,  -114,    -9,   201,  -114,  -114,  -114,
+    -114,  -114,  -114,  -114,  -114,   201,   107,    64,    14,  -114,
+      53,   201,    45,  -114,    94,    78,   118,  -114,    85,    94,
+      15,    50,   108,    29,  -114,   201,   201,   201,  -114,   201,
+     201,  -114,  -114,    99,    67,  -114,  -114,    94,   189,    82,
+     124,   120,   131,  -114,  -114,  -114,    71,  -114,   149,  -114,
+    -114,  -114,  -114,  -114,   132,    81,   142,  -114,  -114,  -114,
+      80,    53,  -114,  -114,  -114,  -114,   107,   107,  -114,    45,
+    -114,  -114,  -114,    96,   201,   201,  -114,  -114,  -114,  -114,
+     201,  -114,   153,  -114,   201,  -114,  -114,   157,    53,   206,
+     146,   150,   162,   180,   126,   108,    53,   169,   201,   201,
+     201,   201,   201,   201,   201,   201,   169,  -114,   198,    53,
+      53,    53,    53,   206,   206,   146,   150,  -114,   169,  -114
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -664,41 +660,40 @@ static const yytype_int16 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       0,     9,    10,    11,     0,     0,     2,     5,     0,     0,
-       6,     0,     1,     3,     4,    17,     0,    12,     0,    17,
-       0,     0,     0,     0,    16,     0,     8,     0,     7,     0,
-       0,     0,    29,    61,    62,    56,     0,    70,    69,    68,
-       0,    59,    63,    60,    73,    64,     0,    77,    54,     0,
-      15,    20,     0,     0,    13,     0,     0,     0,    26,    31,
-       0,     0,     0,    57,     0,    18,    65,     0,     0,     0,
-       0,     0,    21,    24,     0,     0,    14,    28,     0,     0,
-       0,     0,     0,     0,    34,    40,    38,     0,    45,     0,
-      36,    39,    47,    48,    46,     0,    59,     0,    25,    30,
-      66,    71,     0,    58,    74,    75,    76,    79,    78,    22,
-       0,    19,    27,    53,     0,     0,     0,    44,    43,    35,
-      37,    42,     0,    32,    67,     0,    23,    52,     0,    80,
-      85,    88,    90,    55,     0,     0,    33,    72,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,    41,    49,
-      81,    82,    83,    84,    86,    87,    89,    91,    51,     0,
-      50
+       0,    11,    12,    13,     0,     0,     2,     5,     0,     0,
+       6,     0,     1,     3,     4,    17,     0,     7,     0,    17,
+       0,     0,     0,     0,    16,     0,    10,     0,     9,     0,
+       0,     0,    29,    60,    61,    55,     0,    69,    68,    67,
+      58,    62,    59,    72,    63,     0,    76,     0,     0,    15,
+      20,     0,     0,     8,     0,     0,     0,    26,    31,     0,
+       0,     0,    56,     0,    64,     0,     0,     0,    18,     0,
+       0,    21,    24,     0,     0,    14,    28,     0,     0,     0,
+       0,     0,     0,    34,    40,    38,     0,    45,     0,    36,
+      39,    47,    48,    46,    58,     0,     0,    25,    30,    65,
+       0,    70,    57,    73,    74,    75,    78,    77,    22,     0,
+      19,    27,    53,     0,     0,     0,    44,    43,    35,    37,
+       0,    42,    32,    66,     0,    23,    52,     0,    79,    84,
+      87,    89,    54,     0,     0,    33,    71,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,    41,    49,    80,
+      81,    82,    83,    85,    86,    88,    90,    51,     0,    50
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-    -132,  -132,  -132,    15,     4,  -132,   179,   169,   -32,   -44,
-    -132,   198,   178,   146,   -23,  -132,   122,  -131,  -132,  -132,
-    -132,   -22,    96,   -55,  -132,  -132,    17,  -132,  -132,  -132,
-     102,   -98,    40,    68,    69,  -132
+    -114,  -114,  -114,   209,    51,     2,  -114,   192,   -31,   -41,
+    -114,   218,   199,   165,   -17,  -114,   139,  -113,  -114,  -114,
+    -114,   113,   -53,  -114,  -114,    -2,  -114,  -114,  -114,   114,
+     -22,    54,    86,    84,  -114
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_uint8 yydefgoto[] =
 {
-       0,     5,     6,    86,    30,     9,    16,    17,    24,    50,
-      74,    10,    31,    32,    88,    89,    90,    91,    92,    93,
-      94,    95,   128,    41,    42,    43,    44,    45,    46,   102,
-      47,    48,   130,   131,   132,   133
+       0,     5,     6,    16,    85,    30,     9,    17,    24,    49,
+      73,    10,    31,    32,    87,    88,    89,    90,    91,    92,
+      93,   127,    40,    41,    42,    43,    44,    45,   100,    46,
+     128,   129,   130,   131,   132
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -706,109 +701,110 @@ static const yytype_uint8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-      40,    51,    96,    63,     8,    73,    58,   149,    11,    76,
-       8,     1,     2,    22,    64,     7,   158,   129,   129,    52,
-      23,    13,    29,    12,     1,     2,    53,    51,   160,    27,
-      75,    51,    77,    60,    96,    55,    15,    98,    61,    18,
-     101,   150,   151,   152,   153,   129,   129,   129,   129,    78,
-      19,    33,    34,    35,    61,   112,    57,   114,    67,    68,
-      69,    87,    59,    66,    79,    80,   126,    81,    82,    83,
-      36,     1,     2,    21,    57,    22,    97,    85,    37,    65,
-      38,    39,    23,    96,   104,   105,   106,    52,    51,   124,
-     103,   136,    96,    87,   125,   111,    33,    34,    35,    62,
-     135,    22,   115,   137,    96,     1,     2,   116,     4,    79,
-      80,   117,    81,    82,    83,    36,    25,    26,   118,    57,
-      84,   121,    85,    37,   123,    38,    39,    33,    34,    35,
-       1,     2,     3,     4,    25,    28,     1,     2,   122,     4,
-      79,    80,   127,    81,    82,    83,    36,    33,    34,    35,
-      57,   119,    22,    85,    37,   138,    38,    39,   145,    33,
-      34,    35,    70,    71,   109,   110,    36,   143,   144,   146,
-      49,    72,   107,   108,    37,   147,    38,    39,    36,    33,
-      34,    35,    49,   154,   155,   159,    37,   148,    38,    39,
-      20,    33,    34,    35,    54,    33,    34,    35,    36,   100,
-     139,   140,   141,   142,    14,    56,    37,    99,    38,    39,
-      36,   120,   134,   156,    36,   157,     0,   113,    37,     0,
-      38,    39,    37,     0,    38,    39
+      47,    50,     8,    94,    62,    12,    11,    72,     8,     1,
+       2,    75,    57,    61,    63,    22,    22,    33,    34,    35,
+      29,     1,     2,    23,   148,    15,    50,     1,     2,    74,
+      50,    51,    54,   157,    95,    94,    36,    76,    52,   101,
+      48,    71,    97,    64,    37,   159,    38,    39,    33,    34,
+      35,     7,   102,    33,    34,    35,   113,    13,    86,    27,
+     111,    69,    70,   103,   104,   105,    95,    36,   125,    59,
+      18,    48,    36,    99,    60,    37,    19,    38,    39,    21,
+      37,    22,    38,    39,    94,    69,    70,    50,    23,    68,
+      86,   135,   110,    94,    25,    26,    69,    70,   134,    69,
+      70,    77,   136,   123,   114,    94,    60,    58,   124,    96,
+     121,    25,    28,    69,    70,    95,   149,   150,   151,   152,
+      56,    33,    34,    35,    95,   126,   108,   109,    69,    70,
+       1,     2,    51,     4,    78,    79,    95,    80,    81,    82,
+      36,    65,    66,    67,    56,    83,   115,    84,    37,   116,
+      38,    39,    33,    34,    35,   147,   142,   143,    69,    70,
+     117,     1,     2,   120,     4,    78,    79,   122,    80,    81,
+      82,    36,    33,    34,    35,    56,   118,    22,    84,    37,
+     137,    38,    39,   106,   107,    78,    79,   144,    80,    81,
+      82,    36,    33,    34,    35,    56,   153,   154,    84,    37,
+     145,    38,    39,   146,    33,    34,    35,     1,     2,     3,
+       4,    36,   138,   139,   140,   141,   158,    53,   112,    37,
+      20,    38,    39,    36,    14,    98,    55,   119,   133,   156,
+     155,    37,     0,    38,    39
 };
 
 static const yytype_int16 yycheck[] =
 {
-      22,    23,    57,    35,     0,    49,    29,   138,     4,    53,
-       6,    12,    13,    24,    36,     0,   147,   115,   116,    24,
-      31,     6,    23,     0,    12,    13,    31,    49,   159,    22,
-      52,    53,    55,    23,    89,    23,     5,    60,    28,     5,
-      62,   139,   140,   141,   142,   143,   144,   145,   146,    23,
-       5,     3,     4,     5,    28,    78,    26,    79,    34,    35,
-      36,    57,     5,    46,    16,    17,   110,    19,    20,    21,
-      22,    12,    13,    22,    26,    24,    24,    29,    30,    25,
-      32,    33,    31,   138,    67,    68,    69,    24,   110,    23,
-      23,   123,   147,    89,    28,    25,     3,     4,     5,    22,
-     122,    24,    22,   125,   159,    12,    13,    22,    15,    16,
-      17,    29,    19,    20,    21,    22,    28,    29,    29,    26,
-      27,    29,    29,    30,    25,    32,    33,     3,     4,     5,
-      12,    13,    14,    15,    28,    29,    12,    13,    31,    15,
-      16,    17,    29,    19,    20,    21,    22,     3,     4,     5,
-      26,    27,    24,    29,    30,    23,    32,    33,    37,     3,
-       4,     5,    32,    33,    27,    28,    22,    10,    11,    38,
-      26,    27,    70,    71,    30,    23,    32,    33,    22,     3,
-       4,     5,    26,   143,   144,    18,    30,    29,    32,    33,
-      11,     3,     4,     5,    25,     3,     4,     5,    22,    23,
-       6,     7,     8,     9,     6,    27,    30,    61,    32,    33,
-      22,    89,   116,   145,    22,   146,    -1,    29,    30,    -1,
-      32,    33,    30,    -1,    32,    33
+      22,    23,     0,    56,    35,     0,     4,    48,     6,    12,
+      13,    52,    29,    22,    36,    24,    24,     3,     4,     5,
+      23,    12,    13,    31,   137,     5,    48,    12,    13,    51,
+      52,    24,    23,   146,    56,    88,    22,    54,    31,    61,
+      26,    27,    59,    45,    30,   158,    32,    33,     3,     4,
+       5,     0,    23,     3,     4,     5,    78,     6,    56,    22,
+      77,    32,    33,    65,    66,    67,    88,    22,   109,    23,
+       5,    26,    22,    23,    28,    30,     5,    32,    33,    22,
+      30,    24,    32,    33,   137,    32,    33,   109,    31,    25,
+      88,   122,    25,   146,    28,    29,    32,    33,   120,    32,
+      33,    23,   124,    23,    22,   158,    28,     5,    28,    24,
+      29,    28,    29,    32,    33,   137,   138,   139,   140,   141,
+      26,     3,     4,     5,   146,    29,    27,    28,    32,    33,
+      12,    13,    24,    15,    16,    17,   158,    19,    20,    21,
+      22,    34,    35,    36,    26,    27,    22,    29,    30,    29,
+      32,    33,     3,     4,     5,    29,    10,    11,    32,    33,
+      29,    12,    13,    31,    15,    16,    17,    25,    19,    20,
+      21,    22,     3,     4,     5,    26,    27,    24,    29,    30,
+      23,    32,    33,    69,    70,    16,    17,    37,    19,    20,
+      21,    22,     3,     4,     5,    26,   142,   143,    29,    30,
+      38,    32,    33,    23,     3,     4,     5,    12,    13,    14,
+      15,    22,     6,     7,     8,     9,    18,    25,    29,    30,
+      11,    32,    33,    22,     6,    60,    27,    88,   115,   145,
+     144,    30,    -1,    32,    33
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,    12,    13,    14,    15,    41,    42,    43,    44,    45,
-      51,    44,     0,    43,    51,     5,    46,    47,     5,     5,
-      46,    22,    24,    31,    48,    28,    29,    22,    29,    23,
-      44,    52,    53,     3,     4,     5,    22,    30,    32,    33,
-      61,    63,    64,    65,    66,    67,    68,    70,    71,    26,
-      49,    61,    24,    31,    47,    23,    52,    26,    54,     5,
-      23,    28,    22,    48,    61,    25,    66,    34,    35,    36,
-      32,    33,    27,    49,    50,    61,    49,    54,    23,    16,
-      17,    19,    20,    21,    27,    29,    43,    44,    54,    55,
-      56,    57,    58,    59,    60,    61,    63,    24,    54,    53,
-      23,    61,    69,    23,    66,    66,    66,    70,    70,    27,
-      28,    25,    54,    29,    61,    22,    22,    29,    29,    27,
-      56,    29,    31,    25,    23,    28,    49,    29,    62,    71,
-      72,    73,    74,    75,    62,    61,    48,    61,    23,     6,
-       7,     8,     9,    10,    11,    37,    38,    23,    29,    57,
-      71,    71,    71,    71,    72,    72,    73,    74,    57,    18,
-      57
+       0,    12,    13,    14,    15,    41,    42,    44,    45,    46,
+      51,    45,     0,    44,    51,     5,    43,    47,     5,     5,
+      43,    22,    24,    31,    48,    28,    29,    22,    29,    23,
+      45,    52,    53,     3,     4,     5,    22,    30,    32,    33,
+      62,    63,    64,    65,    66,    67,    69,    70,    26,    49,
+      70,    24,    31,    47,    23,    52,    26,    54,     5,    23,
+      28,    22,    48,    70,    65,    34,    35,    36,    25,    32,
+      33,    27,    49,    50,    70,    49,    54,    23,    16,    17,
+      19,    20,    21,    27,    29,    44,    45,    54,    55,    56,
+      57,    58,    59,    60,    62,    70,    24,    54,    53,    23,
+      68,    70,    23,    65,    65,    65,    69,    69,    27,    28,
+      25,    54,    29,    70,    22,    22,    29,    29,    27,    56,
+      31,    29,    25,    23,    28,    49,    29,    61,    70,    71,
+      72,    73,    74,    61,    70,    48,    70,    23,     6,     7,
+       8,     9,    10,    11,    37,    38,    23,    29,    57,    70,
+      70,    70,    70,    71,    71,    72,    73,    57,    18,    57
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
        0,    40,    41,    42,    42,    42,    42,    43,    43,    44,
-      44,    45,    46,    46,    47,    47,    47,    47,    48,    48,
+      44,    45,    45,    46,    47,    47,    47,    47,    48,    48,
       49,    49,    49,    50,    50,    51,    51,    51,    51,    52,
       52,    53,    53,    53,    54,    54,    55,    55,    56,    56,
       57,    57,    57,    57,    57,    57,    57,    57,    57,    58,
-      58,    59,    60,    60,    61,    62,    63,    63,    64,    64,
-      64,    65,    65,    66,    66,    66,    67,    67,    68,    68,
-      68,    69,    69,    70,    70,    70,    70,    71,    71,    71,
-      72,    72,    72,    72,    72,    73,    73,    73,    74,    74,
-      75,    75
+      58,    59,    60,    60,    61,    62,    62,    63,    63,    63,
+      64,    64,    65,    65,    65,    66,    66,    67,    67,    67,
+      68,    68,    69,    69,    69,    69,    70,    70,    70,    71,
+      71,    71,    71,    71,    72,    72,    72,    73,    73,    74,
+      74
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     1,     2,     2,     1,     1,     4,     3,     1,
-       1,     1,     1,     3,     4,     3,     2,     1,     3,     4,
+       0,     2,     1,     2,     2,     1,     1,     1,     3,     4,
+       3,     1,     1,     1,     4,     3,     2,     1,     3,     4,
        1,     2,     3,     3,     1,     6,     5,     6,     5,     1,
        3,     2,     4,     5,     2,     3,     1,     2,     1,     1,
        1,     4,     2,     2,     2,     1,     1,     1,     1,     5,
-       7,     5,     3,     2,     1,     1,     1,     2,     3,     1,
-       1,     1,     1,     1,     1,     2,     3,     4,     1,     1,
-       1,     1,     3,     1,     3,     3,     3,     1,     3,     3,
-       1,     3,     3,     3,     3,     1,     3,     3,     1,     3,
-       1,     3
+       7,     5,     3,     2,     1,     1,     2,     3,     1,     1,
+       1,     1,     1,     1,     2,     3,     4,     1,     1,     1,
+       1,     3,     1,     3,     3,     3,     1,     3,     3,     1,
+       3,     3,     3,     3,     1,     3,     3,     1,     3,     1,
+       3
 };
 
 
@@ -1656,870 +1652,683 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* Program: CompUnit  */
-#line 124 "/home/yang/playground/src/sysy/parser.y"
              {
-        root = unique_ptr<CompUnit>((yyvsp[0].compUnit));
+        root = unique_ptr<CompUnitNode>((yyvsp[0].compUnit));
     }
-#line 1664 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 3: /* CompUnit: CompUnit Decl  */
-#line 130 "/home/yang/playground/src/sysy/parser.y"
                   {
         (yyval.compUnit) = (yyvsp[-1].compUnit);
-        (yyval.compUnit)->declList.push_back(unique_ptr<Decl>((yyvsp[0].decl)));
+        (yyval.compUnit)->declList.push_back(unique_ptr<DeclNode>((yyvsp[0].decl)));
     }
-#line 1673 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 4: /* CompUnit: CompUnit FuncDef  */
-#line 134 "/home/yang/playground/src/sysy/parser.y"
                      {
         (yyval.compUnit) = (yyvsp[-1].compUnit);
-        (yyval.compUnit)->funcDefList.push_back(unique_ptr<FuncDef>((yyvsp[0].funcDef)));
+        (yyval.compUnit)->funcDefList.push_back(unique_ptr<FuncDefNode>((yyvsp[0].funcDef)));
     }
-#line 1682 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 5: /* CompUnit: Decl  */
-#line 138 "/home/yang/playground/src/sysy/parser.y"
          {
-        (yyval.compUnit) = new CompUnit();
-        (yyval.compUnit)->declList.push_back(unique_ptr<Decl>((yyvsp[0].decl)));
+        (yyval.compUnit) = new CompUnitNode();
+        (yyval.compUnit)->declList.push_back(unique_ptr<DeclNode>((yyvsp[0].decl)));
     }
-#line 1691 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 6: /* CompUnit: FuncDef  */
-#line 142 "/home/yang/playground/src/sysy/parser.y"
             {
-        (yyval.compUnit) = new CompUnit(); 
-        (yyval.compUnit)->funcDefList.push_back(unique_ptr<FuncDef>((yyvsp[0].funcDef)));
+        (yyval.compUnit) = new CompUnitNode(); 
+        (yyval.compUnit)->funcDefList.push_back(unique_ptr<FuncDefNode>((yyvsp[0].funcDef)));
     }
-#line 1700 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 7: /* Decl: CONST BType DefList SEMICOLON  */
-#line 149 "/home/yang/playground/src/sysy/parser.y"
+  case 7: /* DefList: Def  */
+        {
+        (yyval.defList) = new DefList();
+        (yyval.defList)->list.push_back(unique_ptr<DefNode>((yyvsp[0].def)));
+    }
+    break;
+
+  case 8: /* DefList: DefList COMMA Def  */
+                      {
+        (yyval.defList) = (yyvsp[-2].defList);
+        (yyval.defList)->list.push_back(unique_ptr<DefNode>((yyvsp[0].def)));
+    }
+    break;
+
+  case 9: /* Decl: CONST BType DefList SEMICOLON  */
                                   {
-        (yyval.decl) = new Decl();
+        (yyval.decl) = new DeclNode();
+        (yyval.decl)->bType = (yyvsp[-2].ty);
         (yyval.decl)->isConst = true;
-        (yyval.decl)->bType = (yyvsp[-2].ty);
         (yyval.decl)->defList.swap((yyvsp[-1].defList)->list);
     }
-#line 1711 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 8: /* Decl: BType DefList SEMICOLON  */
-#line 155 "/home/yang/playground/src/sysy/parser.y"
+  case 10: /* Decl: BType DefList SEMICOLON  */
                             {
-        (yyval.decl) = new Decl();
-        (yyval.decl)->isConst = false;
+        (yyval.decl) = new DeclNode();
         (yyval.decl)->bType = (yyvsp[-2].ty);
+        (yyval.decl)->isConst = false;
         (yyval.decl)->defList.swap((yyvsp[-1].defList)->list);
     }
-#line 1722 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 9: /* BType: INTTYPE  */
-#line 164 "/home/yang/playground/src/sysy/parser.y"
+  case 11: /* BType: INTTYPE  */
             {
         (yyval.ty) = BType::INT;
     }
-#line 1730 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 10: /* BType: FLOATTYPE  */
-#line 167 "/home/yang/playground/src/sysy/parser.y"
+  case 12: /* BType: FLOATTYPE  */
               {
         (yyval.ty) = BType::FLOAT;
     }
-#line 1738 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 11: /* VoidType: VOID  */
-#line 173 "/home/yang/playground/src/sysy/parser.y"
+  case 13: /* VoidType: VOID  */
          {
         (yyval.ty) = BType::VOID;
     }
-#line 1746 "/home/yang/playground/generated/parser.tab.cpp"
-    break;
-
-  case 12: /* DefList: Def  */
-#line 179 "/home/yang/playground/src/sysy/parser.y"
-        {
-        (yyval.defList) = new DefList();
-        (yyval.defList)->list.push_back(unique_ptr<Def>((yyvsp[0].def)));
-    }
-#line 1755 "/home/yang/playground/generated/parser.tab.cpp"
-    break;
-
-  case 13: /* DefList: DefList COMMA Def  */
-#line 183 "/home/yang/playground/src/sysy/parser.y"
-                      {
-        (yyval.defList) = (yyvsp[-2].defList);
-        (yyval.defList)->list.push_back(unique_ptr<Def>((yyvsp[0].def)));
-    }
-#line 1764 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 14: /* Def: ID Arrays ASSIGN InitVal  */
-#line 190 "/home/yang/playground/src/sysy/parser.y"
                              {
-        (yyval.def) = new Def();
+        (yyval.def) = new DefNode();
         (yyval.def)->id = unique_ptr<string>((yyvsp[-3].token));
         (yyval.def)->arrays.swap((yyvsp[-2].arrays)->list);
-        (yyval.def)->initVal = unique_ptr<InitVal>((yyvsp[0].initVal));
+        (yyval.def)->initVal = unique_ptr<InitValNode>((yyvsp[0].initVal));
     }
-#line 1775 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 15: /* Def: ID ASSIGN InitVal  */
-#line 196 "/home/yang/playground/src/sysy/parser.y"
                       {
-        (yyval.def) = new Def();
+        (yyval.def) = new DefNode();
         (yyval.def)->id = unique_ptr<string>((yyvsp[-2].token));
-        (yyval.def)->initVal = unique_ptr<InitVal>((yyvsp[0].initVal));
+        (yyval.def)->initVal = unique_ptr<InitValNode>((yyvsp[0].initVal));
     }
-#line 1785 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 16: /* Def: ID Arrays  */
-#line 201 "/home/yang/playground/src/sysy/parser.y"
               {
-        (yyval.def) = new Def();
+        (yyval.def) = new DefNode();
         (yyval.def)->id = unique_ptr<string>((yyvsp[-1].token));
         (yyval.def)->arrays.swap((yyvsp[0].arrays)->list);
     }
-#line 1795 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 17: /* Def: ID  */
-#line 206 "/home/yang/playground/src/sysy/parser.y"
        {
-        (yyval.def) = new Def();
+        (yyval.def) = new DefNode();
         (yyval.def)->id = unique_ptr<string>((yyvsp[0].token));
     }
-#line 1804 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 18: /* Arrays: LB Exp RB  */
-#line 213 "/home/yang/playground/src/sysy/parser.y"
-              {
+  case 18: /* Arrays: LB AddExp RB  */
+                 {
         (yyval.arrays) = new ArrayList();
-        (yyval.arrays)->list.push_back(unique_ptr<AddExp>((yyvsp[-1].addExp)));
+        (yyval.arrays)->list.push_back(unique_ptr<AddExpNode>((yyvsp[-1].addExp)));
     }
-#line 1813 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 19: /* Arrays: Arrays LB Exp RB  */
-#line 217 "/home/yang/playground/src/sysy/parser.y"
-                     {
+  case 19: /* Arrays: Arrays LB AddExp RB  */
+                        {
         (yyval.arrays) = (yyvsp[-3].arrays);
-        (yyval.arrays)->list.push_back(unique_ptr<AddExp>((yyvsp[-1].addExp)));
+        (yyval.arrays)->list.push_back(unique_ptr<AddExpNode>((yyvsp[-1].addExp)));
     }
-#line 1822 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 20: /* InitVal: Exp  */
-#line 224 "/home/yang/playground/src/sysy/parser.y"
-        {
-        (yyval.initVal) = new InitVal();
-        (yyval.initVal)->exp = unique_ptr<AddExp>((yyvsp[0].addExp));
+  case 20: /* InitVal: AddExp  */
+           {
+        (yyval.initVal) = new InitValNode();
+        (yyval.initVal)->exp = unique_ptr<AddExpNode>((yyvsp[0].addExp));
     }
-#line 1831 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 21: /* InitVal: LC RC  */
-#line 228 "/home/yang/playground/src/sysy/parser.y"
           {
-        (yyval.initVal) = new InitVal();
+        (yyval.initVal) = new InitValNode();
     }
-#line 1839 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 22: /* InitVal: LC InitValList RC  */
-#line 231 "/home/yang/playground/src/sysy/parser.y"
                       {
-        (yyval.initVal) = new InitVal();
+        (yyval.initVal) = new InitValNode();
         (yyval.initVal)->initValList.swap((yyvsp[-1].initValList)->list);
     }
-#line 1848 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 23: /* InitValList: InitValList COMMA InitVal  */
-#line 238 "/home/yang/playground/src/sysy/parser.y"
                               {
         (yyval.initValList) = (yyvsp[-2].initValList);
-        (yyval.initValList)->list.push_back(unique_ptr<InitVal>((yyvsp[0].initVal)));
+        (yyval.initValList)->list.push_back(unique_ptr<InitValNode>((yyvsp[0].initVal)));
     }
-#line 1857 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 24: /* InitValList: InitVal  */
-#line 242 "/home/yang/playground/src/sysy/parser.y"
             {
         (yyval.initValList) = new InitValList();
-        (yyval.initValList)->list.push_back(unique_ptr<InitVal>((yyvsp[0].initVal)));
+        (yyval.initValList)->list.push_back(unique_ptr<InitValNode>((yyvsp[0].initVal)));
     }
-#line 1866 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 25: /* FuncDef: BType ID LP FuncFParamList RP Block  */
-#line 249 "/home/yang/playground/src/sysy/parser.y"
                                         {
-        (yyval.funcDef) = new FuncDef();
+        (yyval.funcDef) = new FuncDefNode();
         (yyval.funcDef)->returnType = (yyvsp[-5].ty);
         (yyval.funcDef)->id = unique_ptr<string>((yyvsp[-4].token));
         (yyval.funcDef)->funcFParamList.swap((yyvsp[-2].funcFParamList)->list);
-        (yyval.funcDef)->block = unique_ptr<Block>((yyvsp[0].block));
+        (yyval.funcDef)->block = unique_ptr<BlockNode>((yyvsp[0].block));
     }
-#line 1878 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 26: /* FuncDef: BType ID LP RP Block  */
-#line 256 "/home/yang/playground/src/sysy/parser.y"
                          {
-        (yyval.funcDef) = new FuncDef();
+        (yyval.funcDef) = new FuncDefNode();
         (yyval.funcDef)->returnType = (yyvsp[-4].ty);
         (yyval.funcDef)->id = unique_ptr<string>((yyvsp[-3].token));
-        (yyval.funcDef)->block = unique_ptr<Block>((yyvsp[0].block));
+        (yyval.funcDef)->block = unique_ptr<BlockNode>((yyvsp[0].block));
     }
-#line 1889 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 27: /* FuncDef: VoidType ID LP FuncFParamList RP Block  */
-#line 262 "/home/yang/playground/src/sysy/parser.y"
                                            {
-        (yyval.funcDef) = new FuncDef();
+        (yyval.funcDef) = new FuncDefNode();
         (yyval.funcDef)->returnType = (yyvsp[-5].ty);
         (yyval.funcDef)->id = unique_ptr<string>((yyvsp[-4].token));
         (yyval.funcDef)->funcFParamList.swap((yyvsp[-2].funcFParamList)->list);
-        (yyval.funcDef)->block = unique_ptr<Block>((yyvsp[0].block));
+        (yyval.funcDef)->block = unique_ptr<BlockNode>((yyvsp[0].block));
     }
-#line 1901 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 28: /* FuncDef: VoidType ID LP RP Block  */
-#line 269 "/home/yang/playground/src/sysy/parser.y"
                             {
-        (yyval.funcDef) = new FuncDef();
+        (yyval.funcDef) = new FuncDefNode();
         (yyval.funcDef)->returnType = (yyvsp[-4].ty);
         (yyval.funcDef)->id = unique_ptr<string>((yyvsp[-3].token));
-        (yyval.funcDef)->block = unique_ptr<Block>((yyvsp[0].block));
+        (yyval.funcDef)->block = unique_ptr<BlockNode>((yyvsp[0].block));
     }
-#line 1912 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 29: /* FuncFParamList: FuncFParam  */
-#line 278 "/home/yang/playground/src/sysy/parser.y"
                {
         (yyval.funcFParamList) = new FuncFParamList();
-        (yyval.funcFParamList)->list.push_back(unique_ptr<FuncFParam>((yyvsp[0].funcFParam)));
+        (yyval.funcFParamList)->list.push_back(unique_ptr<FuncFParamNode>((yyvsp[0].funcFParam)));
     }
-#line 1921 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 30: /* FuncFParamList: FuncFParamList COMMA FuncFParam  */
-#line 282 "/home/yang/playground/src/sysy/parser.y"
                                     {
         (yyval.funcFParamList) = (yyvsp[-2].funcFParamList);
-        (yyval.funcFParamList)->list.push_back(unique_ptr<FuncFParam>((yyvsp[0].funcFParam)));
+        (yyval.funcFParamList)->list.push_back(unique_ptr<FuncFParamNode>((yyvsp[0].funcFParam)));
     }
-#line 1930 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 31: /* FuncFParam: BType ID  */
-#line 289 "/home/yang/playground/src/sysy/parser.y"
              {
-        (yyval.funcFParam) = new FuncFParam();
+        (yyval.funcFParam) = new FuncFParamNode();
         (yyval.funcFParam)->bType = (yyvsp[-1].ty);
         (yyval.funcFParam)->id = unique_ptr<string>((yyvsp[0].token));
         (yyval.funcFParam)->isArray = false;
     }
-#line 1941 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 32: /* FuncFParam: BType ID LB RB  */
-#line 295 "/home/yang/playground/src/sysy/parser.y"
                    {
-        (yyval.funcFParam) = new FuncFParam();
+        (yyval.funcFParam) = new FuncFParamNode();
         (yyval.funcFParam)->bType = (yyvsp[-3].ty);
         (yyval.funcFParam)->id = unique_ptr<string>((yyvsp[-2].token));
         (yyval.funcFParam)->isArray = true;
     }
-#line 1952 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 33: /* FuncFParam: BType ID LB RB Arrays  */
-#line 301 "/home/yang/playground/src/sysy/parser.y"
                           {
-        (yyval.funcFParam) = new FuncFParam();
+        (yyval.funcFParam) = new FuncFParamNode();
         (yyval.funcFParam)->bType = (yyvsp[-4].ty);
         (yyval.funcFParam)->id = unique_ptr<string>((yyvsp[-3].token));
         (yyval.funcFParam)->isArray = true;
         (yyval.funcFParam)->arrays.swap((yyvsp[0].arrays)->list);
     }
-#line 1964 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 34: /* Block: LC RC  */
-#line 311 "/home/yang/playground/src/sysy/parser.y"
           {
-        (yyval.block) = new Block();
+        (yyval.block) = new BlockNode();
     }
-#line 1972 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 35: /* Block: LC BlockItemList RC  */
-#line 314 "/home/yang/playground/src/sysy/parser.y"
                         {
-        (yyval.block) = new Block();
+        (yyval.block) = new BlockNode();
         (yyval.block)->blockItemList.swap((yyvsp[-1].blockItemList)->list);
     }
-#line 1981 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 36: /* BlockItemList: BlockItem  */
-#line 321 "/home/yang/playground/src/sysy/parser.y"
               {
         (yyval.blockItemList) = new BlockItemList();
-        (yyval.blockItemList)->list.push_back(unique_ptr<BlockItem>((yyvsp[0].blockItem)));
+        (yyval.blockItemList)->list.push_back(unique_ptr<BlockItemNode>((yyvsp[0].blockItem)));
     }
-#line 1990 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 37: /* BlockItemList: BlockItemList BlockItem  */
-#line 325 "/home/yang/playground/src/sysy/parser.y"
                             {
         (yyval.blockItemList) = (yyvsp[-1].blockItemList);
-        (yyval.blockItemList)->list.push_back(unique_ptr<BlockItem>((yyvsp[0].blockItem)));
+        (yyval.blockItemList)->list.push_back(unique_ptr<BlockItemNode>((yyvsp[0].blockItem)));
     }
-#line 1999 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 38: /* BlockItem: Decl  */
-#line 332 "/home/yang/playground/src/sysy/parser.y"
          {
-        (yyval.blockItem) = new BlockItem();
-        (yyval.blockItem)->decl = unique_ptr<Decl>((yyvsp[0].decl));
+        (yyval.blockItem) = new BlockItemNode();
+        (yyval.blockItem)->decl = unique_ptr<DeclNode>((yyvsp[0].decl));
     }
-#line 2008 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 39: /* BlockItem: Stmt  */
-#line 336 "/home/yang/playground/src/sysy/parser.y"
          {
-        (yyval.blockItem) = new BlockItem();
-        (yyval.blockItem)->stmt = unique_ptr<Stmt>((yyvsp[0].stmt));
+        (yyval.blockItem) = new BlockItemNode();
+        (yyval.blockItem)->stmt = unique_ptr<StmtNode>((yyvsp[0].stmt));
     }
-#line 2017 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 40: /* Stmt: SEMICOLON  */
-#line 342 "/home/yang/playground/src/sysy/parser.y"
               {
-        (yyval.stmt) = new Stmt();
+        (yyval.stmt) = new StmtNode();
         (yyval.stmt)->sType = StmtType::SEMI;
     }
-#line 2026 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 41: /* Stmt: LVal ASSIGN Exp SEMICOLON  */
-#line 346 "/home/yang/playground/src/sysy/parser.y"
-                              {
-        (yyval.stmt) = new Stmt();
+  case 41: /* Stmt: LVal ASSIGN AddExp SEMICOLON  */
+                                 {
+        (yyval.stmt) = new StmtNode();
         (yyval.stmt)->sType = StmtType::ASGN;
-        (yyval.stmt)->lVal = unique_ptr<LVal>((yyvsp[-3].lVal));
-        (yyval.stmt)->exp = unique_ptr<AddExp>((yyvsp[-1].addExp));
+        (yyval.stmt)->lVal = unique_ptr<LValNode>((yyvsp[-3].lVal));
+        (yyval.stmt)->exp = unique_ptr<AddExpNode>((yyvsp[-1].addExp));
     }
-#line 2037 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 42: /* Stmt: Exp SEMICOLON  */
-#line 352 "/home/yang/playground/src/sysy/parser.y"
-                  {
-        (yyval.stmt) = new Stmt();
+  case 42: /* Stmt: AddExp SEMICOLON  */
+                     {
+        (yyval.stmt) = new StmtNode();
         (yyval.stmt)->sType = StmtType::EXP;
-        (yyval.stmt)->exp = unique_ptr<AddExp>((yyvsp[-1].addExp));
+        (yyval.stmt)->exp = unique_ptr<AddExpNode>((yyvsp[-1].addExp));
     }
-#line 2047 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 43: /* Stmt: CONTINUE SEMICOLON  */
-#line 357 "/home/yang/playground/src/sysy/parser.y"
                        {
-        (yyval.stmt) = new Stmt();
+        (yyval.stmt) = new StmtNode();
         (yyval.stmt)->sType = StmtType::CONTINUE;
     }
-#line 2056 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 44: /* Stmt: BREAK SEMICOLON  */
-#line 361 "/home/yang/playground/src/sysy/parser.y"
                     {
-        (yyval.stmt) = new Stmt();
+        (yyval.stmt) = new StmtNode();
         (yyval.stmt)->sType = StmtType::BREAK;
     }
-#line 2065 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 45: /* Stmt: Block  */
-#line 365 "/home/yang/playground/src/sysy/parser.y"
           {
-        (yyval.stmt) = new Stmt();
+        (yyval.stmt) = new StmtNode();
         (yyval.stmt)->sType = StmtType::BLK;
-        (yyval.stmt)->block = unique_ptr<Block>((yyvsp[0].block));
+        (yyval.stmt)->block = unique_ptr<BlockNode>((yyvsp[0].block));
     }
-#line 2075 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 46: /* Stmt: ReturnStmt  */
-#line 370 "/home/yang/playground/src/sysy/parser.y"
                {
-        (yyval.stmt) = new Stmt();
+        (yyval.stmt) = new StmtNode();
         (yyval.stmt)->sType = StmtType::RET;
-        (yyval.stmt)->returnStmt = unique_ptr<ReturnStmt>((yyvsp[0].returnStmt));
+        (yyval.stmt)->returnStmt = unique_ptr<ReturnStmtNode>((yyvsp[0].returnStmt));
     }
-#line 2085 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 47: /* Stmt: IfStmt  */
-#line 375 "/home/yang/playground/src/sysy/parser.y"
            {
-        (yyval.stmt) = new Stmt();
+        (yyval.stmt) = new StmtNode();
         (yyval.stmt)->sType = StmtType::IF;
-        (yyval.stmt)->ifStmt = unique_ptr<IfStmt>((yyvsp[0].ifStmt));
+        (yyval.stmt)->ifStmt = unique_ptr<IfStmtNode>((yyvsp[0].ifStmt));
     }
-#line 2095 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 48: /* Stmt: IterationStmt  */
-#line 380 "/home/yang/playground/src/sysy/parser.y"
                   {
-        (yyval.stmt) = new Stmt();
+        (yyval.stmt) = new StmtNode();
         (yyval.stmt)->sType = StmtType::WHILE;
-        (yyval.stmt)->whileStmtAST = unique_ptr<WhileStmt>((yyvsp[0].whileStmtAST));
+        (yyval.stmt)->whileStmtAST = unique_ptr<WhileStmtNode>((yyvsp[0].whileStmtAST));
     }
-#line 2105 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 49: /* IfStmt: IF LP Cond RP Stmt  */
-#line 388 "/home/yang/playground/src/sysy/parser.y"
                                              {
-        (yyval.ifStmt) = new IfStmt();
-        (yyval.ifStmt)->cond = unique_ptr<LOrExp>((yyvsp[-2].lOrExp));
-        (yyval.ifStmt)->ifStmt = unique_ptr<Stmt>((yyvsp[0].stmt));
+        (yyval.ifStmt) = new IfStmtNode();
+        (yyval.ifStmt)->cond = unique_ptr<LOrExpNode>((yyvsp[-2].lOrExp));
+        (yyval.ifStmt)->ifStmt = unique_ptr<StmtNode>((yyvsp[0].stmt));
     }
-#line 2115 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 50: /* IfStmt: IF LP Cond RP Stmt ELSE Stmt  */
-#line 393 "/home/yang/playground/src/sysy/parser.y"
                                  {
-        (yyval.ifStmt) = new IfStmt();
-        (yyval.ifStmt)->cond = unique_ptr<LOrExp>((yyvsp[-4].lOrExp));
-        (yyval.ifStmt)->ifStmt = unique_ptr<Stmt>((yyvsp[-2].stmt));
-        (yyval.ifStmt)->elseStmt = unique_ptr<Stmt>((yyvsp[0].stmt));
+        (yyval.ifStmt) = new IfStmtNode();
+        (yyval.ifStmt)->cond = unique_ptr<LOrExpNode>((yyvsp[-4].lOrExp));
+        (yyval.ifStmt)->ifStmt = unique_ptr<StmtNode>((yyvsp[-2].stmt));
+        (yyval.ifStmt)->elseStmt = unique_ptr<StmtNode>((yyvsp[0].stmt));
     }
-#line 2126 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 51: /* IterationStmt: WHILE LP Cond RP Stmt  */
-#line 402 "/home/yang/playground/src/sysy/parser.y"
                           {
-        (yyval.whileStmtAST) = new WhileStmt();
-        (yyval.whileStmtAST)->cond = unique_ptr<LOrExp>((yyvsp[-2].lOrExp));
-        (yyval.whileStmtAST)->stmt = unique_ptr<Stmt>((yyvsp[0].stmt));
+        (yyval.whileStmtAST) = new WhileStmtNode();
+        (yyval.whileStmtAST)->cond = unique_ptr<LOrExpNode>((yyvsp[-2].lOrExp));
+        (yyval.whileStmtAST)->stmt = unique_ptr<StmtNode>((yyvsp[0].stmt));
     }
-#line 2136 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 52: /* ReturnStmt: RETURN Exp SEMICOLON  */
-#line 410 "/home/yang/playground/src/sysy/parser.y"
-                         {
-        (yyval.returnStmt) = new ReturnStmt();
-        (yyval.returnStmt)->exp = unique_ptr<AddExp>((yyvsp[-1].addExp));
+  case 52: /* ReturnStmt: RETURN AddExp SEMICOLON  */
+                            {
+        (yyval.returnStmt) = new ReturnStmtNode();
+        (yyval.returnStmt)->exp = unique_ptr<AddExpNode>((yyvsp[-1].addExp));
     }
-#line 2145 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 53: /* ReturnStmt: RETURN SEMICOLON  */
-#line 414 "/home/yang/playground/src/sysy/parser.y"
                      {
-        (yyval.returnStmt) = new ReturnStmt();
+        (yyval.returnStmt) = new ReturnStmtNode();
     }
-#line 2153 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 54: /* Exp: AddExp  */
-#line 420 "/home/yang/playground/src/sysy/parser.y"
-           {
-        (yyval.addExp) = (yyvsp[0].addExp);
-    }
-#line 2161 "/home/yang/playground/generated/parser.tab.cpp"
-    break;
-
-  case 55: /* Cond: LOrExp  */
-#line 426 "/home/yang/playground/src/sysy/parser.y"
+  case 54: /* Cond: LOrExp  */
            {
         (yyval.lOrExp) = (yyvsp[0].lOrExp);
     }
-#line 2169 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 56: /* LVal: ID  */
-#line 432 "/home/yang/playground/src/sysy/parser.y"
+  case 55: /* LVal: ID  */
        {
-        (yyval.lVal) = new LVal();
+        (yyval.lVal) = new LValNode();
         (yyval.lVal)->id = unique_ptr<string>((yyvsp[0].token));
     }
-#line 2178 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 57: /* LVal: ID Arrays  */
-#line 436 "/home/yang/playground/src/sysy/parser.y"
+  case 56: /* LVal: ID Arrays  */
               {
-        (yyval.lVal) = new LVal();
+        (yyval.lVal) = new LValNode();
         (yyval.lVal)->id = unique_ptr<string>((yyvsp[-1].token));
         (yyval.lVal)->arrays.swap((yyvsp[0].arrays)->list);
     }
-#line 2188 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 58: /* PrimaryExp: LP Exp RP  */
-#line 444 "/home/yang/playground/src/sysy/parser.y"
-              {
-        (yyval.primaryExp) = new PrimaryExp();
-        (yyval.primaryExp)->exp = unique_ptr<AddExp>((yyvsp[-1].addExp));
+  case 57: /* PrimaryExp: LP AddExp RP  */
+                 {
+        (yyval.primaryExp) = new PrimaryExpNode();
+        (yyval.primaryExp)->exp = unique_ptr<AddExpNode>((yyvsp[-1].addExp));
     }
-#line 2197 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 59: /* PrimaryExp: LVal  */
-#line 448 "/home/yang/playground/src/sysy/parser.y"
+  case 58: /* PrimaryExp: LVal  */
          {
-        (yyval.primaryExp) = new PrimaryExp();
-        (yyval.primaryExp)->lval = unique_ptr<LVal>((yyvsp[0].lVal));
+        (yyval.primaryExp) = new PrimaryExpNode();
+        (yyval.primaryExp)->lval = unique_ptr<LValNode>((yyvsp[0].lVal));
     }
-#line 2206 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 60: /* PrimaryExp: Number  */
-#line 452 "/home/yang/playground/src/sysy/parser.y"
+  case 59: /* PrimaryExp: Number  */
            {
-        (yyval.primaryExp) = new PrimaryExp();
+        (yyval.primaryExp) = new PrimaryExpNode();
         (yyval.primaryExp)->number = unique_ptr<NumberNode>((yyvsp[0].number));
     }
-#line 2215 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 61: /* Number: INT  */
-#line 459 "/home/yang/playground/src/sysy/parser.y"
+  case 60: /* Number: INT  */
         {
         (yyval.number) = new NumberNode();
         (yyval.number)->isInt = true;
         (yyval.number)->intval = (yyvsp[0].int_val);
     }
-#line 2225 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 62: /* Number: FLOAT  */
-#line 464 "/home/yang/playground/src/sysy/parser.y"
+  case 61: /* Number: FLOAT  */
           {
         (yyval.number) = new NumberNode();
         (yyval.number)->isInt = false;
         (yyval.number)->floatval = (yyvsp[0].float_val);
     }
-#line 2235 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 63: /* UnaryExp: PrimaryExp  */
-#line 472 "/home/yang/playground/src/sysy/parser.y"
+  case 62: /* UnaryExp: PrimaryExp  */
                {
-        (yyval.unaryExp) = new UnaryExp();
-        (yyval.unaryExp)->primaryExp = unique_ptr<PrimaryExp>((yyvsp[0].primaryExp));
+        (yyval.unaryExp) = new UnaryExpNode();
+        (yyval.unaryExp)->primaryExp = unique_ptr<PrimaryExpNode>((yyvsp[0].primaryExp));
     }
-#line 2244 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 64: /* UnaryExp: Call  */
-#line 476 "/home/yang/playground/src/sysy/parser.y"
+  case 63: /* UnaryExp: Call  */
          {
-        (yyval.unaryExp) = new UnaryExp();
-        (yyval.unaryExp)->call = unique_ptr<Call>((yyvsp[0].call));
+        (yyval.unaryExp) = new UnaryExpNode();
+        (yyval.unaryExp)->call = unique_ptr<CallNode>((yyvsp[0].call));
     }
-#line 2253 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 65: /* UnaryExp: UnaryOp UnaryExp  */
-#line 480 "/home/yang/playground/src/sysy/parser.y"
+  case 64: /* UnaryExp: UnaryOp UnaryExp  */
                      {
-        (yyval.unaryExp) = new UnaryExp();
+        (yyval.unaryExp) = new UnaryExpNode();
         (yyval.unaryExp)->op = (yyvsp[-1].op);
-        (yyval.unaryExp)->unaryExp = unique_ptr<UnaryExp>((yyvsp[0].unaryExp));
+        (yyval.unaryExp)->unaryExp = unique_ptr<UnaryExpNode>((yyvsp[0].unaryExp));
     }
-#line 2263 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 66: /* Call: ID LP RP  */
-#line 488 "/home/yang/playground/src/sysy/parser.y"
+  case 65: /* Call: ID LP RP  */
              {
-        (yyval.call) = new Call();
+        (yyval.call) = new CallNode();
         (yyval.call)->id = unique_ptr<string>((yyvsp[-2].token));
     }
-#line 2272 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 67: /* Call: ID LP FuncCParamList RP  */
-#line 492 "/home/yang/playground/src/sysy/parser.y"
+  case 66: /* Call: ID LP FuncCParamList RP  */
                             {
-        (yyval.call) = new Call();
+        (yyval.call) = new CallNode();
         (yyval.call)->id = unique_ptr<string>((yyvsp[-3].token));
         (yyval.call)->funcCParamList.swap((yyvsp[-1].funcCParamList)->list);
     }
-#line 2282 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 68: /* UnaryOp: ADD  */
-#line 500 "/home/yang/playground/src/sysy/parser.y"
+  case 67: /* UnaryOp: ADD  */
         {
         (yyval.op) = UnaryOp::ADD;
     }
-#line 2290 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 69: /* UnaryOp: MINUS  */
-#line 503 "/home/yang/playground/src/sysy/parser.y"
+  case 68: /* UnaryOp: MINUS  */
           {
         (yyval.op) = UnaryOp::MINUS;
     }
-#line 2298 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 70: /* UnaryOp: NOT  */
-#line 506 "/home/yang/playground/src/sysy/parser.y"
+  case 69: /* UnaryOp: NOT  */
         {
         (yyval.op) = UnaryOp::NOT;
     }
-#line 2306 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 71: /* FuncCParamList: Exp  */
-#line 512 "/home/yang/playground/src/sysy/parser.y"
-        {
+  case 70: /* FuncCParamList: AddExp  */
+           {
         (yyval.funcCParamList) = new FuncCParamList();
-        (yyval.funcCParamList)->list.push_back(unique_ptr<AddExp>((yyvsp[0].addExp)));
+        (yyval.funcCParamList)->list.push_back(unique_ptr<AddExpNode>((yyvsp[0].addExp)));
     }
-#line 2315 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 72: /* FuncCParamList: FuncCParamList COMMA Exp  */
-#line 516 "/home/yang/playground/src/sysy/parser.y"
-                             {
+  case 71: /* FuncCParamList: FuncCParamList COMMA AddExp  */
+                                {
         (yyval.funcCParamList) = (FuncCParamList*) (yyvsp[-2].funcCParamList);
-        (yyval.funcCParamList)->list.push_back(unique_ptr<AddExp>((yyvsp[0].addExp)));
+        (yyval.funcCParamList)->list.push_back(unique_ptr<AddExpNode>((yyvsp[0].addExp)));
     }
-#line 2324 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 73: /* MulExp: UnaryExp  */
-#line 523 "/home/yang/playground/src/sysy/parser.y"
+  case 72: /* MulExp: UnaryExp  */
              {
-        (yyval.mulExp) = new MulExp();
-        (yyval.mulExp)->unaryExp = unique_ptr<UnaryExp>((yyvsp[0].unaryExp));
+        (yyval.mulExp) = new MulExpNode();
+        (yyval.mulExp)->unaryExp = unique_ptr<UnaryExpNode>((yyvsp[0].unaryExp));
     }
-#line 2333 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 74: /* MulExp: MulExp MUL UnaryExp  */
-#line 527 "/home/yang/playground/src/sysy/parser.y"
+  case 73: /* MulExp: MulExp MUL UnaryExp  */
                         {
-        (yyval.mulExp) = new MulExp();
-        (yyval.mulExp)->mulExp = unique_ptr<MulExp>((yyvsp[-2].mulExp));
+        (yyval.mulExp) = new MulExpNode();
+        (yyval.mulExp)->mulExp = unique_ptr<MulExpNode>((yyvsp[-2].mulExp));
         (yyval.mulExp)->op = MulOp::MUL;
-        (yyval.mulExp)->unaryExp = unique_ptr<UnaryExp>((yyvsp[0].unaryExp));
+        (yyval.mulExp)->unaryExp = unique_ptr<UnaryExpNode>((yyvsp[0].unaryExp));
     }
-#line 2344 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 75: /* MulExp: MulExp DIV UnaryExp  */
-#line 533 "/home/yang/playground/src/sysy/parser.y"
+  case 74: /* MulExp: MulExp DIV UnaryExp  */
                         {
-        (yyval.mulExp) = new MulExp();
-        (yyval.mulExp)->mulExp = unique_ptr<MulExp>((yyvsp[-2].mulExp));
+        (yyval.mulExp) = new MulExpNode();
+        (yyval.mulExp)->mulExp = unique_ptr<MulExpNode>((yyvsp[-2].mulExp));
         (yyval.mulExp)->op = MulOp::DIV;
-        (yyval.mulExp)->unaryExp = unique_ptr<UnaryExp>((yyvsp[0].unaryExp));
+        (yyval.mulExp)->unaryExp = unique_ptr<UnaryExpNode>((yyvsp[0].unaryExp));
     }
-#line 2355 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 76: /* MulExp: MulExp MOD UnaryExp  */
-#line 539 "/home/yang/playground/src/sysy/parser.y"
+  case 75: /* MulExp: MulExp MOD UnaryExp  */
                         {
-        (yyval.mulExp) = new MulExp();
-        (yyval.mulExp)->mulExp = unique_ptr<MulExp>((yyvsp[-2].mulExp));
+        (yyval.mulExp) = new MulExpNode();
+        (yyval.mulExp)->mulExp = unique_ptr<MulExpNode>((yyvsp[-2].mulExp));
         (yyval.mulExp)->op = MulOp::MOD;
-        (yyval.mulExp)->unaryExp = unique_ptr<UnaryExp>((yyvsp[0].unaryExp));
+        (yyval.mulExp)->unaryExp = unique_ptr<UnaryExpNode>((yyvsp[0].unaryExp));
     }
-#line 2366 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 77: /* AddExp: MulExp  */
-#line 548 "/home/yang/playground/src/sysy/parser.y"
+  case 76: /* AddExp: MulExp  */
            {
-        (yyval.addExp) = new AddExp();
-        (yyval.addExp)->mulExp = unique_ptr<MulExp>((yyvsp[0].mulExp));
+        (yyval.addExp) = new AddExpNode();
+        (yyval.addExp)->mulExp = unique_ptr<MulExpNode>((yyvsp[0].mulExp));
     }
-#line 2375 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 78: /* AddExp: AddExp ADD MulExp  */
-#line 552 "/home/yang/playground/src/sysy/parser.y"
+  case 77: /* AddExp: AddExp ADD MulExp  */
                       {
-        (yyval.addExp) = new AddExp();
-        (yyval.addExp)->addExp = unique_ptr<AddExp>((yyvsp[-2].addExp));
+        (yyval.addExp) = new AddExpNode();
+        (yyval.addExp)->addExp = unique_ptr<AddExpNode>((yyvsp[-2].addExp));
         (yyval.addExp)->op = AddOp::ADD;
-        (yyval.addExp)->mulExp = unique_ptr<MulExp>((yyvsp[0].mulExp));
+        (yyval.addExp)->mulExp = unique_ptr<MulExpNode>((yyvsp[0].mulExp));
     }
-#line 2386 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 79: /* AddExp: AddExp MINUS MulExp  */
-#line 558 "/home/yang/playground/src/sysy/parser.y"
+  case 78: /* AddExp: AddExp MINUS MulExp  */
                         {
-        (yyval.addExp) = new AddExp();
-        (yyval.addExp)->addExp = unique_ptr<AddExp>((yyvsp[-2].addExp));
+        (yyval.addExp) = new AddExpNode();
+        (yyval.addExp)->addExp = unique_ptr<AddExpNode>((yyvsp[-2].addExp));
         (yyval.addExp)->op = AddOp::MINUS;
-        (yyval.addExp)->mulExp = unique_ptr<MulExp>((yyvsp[0].mulExp));
+        (yyval.addExp)->mulExp = unique_ptr<MulExpNode>((yyvsp[0].mulExp));
     }
-#line 2397 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 80: /* RelExp: AddExp  */
-#line 567 "/home/yang/playground/src/sysy/parser.y"
+  case 79: /* RelExp: AddExp  */
            {
-        (yyval.relExp) = new RelExp();
-        (yyval.relExp)->addExp = unique_ptr<AddExp>((yyvsp[0].addExp));
+        (yyval.relExp) = new RelExpNode();
+        (yyval.relExp)->addExp = unique_ptr<AddExpNode>((yyvsp[0].addExp));
     }
-#line 2406 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 81: /* RelExp: RelExp GTE AddExp  */
-#line 571 "/home/yang/playground/src/sysy/parser.y"
+  case 80: /* RelExp: RelExp GTE AddExp  */
                       {
-        (yyval.relExp) = new RelExp();
-        (yyval.relExp)->relExp = unique_ptr<RelExp>((yyvsp[-2].relExp));
+        (yyval.relExp) = new RelExpNode();
+        (yyval.relExp)->relExp = unique_ptr<RelExpNode>((yyvsp[-2].relExp));
         (yyval.relExp)->op = RelOp::GTE;
-        (yyval.relExp)->addExp = unique_ptr<AddExp>((yyvsp[0].addExp));
+        (yyval.relExp)->addExp = unique_ptr<AddExpNode>((yyvsp[0].addExp));
     }
-#line 2417 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 82: /* RelExp: RelExp LTE AddExp  */
-#line 577 "/home/yang/playground/src/sysy/parser.y"
+  case 81: /* RelExp: RelExp LTE AddExp  */
                       {
-        (yyval.relExp) = new RelExp();
-        (yyval.relExp)->relExp = unique_ptr<RelExp>((yyvsp[-2].relExp));
+        (yyval.relExp) = new RelExpNode();
+        (yyval.relExp)->relExp = unique_ptr<RelExpNode>((yyvsp[-2].relExp));
         (yyval.relExp)->op = RelOp::LTE;
-        (yyval.relExp)->addExp = unique_ptr<AddExp>((yyvsp[0].addExp));
+        (yyval.relExp)->addExp = unique_ptr<AddExpNode>((yyvsp[0].addExp));
     }
-#line 2428 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 83: /* RelExp: RelExp GT AddExp  */
-#line 583 "/home/yang/playground/src/sysy/parser.y"
+  case 82: /* RelExp: RelExp GT AddExp  */
                      {
-        (yyval.relExp) = new RelExp();
-        (yyval.relExp)->relExp = unique_ptr<RelExp>((yyvsp[-2].relExp));
+        (yyval.relExp) = new RelExpNode();
+        (yyval.relExp)->relExp = unique_ptr<RelExpNode>((yyvsp[-2].relExp));
         (yyval.relExp)->op = RelOp::GT;
-        (yyval.relExp)->addExp = unique_ptr<AddExp>((yyvsp[0].addExp));
+        (yyval.relExp)->addExp = unique_ptr<AddExpNode>((yyvsp[0].addExp));
     }
-#line 2439 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 84: /* RelExp: RelExp LT AddExp  */
-#line 589 "/home/yang/playground/src/sysy/parser.y"
+  case 83: /* RelExp: RelExp LT AddExp  */
                      {
-        (yyval.relExp) = new RelExp();
-        (yyval.relExp)->relExp = unique_ptr<RelExp>((yyvsp[-2].relExp));
+        (yyval.relExp) = new RelExpNode();
+        (yyval.relExp)->relExp = unique_ptr<RelExpNode>((yyvsp[-2].relExp));
         (yyval.relExp)->op = RelOp::LT;
-        (yyval.relExp)->addExp = unique_ptr<AddExp>((yyvsp[0].addExp));
+        (yyval.relExp)->addExp = unique_ptr<AddExpNode>((yyvsp[0].addExp));
     }
-#line 2450 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 85: /* EqExp: RelExp  */
-#line 598 "/home/yang/playground/src/sysy/parser.y"
+  case 84: /* EqExp: RelExp  */
            {
-        (yyval.eqExp) = new EqExp();
-        (yyval.eqExp)->relExp = unique_ptr<RelExp>((yyvsp[0].relExp));
+        (yyval.eqExp) = new EqExpNode();
+        (yyval.eqExp)->relExp = unique_ptr<RelExpNode>((yyvsp[0].relExp));
     }
-#line 2459 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 86: /* EqExp: EqExp EQ RelExp  */
-#line 602 "/home/yang/playground/src/sysy/parser.y"
+  case 85: /* EqExp: EqExp EQ RelExp  */
                     {
-        (yyval.eqExp) = new EqExp();
-        (yyval.eqExp)->eqExp = unique_ptr<EqExp>((yyvsp[-2].eqExp));
+        (yyval.eqExp) = new EqExpNode();
+        (yyval.eqExp)->eqExp = unique_ptr<EqExpNode>((yyvsp[-2].eqExp));
         (yyval.eqExp)->op = EqOp::EQ;
-        (yyval.eqExp)->relExp = unique_ptr<RelExp>((yyvsp[0].relExp));
+        (yyval.eqExp)->relExp = unique_ptr<RelExpNode>((yyvsp[0].relExp));
     }
-#line 2470 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 87: /* EqExp: EqExp NEQ RelExp  */
-#line 608 "/home/yang/playground/src/sysy/parser.y"
+  case 86: /* EqExp: EqExp NEQ RelExp  */
                      {
-        (yyval.eqExp) = new EqExp();
-        (yyval.eqExp)->eqExp = unique_ptr<EqExp>((yyvsp[-2].eqExp));
+        (yyval.eqExp) = new EqExpNode();
+        (yyval.eqExp)->eqExp = unique_ptr<EqExpNode>((yyvsp[-2].eqExp));
         (yyval.eqExp)->op = EqOp::NEQ;
-        (yyval.eqExp)->relExp = unique_ptr<RelExp>((yyvsp[0].relExp));
+        (yyval.eqExp)->relExp = unique_ptr<RelExpNode>((yyvsp[0].relExp));
     }
-#line 2481 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 88: /* LAndExp: EqExp  */
-#line 617 "/home/yang/playground/src/sysy/parser.y"
+  case 87: /* LAndExp: EqExp  */
           {
-        (yyval.lAndExp) = new LAndExp();
-        (yyval.lAndExp)->eqExp = unique_ptr<EqExp>((yyvsp[0].eqExp));
+        (yyval.lAndExp) = new LAndExpNode();
+        (yyval.lAndExp)->eqExp = unique_ptr<EqExpNode>((yyvsp[0].eqExp));
     }
-#line 2490 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 89: /* LAndExp: LAndExp AND EqExp  */
-#line 621 "/home/yang/playground/src/sysy/parser.y"
+  case 88: /* LAndExp: LAndExp AND EqExp  */
                       {
-        (yyval.lAndExp) = new LAndExp();
-        (yyval.lAndExp)->lAndExp = unique_ptr<LAndExp>((yyvsp[-2].lAndExp));
-        (yyval.lAndExp)->eqExp = unique_ptr<EqExp>((yyvsp[0].eqExp));
+        (yyval.lAndExp) = new LAndExpNode();
+        (yyval.lAndExp)->lAndExp = unique_ptr<LAndExpNode>((yyvsp[-2].lAndExp));
+        (yyval.lAndExp)->eqExp = unique_ptr<EqExpNode>((yyvsp[0].eqExp));
     }
-#line 2500 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 90: /* LOrExp: LAndExp  */
-#line 629 "/home/yang/playground/src/sysy/parser.y"
+  case 89: /* LOrExp: LAndExp  */
             {
-        (yyval.lOrExp) = new LOrExp();
-        (yyval.lOrExp)->lAndExp = unique_ptr<LAndExp>((yyvsp[0].lAndExp));
+        (yyval.lOrExp) = new LOrExpNode();
+        (yyval.lOrExp)->lAndExp = unique_ptr<LAndExpNode>((yyvsp[0].lAndExp));
     }
-#line 2509 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 91: /* LOrExp: LOrExp OR LAndExp  */
-#line 633 "/home/yang/playground/src/sysy/parser.y"
+  case 90: /* LOrExp: LOrExp OR LAndExp  */
                       {
-        (yyval.lOrExp) = new LOrExp();
-        (yyval.lOrExp)->lOrExp = unique_ptr<LOrExp>((yyvsp[-2].lOrExp));
-        (yyval.lOrExp)->lAndExp = unique_ptr<LAndExp>((yyvsp[0].lAndExp));
+        (yyval.lOrExp) = new LOrExpNode();
+        (yyval.lOrExp)->lOrExp = unique_ptr<LOrExpNode>((yyvsp[-2].lOrExp));
+        (yyval.lOrExp)->lAndExp = unique_ptr<LAndExpNode>((yyvsp[0].lAndExp));
     }
-#line 2519 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
 
-#line 2523 "/home/yang/playground/generated/parser.tab.cpp"
 
       default: break;
     }
@@ -2748,7 +2557,6 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 638 "/home/yang/playground/src/sysy/parser.y"
 
 
 void initFileName(char *name) {

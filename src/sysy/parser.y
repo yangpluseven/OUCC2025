@@ -10,7 +10,7 @@
     #include "define.h"
 
     using namespace std;
-    unique_ptr<CompUnit> root;
+    unique_ptr<CompUnitNode> root;
 
     extern int yylineno;
     extern int yylex();
@@ -21,36 +21,35 @@
 
 
 %union {
-    CompUnit* compUnit;
-    DeclDef* declDef;
-    Decl* decl;
+    CompUnitNode* compUnit;
+    DeclNode* decl;
     DefList* defList;
-    Def* def;
+    DefNode* def;
     ArrayList* arrays;
     InitValList* initValList;
-    InitVal* initVal;
-    FuncDef* funcDef;
+    InitValNode* initVal;
+    FuncDefNode* funcDef;
     FuncFParamList* funcFParamList;
-    FuncFParam* funcFParam;
-    Block* block;
+    FuncFParamNode* funcFParam;
+    BlockNode* block;
     BlockItemList* blockItemList;
-    BlockItem* blockItem;
-    Stmt* stmt;
-    ReturnStmt* returnStmt;
-    IfStmt* ifStmt;
-    WhileStmt* whileStmtAST;
-    LVal* lVal;
-    PrimaryExp* primaryExp;
+    BlockItemNode* blockItem;
+    StmtNode* stmt;
+    ReturnStmtNode* returnStmt;
+    IfStmtNode* ifStmt;
+    WhileStmtNode* whileStmtAST;
+    LValNode* lVal;
+    PrimaryExpNode* primaryExp;
     NumberNode* number;
-    UnaryExp* unaryExp;
-    Call* call;
+    UnaryExpNode* unaryExp;
+    CallNode* call;
     FuncCParamList* funcCParamList;
-    MulExp* mulExp;
-    AddExp* addExp;
-    RelExp* relExp;
-    EqExp* eqExp;
-    LAndExp* lAndExp;
-    LOrExp* lOrExp;
+    MulExpNode* mulExp;
+    AddExpNode* addExp;
+    RelExpNode* relExp;
+    EqExpNode* eqExp;
+    LAndExpNode* lAndExp;
+    LOrExpNode* lOrExp;
 
     BType ty;
     UnaryOp op;
@@ -83,7 +82,7 @@
 %type <call> Call;
 %type <funcCParamList> FuncCParamList;
 %type <mulExp> MulExp;
-%type <addExp> Exp AddExp;
+%type <addExp> AddExp;
 %type <relExp> RelExp;
 %type <eqExp> EqExp;
 %type <lAndExp> LAndExp;
@@ -122,51 +121,51 @@
 %%
 Program:
     CompUnit {
-        root = unique_ptr<CompUnit>($1);
+        root = unique_ptr<CompUnitNode>($1);
     };
 
 // 编译单元
 CompUnit:
     CompUnit Decl {
         $$ = $1;
-        $$->declList.push_back(unique_ptr<Decl>($2));
+        $$->declList.push_back(unique_ptr<DeclNode>($2));
     }|
     CompUnit FuncDef {
         $$ = $1;
-        $$->funcDefList.push_back(unique_ptr<FuncDef>($2));
+        $$->funcDefList.push_back(unique_ptr<FuncDefNode>($2));
     }|
     Decl {
-        $$ = new CompUnit();
-        $$->declList.push_back(unique_ptr<Decl>($1));
+        $$ = new CompUnitNode();
+        $$->declList.push_back(unique_ptr<DeclNode>($1));
     }|
     FuncDef {
-        $$ = new CompUnit(); 
-        $$->funcDefList.push_back(unique_ptr<FuncDef>($1));
+        $$ = new CompUnitNode(); 
+        $$->funcDefList.push_back(unique_ptr<FuncDefNode>($1));
     };
 
 // 定义列表
 DefList:
     Def {
         $$ = new DefList();
-        $$->list.push_back(unique_ptr<Def>($1));
+        $$->list.push_back(unique_ptr<DefNode>($1));
     }|
     DefList COMMA Def {
         $$ = $1;
-        $$->list.push_back(unique_ptr<Def>($3));
+        $$->list.push_back(unique_ptr<DefNode>($3));
     };
 
 // 变量或常量声明
 Decl:
     CONST BType DefList SEMICOLON {
-        $$ = new Decl();
-        $$->isConst = true;
+        $$ = new DeclNode();
         $$->bType = $2;
+        $$->isConst = true;
         $$->defList.swap($3->list);
     }|
     BType DefList SEMICOLON {
-        $$ = new Decl();
-        $$->isConst = false;
+        $$ = new DeclNode();
         $$->bType = $1;
+        $$->isConst = false;
         $$->defList.swap($2->list);
     };
 
@@ -188,48 +187,48 @@ VoidType:
 // 定义
 Def:
     ID Arrays ASSIGN InitVal {
-        $$ = new Def();
+        $$ = new DefNode();
         $$->id = unique_ptr<string>($1);
         $$->arrays.swap($2->list);
-        $$->initVal = unique_ptr<InitVal>($4);
+        $$->initVal = unique_ptr<InitValNode>($4);
     }|
     ID ASSIGN InitVal {
-        $$ = new Def();
+        $$ = new DefNode();
         $$->id = unique_ptr<string>($1);
-        $$->initVal = unique_ptr<InitVal>($3);
+        $$->initVal = unique_ptr<InitValNode>($3);
     }|
     ID Arrays {
-        $$ = new Def();
+        $$ = new DefNode();
         $$->id = unique_ptr<string>($1);
         $$->arrays.swap($2->list);
     }|
     ID {
-        $$ = new Def();
+        $$ = new DefNode();
         $$->id = unique_ptr<string>($1);
     };
 
 // 数组
 Arrays:
-    LB Exp RB {
+    LB AddExp RB {
         $$ = new ArrayList();
-        $$->list.push_back(unique_ptr<AddExp>($2));
+        $$->list.push_back(unique_ptr<AddExpNode>($2));
     }|
-    Arrays LB Exp RB {
+    Arrays LB AddExp RB {
         $$ = $1;
-        $$->list.push_back(unique_ptr<AddExp>($3));
+        $$->list.push_back(unique_ptr<AddExpNode>($3));
     };
 
 // 变量或常量初值
 InitVal:
-    Exp {
-        $$ = new InitVal();
-        $$->exp = unique_ptr<AddExp>($1);
+    AddExp {
+        $$ = new InitValNode();
+        $$->exp = unique_ptr<AddExpNode>($1);
     }|
     LC RC {
-        $$ = new InitVal();
+        $$ = new InitValNode();
     }|
     LC InitValList RC {
-        $$ = new InitVal();
+        $$ = new InitValNode();
         $$->initValList.swap($2->list);
     };
 
@@ -237,69 +236,69 @@ InitVal:
 InitValList:
     InitValList COMMA InitVal {
         $$ = $1;
-        $$->list.push_back(unique_ptr<InitVal>($3));
+        $$->list.push_back(unique_ptr<InitValNode>($3));
     }|
     InitVal {
         $$ = new InitValList();
-        $$->list.push_back(unique_ptr<InitVal>($1));
+        $$->list.push_back(unique_ptr<InitValNode>($1));
     };
 
 // 函数定义
 FuncDef:
     BType ID LP FuncFParamList RP Block {
-        $$ = new FuncDef();
+        $$ = new FuncDefNode();
         $$->returnType = $1;
         $$->id = unique_ptr<string>($2);
         $$->funcFParamList.swap($4->list);
-        $$->block = unique_ptr<Block>($6);
+        $$->block = unique_ptr<BlockNode>($6);
     }|
     BType ID LP RP Block {
-        $$ = new FuncDef();
+        $$ = new FuncDefNode();
         $$->returnType = $1;
         $$->id = unique_ptr<string>($2);
-        $$->block = unique_ptr<Block>($5);
+        $$->block = unique_ptr<BlockNode>($5);
     }|
     VoidType ID LP FuncFParamList RP Block {
-        $$ = new FuncDef();
+        $$ = new FuncDefNode();
         $$->returnType = $1;
         $$->id = unique_ptr<string>($2);
         $$->funcFParamList.swap($4->list);
-        $$->block = unique_ptr<Block>($6);
+        $$->block = unique_ptr<BlockNode>($6);
     }|
     VoidType ID LP RP Block {
-        $$ = new FuncDef();
+        $$ = new FuncDefNode();
         $$->returnType = $1;
         $$->id = unique_ptr<string>($2);
-        $$->block = unique_ptr<Block>($5);
+        $$->block = unique_ptr<BlockNode>($5);
     };
 
 // 函数形参列表
 FuncFParamList:
     FuncFParam {
         $$ = new FuncFParamList();
-        $$->list.push_back(unique_ptr<FuncFParam>($1));
+        $$->list.push_back(unique_ptr<FuncFParamNode>($1));
     }|
     FuncFParamList COMMA FuncFParam {
         $$ = $1;
-        $$->list.push_back(unique_ptr<FuncFParam>($3));
+        $$->list.push_back(unique_ptr<FuncFParamNode>($3));
     };
 
 // 函数形参
 FuncFParam:
     BType ID {
-        $$ = new FuncFParam();
+        $$ = new FuncFParamNode();
         $$->bType = $1;
         $$->id = unique_ptr<string>($2);
         $$->isArray = false;
     }|
     BType ID LB RB {
-        $$ = new FuncFParam();
+        $$ = new FuncFParamNode();
         $$->bType = $1;
         $$->id = unique_ptr<string>($2);
         $$->isArray = true;
     }|
     BType ID LB RB Arrays {
-        $$ = new FuncFParam();
+        $$ = new FuncFParamNode();
         $$->bType = $1;
         $$->id = unique_ptr<string>($2);
         $$->isArray = true;
@@ -309,10 +308,10 @@ FuncFParam:
 // 语句块
 Block:
     LC RC {
-        $$ = new Block();
+        $$ = new BlockNode();
     }|
     LC BlockItemList RC {
-        $$ = new Block();
+        $$ = new BlockNode();
         $$->blockItemList.swap($2->list);
     };
 
@@ -320,105 +319,99 @@ Block:
 BlockItemList:
     BlockItem {
         $$ = new BlockItemList();
-        $$->list.push_back(unique_ptr<BlockItem>($1));
+        $$->list.push_back(unique_ptr<BlockItemNode>($1));
     }|
     BlockItemList BlockItem {
         $$ = $1;
-        $$->list.push_back(unique_ptr<BlockItem>($2));
+        $$->list.push_back(unique_ptr<BlockItemNode>($2));
     };
 
 // 语句块项
 BlockItem:
     Decl {
-        $$ = new BlockItem();
-        $$->decl = unique_ptr<Decl>($1);
+        $$ = new BlockItemNode();
+        $$->decl = unique_ptr<DeclNode>($1);
     }|
     Stmt {
-        $$ = new BlockItem();
-        $$->stmt = unique_ptr<Stmt>($1);
+        $$ = new BlockItemNode();
+        $$->stmt = unique_ptr<StmtNode>($1);
     };
 
 Stmt:
     SEMICOLON {
-        $$ = new Stmt();
+        $$ = new StmtNode();
         $$->sType = StmtType::SEMI;
     }|
-    LVal ASSIGN Exp SEMICOLON {
-        $$ = new Stmt();
+    LVal ASSIGN AddExp SEMICOLON {
+        $$ = new StmtNode();
         $$->sType = StmtType::ASGN;
-        $$->lVal = unique_ptr<LVal>($1);
-        $$->exp = unique_ptr<AddExp>($3);
+        $$->lVal = unique_ptr<LValNode>($1);
+        $$->exp = unique_ptr<AddExpNode>($3);
     }|
-    Exp SEMICOLON {
-        $$ = new Stmt();
+    AddExp SEMICOLON {
+        $$ = new StmtNode();
         $$->sType = StmtType::EXP;
-        $$->exp = unique_ptr<AddExp>($1);
+        $$->exp = unique_ptr<AddExpNode>($1);
     }|
     CONTINUE SEMICOLON {
-        $$ = new Stmt();
+        $$ = new StmtNode();
         $$->sType = StmtType::CONTINUE;
     }|
     BREAK SEMICOLON {
-        $$ = new Stmt();
+        $$ = new StmtNode();
         $$->sType = StmtType::BREAK;
     }|
     Block {
-        $$ = new Stmt();
+        $$ = new StmtNode();
         $$->sType = StmtType::BLK;
-        $$->block = unique_ptr<Block>($1);
+        $$->block = unique_ptr<BlockNode>($1);
     }|
     ReturnStmt {
-        $$ = new Stmt();
+        $$ = new StmtNode();
         $$->sType = StmtType::RET;
-        $$->returnStmt = unique_ptr<ReturnStmt>($1);
+        $$->returnStmt = unique_ptr<ReturnStmtNode>($1);
     }|
     IfStmt {
-        $$ = new Stmt();
+        $$ = new StmtNode();
         $$->sType = StmtType::IF;
-        $$->ifStmt = unique_ptr<IfStmt>($1);
+        $$->ifStmt = unique_ptr<IfStmtNode>($1);
     }|
     IterationStmt {
-        $$ = new Stmt();
+        $$ = new StmtNode();
         $$->sType = StmtType::WHILE;
-        $$->whileStmtAST = unique_ptr<WhileStmt>($1);
+        $$->whileStmtAST = unique_ptr<WhileStmtNode>($1);
     };
 
 //选择语句
 IfStmt:
     IF LP Cond RP Stmt %prec LOWER_THEN_ELSE {
-        $$ = new IfStmt();
-        $$->cond = unique_ptr<LOrExp>($3);
-        $$->ifStmt = unique_ptr<Stmt>($5);
+        $$ = new IfStmtNode();
+        $$->cond = unique_ptr<LOrExpNode>($3);
+        $$->ifStmt = unique_ptr<StmtNode>($5);
     }|
     IF LP Cond RP Stmt ELSE Stmt {
-        $$ = new IfStmt();
-        $$->cond = unique_ptr<LOrExp>($3);
-        $$->ifStmt = unique_ptr<Stmt>($5);
-        $$->elseStmt = unique_ptr<Stmt>($7);
+        $$ = new IfStmtNode();
+        $$->cond = unique_ptr<LOrExpNode>($3);
+        $$->ifStmt = unique_ptr<StmtNode>($5);
+        $$->elseStmt = unique_ptr<StmtNode>($7);
     };
 
 //循环语句
 IterationStmt:
     WHILE LP Cond RP Stmt {
-        $$ = new WhileStmt();
-        $$->cond = unique_ptr<LOrExp>($3);
-        $$->stmt = unique_ptr<Stmt>($5);
+        $$ = new WhileStmtNode();
+        $$->cond = unique_ptr<LOrExpNode>($3);
+        $$->stmt = unique_ptr<StmtNode>($5);
     };
 
 //返回语句
 ReturnStmt:
-    RETURN Exp SEMICOLON {
-        $$ = new ReturnStmt();
-        $$->exp = unique_ptr<AddExp>($2);
+    RETURN AddExp SEMICOLON {
+        $$ = new ReturnStmtNode();
+        $$->exp = unique_ptr<AddExpNode>($2);
     }|
     RETURN SEMICOLON {
-        $$ = new ReturnStmt();
-    };
-
-// 表达式
-Exp:
-    AddExp {
-        $$ = $1;
+        $$ = new ReturnStmtNode();
     };
 
 // 条件表达式
@@ -430,27 +423,27 @@ Cond:
 // 左值表达式
 LVal:
     ID {
-        $$ = new LVal();
+        $$ = new LValNode();
         $$->id = unique_ptr<string>($1);
     }|
     ID Arrays {
-        $$ = new LVal();
+        $$ = new LValNode();
         $$->id = unique_ptr<string>($1);
         $$->arrays.swap($2->list);
     };
 
 // 基本表达式
 PrimaryExp:
-    LP Exp RP {
-        $$ = new PrimaryExp();
-        $$->exp = unique_ptr<AddExp>($2);
+    LP AddExp RP {
+        $$ = new PrimaryExpNode();
+        $$->exp = unique_ptr<AddExpNode>($2);
     }|
     LVal {
-        $$ = new PrimaryExp();
-        $$->lval = unique_ptr<LVal>($1);
+        $$ = new PrimaryExpNode();
+        $$->lval = unique_ptr<LValNode>($1);
     }|
     Number {
-        $$ = new PrimaryExp();
+        $$ = new PrimaryExpNode();
         $$->number = unique_ptr<NumberNode>($1);
     };
 
@@ -470,27 +463,27 @@ Number:
 // 一元表达式
 UnaryExp:
     PrimaryExp {
-        $$ = new UnaryExp();
-        $$->primaryExp = unique_ptr<PrimaryExp>($1);
+        $$ = new UnaryExpNode();
+        $$->primaryExp = unique_ptr<PrimaryExpNode>($1);
     }|
     Call {
-        $$ = new UnaryExp();
-        $$->call = unique_ptr<Call>($1);
+        $$ = new UnaryExpNode();
+        $$->call = unique_ptr<CallNode>($1);
     }|
     UnaryOp UnaryExp {
-        $$ = new UnaryExp();
+        $$ = new UnaryExpNode();
         $$->op = $1;
-        $$->unaryExp = unique_ptr<UnaryExp>($2);
+        $$->unaryExp = unique_ptr<UnaryExpNode>($2);
     };
 
 //函数调用
 Call:
     ID LP RP {
-        $$ = new Call();
+        $$ = new CallNode();
         $$->id = unique_ptr<string>($1);
     }|
     ID LP FuncCParamList RP {
-        $$ = new Call();
+        $$ = new CallNode();
         $$->id = unique_ptr<string>($1);
         $$->funcCParamList.swap($3->list);
     };
@@ -509,131 +502,131 @@ UnaryOp:
 
 // 函数实参表
 FuncCParamList:
-    Exp {
+    AddExp {
         $$ = new FuncCParamList();
-        $$->list.push_back(unique_ptr<AddExp>($1));
+        $$->list.push_back(unique_ptr<AddExpNode>($1));
     }|
-    FuncCParamList COMMA Exp {
+    FuncCParamList COMMA AddExp {
         $$ = (FuncCParamList*) $1;
-        $$->list.push_back(unique_ptr<AddExp>($3));
+        $$->list.push_back(unique_ptr<AddExpNode>($3));
     };
 
 //乘除模表达式
 MulExp:
     UnaryExp {
-        $$ = new MulExp();
-        $$->unaryExp = unique_ptr<UnaryExp>($1);
+        $$ = new MulExpNode();
+        $$->unaryExp = unique_ptr<UnaryExpNode>($1);
     }|
     MulExp MUL UnaryExp {
-        $$ = new MulExp();
-        $$->mulExp = unique_ptr<MulExp>($1);
+        $$ = new MulExpNode();
+        $$->mulExp = unique_ptr<MulExpNode>($1);
         $$->op = MulOp::MUL;
-        $$->unaryExp = unique_ptr<UnaryExp>($3);
+        $$->unaryExp = unique_ptr<UnaryExpNode>($3);
     }|
     MulExp DIV UnaryExp {
-        $$ = new MulExp();
-        $$->mulExp = unique_ptr<MulExp>($1);
+        $$ = new MulExpNode();
+        $$->mulExp = unique_ptr<MulExpNode>($1);
         $$->op = MulOp::DIV;
-        $$->unaryExp = unique_ptr<UnaryExp>($3);
+        $$->unaryExp = unique_ptr<UnaryExpNode>($3);
     }|
     MulExp MOD UnaryExp {
-        $$ = new MulExp();
-        $$->mulExp = unique_ptr<MulExp>($1);
+        $$ = new MulExpNode();
+        $$->mulExp = unique_ptr<MulExpNode>($1);
         $$->op = MulOp::MOD;
-        $$->unaryExp = unique_ptr<UnaryExp>($3);
+        $$->unaryExp = unique_ptr<UnaryExpNode>($3);
     };
 
 // 加减表达式
 AddExp:
     MulExp {
-        $$ = new AddExp();
-        $$->mulExp = unique_ptr<MulExp>($1);
+        $$ = new AddExpNode();
+        $$->mulExp = unique_ptr<MulExpNode>($1);
     }|
     AddExp ADD MulExp {
-        $$ = new AddExp();
-        $$->addExp = unique_ptr<AddExp>($1);
+        $$ = new AddExpNode();
+        $$->addExp = unique_ptr<AddExpNode>($1);
         $$->op = AddOp::ADD;
-        $$->mulExp = unique_ptr<MulExp>($3);
+        $$->mulExp = unique_ptr<MulExpNode>($3);
     }|
     AddExp MINUS MulExp {
-        $$ = new AddExp();
-        $$->addExp = unique_ptr<AddExp>($1);
+        $$ = new AddExpNode();
+        $$->addExp = unique_ptr<AddExpNode>($1);
         $$->op = AddOp::MINUS;
-        $$->mulExp = unique_ptr<MulExp>($3);
+        $$->mulExp = unique_ptr<MulExpNode>($3);
     };
 
 // 关系表达式
 RelExp:
     AddExp {
-        $$ = new RelExp();
-        $$->addExp = unique_ptr<AddExp>($1);
+        $$ = new RelExpNode();
+        $$->addExp = unique_ptr<AddExpNode>($1);
     }|
     RelExp GTE AddExp {
-        $$ = new RelExp();
-        $$->relExp = unique_ptr<RelExp>($1);
+        $$ = new RelExpNode();
+        $$->relExp = unique_ptr<RelExpNode>($1);
         $$->op = RelOp::GTE;
-        $$->addExp = unique_ptr<AddExp>($3);
+        $$->addExp = unique_ptr<AddExpNode>($3);
     }|
     RelExp LTE AddExp {
-        $$ = new RelExp();
-        $$->relExp = unique_ptr<RelExp>($1);
+        $$ = new RelExpNode();
+        $$->relExp = unique_ptr<RelExpNode>($1);
         $$->op = RelOp::LTE;
-        $$->addExp = unique_ptr<AddExp>($3);
+        $$->addExp = unique_ptr<AddExpNode>($3);
     }|
     RelExp GT AddExp {
-        $$ = new RelExp();
-        $$->relExp = unique_ptr<RelExp>($1);
+        $$ = new RelExpNode();
+        $$->relExp = unique_ptr<RelExpNode>($1);
         $$->op = RelOp::GT;
-        $$->addExp = unique_ptr<AddExp>($3);
+        $$->addExp = unique_ptr<AddExpNode>($3);
     }|
     RelExp LT AddExp {
-        $$ = new RelExp();
-        $$->relExp = unique_ptr<RelExp>($1);
+        $$ = new RelExpNode();
+        $$->relExp = unique_ptr<RelExpNode>($1);
         $$->op = RelOp::LT;
-        $$->addExp = unique_ptr<AddExp>($3);
+        $$->addExp = unique_ptr<AddExpNode>($3);
     };
 
 // 相等性表达式
 EqExp:
     RelExp {
-        $$ = new EqExp();
-        $$->relExp = unique_ptr<RelExp>($1);
+        $$ = new EqExpNode();
+        $$->relExp = unique_ptr<RelExpNode>($1);
     }|
     EqExp EQ RelExp {
-        $$ = new EqExp();
-        $$->eqExp = unique_ptr<EqExp>($1);
+        $$ = new EqExpNode();
+        $$->eqExp = unique_ptr<EqExpNode>($1);
         $$->op = EqOp::EQ;
-        $$->relExp = unique_ptr<RelExp>($3);
+        $$->relExp = unique_ptr<RelExpNode>($3);
     }|
     EqExp NEQ RelExp {
-        $$ = new EqExp();
-        $$->eqExp = unique_ptr<EqExp>($1);
+        $$ = new EqExpNode();
+        $$->eqExp = unique_ptr<EqExpNode>($1);
         $$->op = EqOp::NEQ;
-        $$->relExp = unique_ptr<RelExp>($3);
+        $$->relExp = unique_ptr<RelExpNode>($3);
     };
 
 // 逻辑与表达式
 LAndExp:
     EqExp {
-        $$ = new LAndExp();
-        $$->eqExp = unique_ptr<EqExp>($1);
+        $$ = new LAndExpNode();
+        $$->eqExp = unique_ptr<EqExpNode>($1);
     }|
     LAndExp AND EqExp {
-        $$ = new LAndExp();
-        $$->lAndExp = unique_ptr<LAndExp>($1);
-        $$->eqExp = unique_ptr<EqExp>($3);
+        $$ = new LAndExpNode();
+        $$->lAndExp = unique_ptr<LAndExpNode>($1);
+        $$->eqExp = unique_ptr<EqExpNode>($3);
     };
 
 // 逻辑或表达式
 LOrExp:
     LAndExp {
-        $$ = new LOrExp();
-        $$->lAndExp = unique_ptr<LAndExp>($1);
+        $$ = new LOrExpNode();
+        $$->lAndExp = unique_ptr<LAndExpNode>($1);
     }|
     LOrExp OR LAndExp {
-        $$ = new LOrExp();
-        $$->lOrExp = unique_ptr<LOrExp>($1);
-        $$->lAndExp = unique_ptr<LAndExp>($3);
+        $$ = new LOrExpNode();
+        $$->lOrExp = unique_ptr<LOrExpNode>($1);
+        $$->lAndExp = unique_ptr<LAndExpNode>($3);
     };
 %%
 

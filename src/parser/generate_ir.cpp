@@ -99,8 +99,8 @@ void GenerateIR::processCond(Value *value) {
 }
 
 void GenerateIR::makeInitVal(std::vector<int> &dimensions,
-                             std::map<int, AddExp *> &exps, int base,
-                             const InitVal *initVal) {
+                             std::map<int, AddExpNode *> &exps, int base,
+                             const InitValNode *initVal) {
   int offset = 0;
   for (const auto &child : initVal->initValList) {
     if (child->exp == nullptr) {
@@ -197,7 +197,7 @@ Value *GenerateIR::typeConversion(Value *value, BasicKind targetType) {
   return value;
 }
 
-void GenerateIR::visit(CompUnit &ast) {
+void GenerateIR::visit(CompUnitNode &ast) {
   for (const auto &decl : ast.declList) {
     decl->accept(*this);
   }
@@ -206,7 +206,7 @@ void GenerateIR::visit(CompUnit &ast) {
   }
 }
 
-void GenerateIR::visit(Decl &ast) {
+void GenerateIR::visit(DeclNode &ast) {
   _isConst = ast.isConst;
   _curTypeKind = ast.bType == BType::INT ? BasicKind::I32 : BasicKind::F32;
   for (auto &def : ast.defList) {
@@ -214,7 +214,7 @@ void GenerateIR::visit(Decl &ast) {
   }
 }
 
-void GenerateIR::handleScalarDef(Def &ast) {
+void GenerateIR::handleScalarDef(DefNode &ast) {
   std::string varName = *ast.id;
   if (_symbolTable->isGlobal() || _isConst) {
     auto number = Number(0);
@@ -237,7 +237,7 @@ void GenerateIR::handleScalarDef(Def &ast) {
   }
 }
 
-void GenerateIR::handleArrayDef(Def &ast) {
+void GenerateIR::handleArrayDef(DefNode &ast) {
   std::string varName = *ast.id;
   vector<int> dimensions;
   for (auto &exp : ast.arrays) {
@@ -246,7 +246,7 @@ void GenerateIR::handleArrayDef(Def &ast) {
     dimensions.push_back(number->intValue());
   }
   if (_symbolTable->isGlobal() || _isConst) {
-    std::map<int, AddExp *> exps;
+    std::map<int, AddExpNode *> exps;
     if (ast.initVal) {
       makeInitVal(dimensions, exps, 0, ast.initVal.get());
     }
@@ -273,7 +273,7 @@ void GenerateIR::handleArrayDef(Def &ast) {
   auto rawAllocaInst = allocaInst.get();
   _entryBlock->pushInstruction(std::move(allocaInst));
   if (ast.initVal) {
-    std::map<int, AddExp *> exps;
+    std::map<int, AddExpNode *> exps;
     makeInitVal(dimensions, exps, 0, ast.initVal.get());
     auto castInst =
         std::make_unique<CastInst>(std::make_unique<PointerType>(MAKE_I32),
@@ -311,7 +311,7 @@ void GenerateIR::handleArrayDef(Def &ast) {
   }
 }
 
-void GenerateIR::visit(Def &ast) {
+void GenerateIR::visit(DefNode &ast) {
   if (ast.arrays.empty()) {
     handleScalarDef(ast);
   } else {
@@ -320,7 +320,7 @@ void GenerateIR::visit(Def &ast) {
 }
 
 // This is used to handle scalar init value, see makeInitVal() also
-void GenerateIR::visit(InitVal &ast) {
+void GenerateIR::visit(InitValNode &ast) {
   if (ast.exp) {
     ast.exp->accept(*this);
   }
@@ -339,7 +339,7 @@ std::unique_ptr<BasicType> GenerateIR::handleType(BType &type) {
   }
 }
 
-void GenerateIR::visit(FuncDef &ast) {
+void GenerateIR::visit(FuncDefNode &ast) {
   _argToAllocaMap.clear();
   auto retType = handleType(ast.returnType);
   auto type = retType.get();
@@ -395,7 +395,7 @@ void GenerateIR::visit(FuncDef &ast) {
   _symbolTable->out();
 }
 
-void GenerateIR::visit(Call &ast) {
+void GenerateIR::visit(CallNode &ast) {
   auto func = _symbolTable->getFunction(*ast.id);
   std::vector<Value *> args;
   for (auto &exp : ast.funcCParamList) {
@@ -419,7 +419,7 @@ void GenerateIR::visit(Call &ast) {
   _curBlock->pushInstruction(std::move(callInst));
 }
 
-void GenerateIR::visit(FuncFParam &ast) {
+void GenerateIR::visit(FuncFParamNode &ast) {
   std::unique_ptr<Type> type = handleType(ast.bType);
   if (ast.isArray) {
     vector<int> dimensions;
@@ -449,7 +449,7 @@ void GenerateIR::visit(FuncFParam &ast) {
   _argToAllocaMap.insert(std::make_pair(rawArg, rawInst));
 }
 
-void GenerateIR::visit(Block &ast) {
+void GenerateIR::visit(BlockNode &ast) {
   _symbolTable->in();
   for (auto &item : ast.blockItemList) {
     // if (_hasBranch) {
@@ -474,7 +474,7 @@ void GenerateIR::visit(Block &ast) {
   _symbolTable->out();
 }
 
-void GenerateIR::visit(BlockItem &ast) {
+void GenerateIR::visit(BlockItemNode &ast) {
   if (ast.decl) {
     ast.decl->accept(*this);
     return;
@@ -484,7 +484,7 @@ void GenerateIR::visit(BlockItem &ast) {
   }
 }
 
-void GenerateIR::handleAssignStmt(Stmt &ast) {
+void GenerateIR::handleAssignStmt(StmtNode &ast) {
   _isRealLVal = true;
   ast.lVal->accept(*this);
   auto lVal = _curVal;
@@ -501,7 +501,7 @@ void GenerateIR::handleAssignStmt(Stmt &ast) {
   _curBlock->pushInstruction(std::make_unique<StoreInst>(rVal, lVal));
 }
 
-void GenerateIR::visit(ReturnStmt &ast) {
+void GenerateIR::visit(ReturnStmtNode &ast) {
   if (!ast.exp) {
     _curBlock->pushInstruction(std::make_unique<BranchInst>(_retBlock));
     return;
@@ -516,7 +516,7 @@ void GenerateIR::visit(ReturnStmt &ast) {
   // _hasBranch = true;
 }
 
-void GenerateIR::visit(LAndExp &ast) {
+void GenerateIR::visit(LAndExpNode &ast) {
   if (ast.lAndExp) {
     auto block = std::make_unique<BasicBlock>();
     BasicBlock *rawBlock = block.get();
@@ -538,7 +538,7 @@ void GenerateIR::visit(LAndExp &ast) {
   processCond(_curVal);
 }
 
-void GenerateIR::visit(LOrExp &ast) {
+void GenerateIR::visit(LOrExpNode &ast) {
   if (ast.lOrExp) {
     auto block = std::make_unique<BasicBlock>();
     BasicBlock *rawBlock = block.get();
@@ -560,7 +560,7 @@ void GenerateIR::visit(LOrExp &ast) {
   processCond(_curVal);
 }
 
-void GenerateIR::handleIfElseStmt(IfStmt &ast) {
+void GenerateIR::handleIfElseStmt(IfStmtNode &ast) {
   auto trueBlock = std::make_unique<BasicBlock>();
   auto falseBlock = std::make_unique<BasicBlock>();
   auto ifEndBlock = std::make_unique<BasicBlock>();
@@ -588,7 +588,7 @@ void GenerateIR::handleIfElseStmt(IfStmt &ast) {
   _curBlock = rawIfEndBlock;
 }
 
-void GenerateIR::visit(IfStmt &ast) {
+void GenerateIR::visit(IfStmtNode &ast) {
   if (ast.elseStmt) {
     handleIfElseStmt(ast);
     return;
@@ -612,7 +612,7 @@ void GenerateIR::visit(IfStmt &ast) {
   _curBlock = rawFalseBlock;
 }
 
-void GenerateIR::visit(WhileStmt &ast) {
+void GenerateIR::visit(WhileStmtNode &ast) {
   // Protect
   auto tmpCondBlock = _condBlock;
   auto tmpBreakBlock = _breakBlock;
@@ -649,7 +649,7 @@ void GenerateIR::visit(WhileStmt &ast) {
   _breakBlock = tmpBreakBlock;
 }
 
-void GenerateIR::visit(Stmt &ast) {
+void GenerateIR::visit(StmtNode &ast) {
   switch (ast.sType) {
   case StmtType::SEMI:
     return;
@@ -682,7 +682,7 @@ void GenerateIR::visit(Stmt &ast) {
   }
 }
 
-void GenerateIR::visit(RelExp &ast) {
+void GenerateIR::visit(RelExpNode &ast) {
   if (!ast.relExp) {
     ast.addExp->accept(*this);
     return;
@@ -746,7 +746,7 @@ void GenerateIR::visit(RelExp &ast) {
 }
 
 // TODO: Need more type check and exception handling
-void GenerateIR::visit(EqExp &ast) {
+void GenerateIR::visit(EqExpNode &ast) {
   if (!ast.eqExp) {
     ast.relExp->accept(*this);
     return;
@@ -791,7 +791,7 @@ void GenerateIR::visit(EqExp &ast) {
 }
 
 // TODO: Need more type check and exception handling
-void GenerateIR::visit(AddExp &ast) {
+void GenerateIR::visit(AddExpNode &ast) {
   if (ast.addExp == nullptr) {
     ast.mulExp->accept(*this);
     return;
@@ -848,7 +848,7 @@ void GenerateIR::visit(AddExp &ast) {
 }
 
 // TODO: Need more type check and exception handling
-void GenerateIR::visit(MulExp &ast) {
+void GenerateIR::visit(MulExpNode &ast) {
   if (ast.mulExp == nullptr) {
     ast.unaryExp->accept(*this);
     return;
@@ -915,7 +915,7 @@ void GenerateIR::visit(MulExp &ast) {
 }
 
 // TODO: Need more type check and exception handling
-void GenerateIR::visit(UnaryExp &ast) {
+void GenerateIR::visit(UnaryExpNode &ast) {
   if (ast.primaryExp) {
     ast.primaryExp->accept(*this);
     return;
@@ -981,7 +981,7 @@ void GenerateIR::visit(UnaryExp &ast) {
   _curVal = inst;
 }
 
-void GenerateIR::visit(PrimaryExp &ast) {
+void GenerateIR::visit(PrimaryExpNode &ast) {
   if (ast.exp) {
     ast.exp->accept(*this);
     return;
@@ -996,7 +996,7 @@ void GenerateIR::visit(PrimaryExp &ast) {
   }
 }
 
-void GenerateIR::handleScalarVar(LVal &ast) {
+void GenerateIR::handleScalarVar(LValNode &ast) {
   Value *ptr = _symbolTable->getData(*ast.id);
   if (ptr->isArg()) {
     ptr = _argToAllocaMap[static_cast<Argument *>(ptr)];
@@ -1026,7 +1026,7 @@ void GenerateIR::handleScalarVar(LVal &ast) {
   _curBlock->pushInstruction(std::move(loadInst));
 }
 
-void GenerateIR::handleArrayVar(LVal &ast) {
+void GenerateIR::handleArrayVar(LValNode &ast) {
   auto ptr = _symbolTable->getData(*ast.id);
   bool isFirstDim = false;
   if (ptr->isArg()) {
@@ -1057,7 +1057,7 @@ void GenerateIR::handleArrayVar(LVal &ast) {
   _curBlock->pushInstruction(std::move(loadInst));
 }
 
-void GenerateIR::visit(LVal &ast) {
+void GenerateIR::visit(LValNode &ast) {
   if (!_isRealLVal) {
     if (ast.arrays.empty()) {
       handleScalarVar(ast);
