@@ -67,7 +67,7 @@
 
 
 /* First part of user prologue.  */
-#line 4 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 4 "/home/yang/playground/src/sysy/parser.y"
 
     #include <cstring>
     #include <memory>
@@ -81,13 +81,11 @@
 
     extern int yylineno;
     extern int yylex();
-    extern struct yy_buffer_state *yy_scan_bytes(const char *bytes, size_t len);
-    extern void yy_delete_buffer(yy_buffer_state *b);
     extern void yyerror(const char *s);
     extern void initFileName(char *name);
     char filename[100];
 
-#line 91 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 89 "/home/yang/playground/generated/parser.tab.cpp"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -158,40 +156,39 @@ enum yysymbol_kind_t
   YYSYMBOL_YYACCEPT = 40,                  /* $accept  */
   YYSYMBOL_Program = 41,                   /* Program  */
   YYSYMBOL_CompUnit = 42,                  /* CompUnit  */
-  YYSYMBOL_DeclDef = 43,                   /* DeclDef  */
-  YYSYMBOL_Decl = 44,                      /* Decl  */
-  YYSYMBOL_BType = 45,                     /* BType  */
-  YYSYMBOL_VoidType = 46,                  /* VoidType  */
-  YYSYMBOL_DefList = 47,                   /* DefList  */
-  YYSYMBOL_Def = 48,                       /* Def  */
-  YYSYMBOL_Arrays = 49,                    /* Arrays  */
-  YYSYMBOL_InitVal = 50,                   /* InitVal  */
-  YYSYMBOL_InitValList = 51,               /* InitValList  */
-  YYSYMBOL_FuncDef = 52,                   /* FuncDef  */
-  YYSYMBOL_FuncFParamList = 53,            /* FuncFParamList  */
-  YYSYMBOL_FuncFParam = 54,                /* FuncFParam  */
-  YYSYMBOL_Block = 55,                     /* Block  */
-  YYSYMBOL_BlockItemList = 56,             /* BlockItemList  */
-  YYSYMBOL_BlockItem = 57,                 /* BlockItem  */
-  YYSYMBOL_Stmt = 58,                      /* Stmt  */
-  YYSYMBOL_IfStmt = 59,                    /* IfStmt  */
-  YYSYMBOL_IterationStmt = 60,             /* IterationStmt  */
-  YYSYMBOL_ReturnStmt = 61,                /* ReturnStmt  */
-  YYSYMBOL_Exp = 62,                       /* Exp  */
-  YYSYMBOL_Cond = 63,                      /* Cond  */
-  YYSYMBOL_LVal = 64,                      /* LVal  */
-  YYSYMBOL_PrimaryExp = 65,                /* PrimaryExp  */
-  YYSYMBOL_Number = 66,                    /* Number  */
-  YYSYMBOL_UnaryExp = 67,                  /* UnaryExp  */
-  YYSYMBOL_Call = 68,                      /* Call  */
-  YYSYMBOL_UnaryOp = 69,                   /* UnaryOp  */
-  YYSYMBOL_FuncCParamList = 70,            /* FuncCParamList  */
-  YYSYMBOL_MulExp = 71,                    /* MulExp  */
-  YYSYMBOL_AddExp = 72,                    /* AddExp  */
-  YYSYMBOL_RelExp = 73,                    /* RelExp  */
-  YYSYMBOL_EqExp = 74,                     /* EqExp  */
-  YYSYMBOL_LAndExp = 75,                   /* LAndExp  */
-  YYSYMBOL_LOrExp = 76                     /* LOrExp  */
+  YYSYMBOL_Decl = 43,                      /* Decl  */
+  YYSYMBOL_BType = 44,                     /* BType  */
+  YYSYMBOL_VoidType = 45,                  /* VoidType  */
+  YYSYMBOL_DefList = 46,                   /* DefList  */
+  YYSYMBOL_Def = 47,                       /* Def  */
+  YYSYMBOL_Arrays = 48,                    /* Arrays  */
+  YYSYMBOL_InitVal = 49,                   /* InitVal  */
+  YYSYMBOL_InitValList = 50,               /* InitValList  */
+  YYSYMBOL_FuncDef = 51,                   /* FuncDef  */
+  YYSYMBOL_FuncFParamList = 52,            /* FuncFParamList  */
+  YYSYMBOL_FuncFParam = 53,                /* FuncFParam  */
+  YYSYMBOL_Block = 54,                     /* Block  */
+  YYSYMBOL_BlockItemList = 55,             /* BlockItemList  */
+  YYSYMBOL_BlockItem = 56,                 /* BlockItem  */
+  YYSYMBOL_Stmt = 57,                      /* Stmt  */
+  YYSYMBOL_IfStmt = 58,                    /* IfStmt  */
+  YYSYMBOL_IterationStmt = 59,             /* IterationStmt  */
+  YYSYMBOL_ReturnStmt = 60,                /* ReturnStmt  */
+  YYSYMBOL_Exp = 61,                       /* Exp  */
+  YYSYMBOL_Cond = 62,                      /* Cond  */
+  YYSYMBOL_LVal = 63,                      /* LVal  */
+  YYSYMBOL_PrimaryExp = 64,                /* PrimaryExp  */
+  YYSYMBOL_Number = 65,                    /* Number  */
+  YYSYMBOL_UnaryExp = 66,                  /* UnaryExp  */
+  YYSYMBOL_Call = 67,                      /* Call  */
+  YYSYMBOL_UnaryOp = 68,                   /* UnaryOp  */
+  YYSYMBOL_FuncCParamList = 69,            /* FuncCParamList  */
+  YYSYMBOL_MulExp = 70,                    /* MulExp  */
+  YYSYMBOL_AddExp = 71,                    /* AddExp  */
+  YYSYMBOL_RelExp = 72,                    /* RelExp  */
+  YYSYMBOL_EqExp = 73,                     /* EqExp  */
+  YYSYMBOL_LAndExp = 74,                   /* LAndExp  */
+  YYSYMBOL_LOrExp = 75                     /* LOrExp  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -520,14 +517,14 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  13
+#define YYFINAL  12
 /* YYLAST -- Last index in YYTABLE.  */
 #define YYLAST   225
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  40
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  37
+#define YYNNTS  36
 /* YYNRULES -- Number of rules.  */
 #define YYNRULES  91
 /* YYNSTATES -- Number of states.  */
@@ -584,16 +581,16 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   127,   127,   133,   137,   144,   148,   155,   161,   170,
-     173,   179,   185,   189,   196,   202,   207,   212,   219,   223,
-     230,   234,   237,   244,   248,   255,   262,   268,   275,   284,
-     288,   295,   301,   307,   317,   320,   327,   331,   338,   342,
-     348,   352,   358,   363,   367,   371,   376,   381,   386,   394,
-     399,   408,   416,   420,   426,   432,   438,   442,   450,   454,
-     458,   465,   470,   478,   482,   486,   494,   498,   506,   509,
-     512,   518,   522,   529,   533,   539,   545,   554,   558,   564,
-     573,   577,   583,   589,   595,   604,   608,   614,   623,   627,
-     635,   639
+       0,   124,   124,   130,   134,   138,   142,   149,   155,   164,
+     167,   173,   179,   183,   190,   196,   201,   206,   213,   217,
+     224,   228,   231,   238,   242,   249,   256,   262,   269,   278,
+     282,   289,   295,   301,   311,   314,   321,   325,   332,   336,
+     342,   346,   352,   357,   361,   365,   370,   375,   380,   388,
+     393,   402,   410,   414,   420,   426,   432,   436,   444,   448,
+     452,   459,   464,   472,   476,   480,   488,   492,   500,   503,
+     506,   512,   516,   523,   527,   533,   539,   548,   552,   558,
+     567,   571,   577,   583,   589,   598,   602,   608,   617,   621,
+     629,   633
 };
 #endif
 
@@ -614,12 +611,12 @@ static const char *const yytname[] =
   "CONST", "RETURN", "IF", "ELSE", "WHILE", "BREAK", "CONTINUE", "LP",
   "RP", "LB", "RB", "LC", "RC", "COMMA", "SEMICOLON", "NOT", "ASSIGN",
   "MINUS", "ADD", "MUL", "DIV", "MOD", "AND", "OR", "LOWER_THEN_ELSE",
-  "$accept", "Program", "CompUnit", "DeclDef", "Decl", "BType", "VoidType",
-  "DefList", "Def", "Arrays", "InitVal", "InitValList", "FuncDef",
-  "FuncFParamList", "FuncFParam", "Block", "BlockItemList", "BlockItem",
-  "Stmt", "IfStmt", "IterationStmt", "ReturnStmt", "Exp", "Cond", "LVal",
-  "PrimaryExp", "Number", "UnaryExp", "Call", "UnaryOp", "FuncCParamList",
-  "MulExp", "AddExp", "RelExp", "EqExp", "LAndExp", "LOrExp", YY_NULLPTR
+  "$accept", "Program", "CompUnit", "Decl", "BType", "VoidType", "DefList",
+  "Def", "Arrays", "InitVal", "InitValList", "FuncDef", "FuncFParamList",
+  "FuncFParam", "Block", "BlockItemList", "BlockItem", "Stmt", "IfStmt",
+  "IterationStmt", "ReturnStmt", "Exp", "Cond", "LVal", "PrimaryExp",
+  "Number", "UnaryExp", "Call", "UnaryOp", "FuncCParamList", "MulExp",
+  "AddExp", "RelExp", "EqExp", "LAndExp", "LOrExp", YY_NULLPTR
 };
 
 static const char *
@@ -629,7 +626,7 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-127)
+#define YYPACT_NINF (-132)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -643,23 +640,23 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-     118,  -127,  -127,  -127,    63,    19,   118,  -127,  -127,    45,
-      53,  -127,    55,  -127,  -127,   -11,    61,  -127,    40,    -2,
-      66,     3,   192,   156,    25,    55,  -127,    12,  -127,    73,
-      74,     0,  -127,  -127,  -127,    14,   192,  -127,  -127,  -127,
-      82,  -127,  -127,  -127,  -127,  -127,   192,    37,    69,   144,
-    -127,  -127,   192,   156,  -127,    73,    31,    93,  -127,    87,
-      73,    63,   176,    94,    98,  -127,  -127,   192,   192,   192,
-     192,   192,  -127,  -127,    89,    99,  -127,  -127,    73,   188,
-     116,   120,   123,   126,  -127,  -127,  -127,    55,  -127,   124,
-    -127,  -127,  -127,  -127,  -127,   129,   136,   143,  -127,  -127,
-    -127,  -127,    59,  -127,  -127,  -127,  -127,    37,    37,  -127,
-     156,  -127,  -127,  -127,   140,   192,   192,  -127,  -127,  -127,
-    -127,  -127,   192,   148,  -127,   192,  -127,  -127,   150,    69,
-     194,   152,   138,   145,   161,   158,    94,  -127,    48,   192,
-     192,   192,   192,   192,   192,   192,   192,    48,  -127,   167,
-      69,    69,    69,    69,   194,   194,   152,   138,  -127,    48,
-    -127
+     118,  -132,  -132,  -132,    59,    23,   118,  -132,    31,    34,
+    -132,    45,  -132,  -132,  -132,    51,    88,  -132,     7,   -11,
+     106,    -1,   192,   156,    -5,    45,  -132,    12,  -132,    30,
+      57,    10,  -132,  -132,  -132,    77,   192,  -132,  -132,  -132,
+      54,  -132,  -132,  -132,  -132,  -132,   192,    24,   130,   144,
+    -132,  -132,   192,   156,  -132,    30,    26,    93,  -132,    52,
+      30,    59,   176,    63,    67,  -132,  -132,   192,   192,   192,
+     192,   192,  -132,  -132,   137,    70,  -132,  -132,    30,   188,
+      80,    85,    82,    89,  -132,  -132,  -132,    45,  -132,   124,
+    -132,  -132,  -132,  -132,  -132,    92,   107,    99,  -132,  -132,
+    -132,  -132,    66,  -132,  -132,  -132,  -132,    24,    24,  -132,
+     156,  -132,  -132,  -132,   113,   192,   192,  -132,  -132,  -132,
+    -132,  -132,   192,   128,  -132,   192,  -132,  -132,   132,   130,
+     194,   157,   121,   131,   152,   158,    63,  -132,    48,   192,
+     192,   192,   192,   192,   192,   192,   192,    48,  -132,   167,
+     130,   130,   130,   130,   194,   194,   157,   121,  -132,    48,
+    -132
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -667,8 +664,8 @@ static const yytype_int16 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       0,     9,    10,    11,     0,     0,     2,     4,     5,     0,
-       0,     6,     0,     1,     3,    17,     0,    12,     0,    17,
+       0,     9,    10,    11,     0,     0,     2,     5,     0,     0,
+       6,     0,     1,     3,     4,    17,     0,    12,     0,    17,
        0,     0,     0,     0,    16,     0,     8,     0,     7,     0,
        0,     0,    29,    61,    62,    56,     0,    70,    69,    68,
        0,    59,    63,    60,    73,    64,     0,    77,    54,     0,
@@ -689,19 +686,19 @@ static const yytype_int8 yydefact[] =
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-    -127,  -127,  -127,   184,   -50,     4,  -127,   182,   179,   -32,
-     -44,  -127,  -127,   178,   146,   -23,  -127,   122,  -126,  -127,
-    -127,  -127,   -22,    96,   -55,  -127,  -127,    17,  -127,  -127,
-    -127,    64,   -98,    21,    68,    70,  -127
+    -132,  -132,  -132,    15,     4,  -132,   179,   169,   -32,   -44,
+    -132,   198,   178,   146,   -23,  -132,   122,  -131,  -132,  -132,
+    -132,   -22,    96,   -55,  -132,  -132,    17,  -132,  -132,  -132,
+     102,   -98,    40,    68,    69,  -132
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_uint8 yydefgoto[] =
 {
-       0,     5,     6,     7,     8,    30,    10,    16,    17,    24,
-      50,    74,    11,    31,    32,    88,    89,    90,    91,    92,
-      93,    94,    95,   128,    41,    42,    43,    44,    45,    46,
-     102,    47,    48,   130,   131,   132,   133
+       0,     5,     6,    86,    30,     9,    16,    17,    24,    50,
+      74,    10,    31,    32,    88,    89,    90,    91,    92,    93,
+      94,    95,   128,    41,    42,    43,    44,    45,    46,   102,
+      47,    48,   130,   131,   132,   133
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -709,55 +706,55 @@ static const yytype_uint8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-      40,    51,    96,    63,     9,    73,    58,    86,    12,    76,
-       9,    21,   149,    22,    64,     1,     2,   129,   129,    13,
-      23,   158,    22,    60,     1,     2,    29,    51,    61,    23,
-      75,    51,    77,   160,    96,    55,    62,    98,    22,    86,
-     101,   150,   151,   152,   153,   129,   129,   129,   129,    52,
-      15,    33,    34,    35,    78,   112,    53,   114,    18,    61,
-      19,    87,    27,    66,    79,    80,   126,    81,    82,    83,
-      36,    67,    68,    69,    57,     1,     2,    85,    37,    59,
-      38,    39,   124,    96,   104,   105,   106,   125,    51,    25,
-      26,   136,    96,    87,    25,    28,    33,    34,    35,    57,
-     135,    70,    71,   137,    96,     1,     2,    65,     4,    79,
-      80,    97,    81,    82,    83,    36,   109,   110,    52,    57,
-      84,   103,    85,    37,   111,    38,    39,    33,    34,    35,
-       1,     2,     3,     4,   107,   108,     1,     2,   115,     4,
-      79,    80,   116,    81,    82,    83,    36,    33,    34,    35,
-      57,   119,   117,    85,    37,   118,    38,    39,   121,    33,
-      34,    35,   143,   144,   154,   155,    36,   122,   123,   127,
-      49,    72,    22,   138,    37,   145,    38,    39,    36,    33,
-      34,    35,    49,   146,   147,   159,    37,   148,    38,    39,
-      14,    33,    34,    35,    20,    33,    34,    35,    36,   100,
-     139,   140,   141,   142,    54,    56,    37,    99,    38,    39,
-      36,   120,   134,   156,    36,     0,   157,   113,    37,     0,
+      40,    51,    96,    63,     8,    73,    58,   149,    11,    76,
+       8,     1,     2,    22,    64,     7,   158,   129,   129,    52,
+      23,    13,    29,    12,     1,     2,    53,    51,   160,    27,
+      75,    51,    77,    60,    96,    55,    15,    98,    61,    18,
+     101,   150,   151,   152,   153,   129,   129,   129,   129,    78,
+      19,    33,    34,    35,    61,   112,    57,   114,    67,    68,
+      69,    87,    59,    66,    79,    80,   126,    81,    82,    83,
+      36,     1,     2,    21,    57,    22,    97,    85,    37,    65,
+      38,    39,    23,    96,   104,   105,   106,    52,    51,   124,
+     103,   136,    96,    87,   125,   111,    33,    34,    35,    62,
+     135,    22,   115,   137,    96,     1,     2,   116,     4,    79,
+      80,   117,    81,    82,    83,    36,    25,    26,   118,    57,
+      84,   121,    85,    37,   123,    38,    39,    33,    34,    35,
+       1,     2,     3,     4,    25,    28,     1,     2,   122,     4,
+      79,    80,   127,    81,    82,    83,    36,    33,    34,    35,
+      57,   119,    22,    85,    37,   138,    38,    39,   145,    33,
+      34,    35,    70,    71,   109,   110,    36,   143,   144,   146,
+      49,    72,   107,   108,    37,   147,    38,    39,    36,    33,
+      34,    35,    49,   154,   155,   159,    37,   148,    38,    39,
+      20,    33,    34,    35,    54,    33,    34,    35,    36,   100,
+     139,   140,   141,   142,    14,    56,    37,    99,    38,    39,
+      36,   120,   134,   156,    36,   157,     0,   113,    37,     0,
       38,    39,    37,     0,    38,    39
 };
 
 static const yytype_int16 yycheck[] =
 {
-      22,    23,    57,    35,     0,    49,    29,    57,     4,    53,
-       6,    22,   138,    24,    36,    12,    13,   115,   116,     0,
-      31,   147,    24,    23,    12,    13,    23,    49,    28,    31,
-      52,    53,    55,   159,    89,    23,    22,    60,    24,    89,
-      62,   139,   140,   141,   142,   143,   144,   145,   146,    24,
-       5,     3,     4,     5,    23,    78,    31,    79,     5,    28,
-       5,    57,    22,    46,    16,    17,   110,    19,    20,    21,
-      22,    34,    35,    36,    26,    12,    13,    29,    30,     5,
-      32,    33,    23,   138,    67,    68,    69,    28,   110,    28,
-      29,   123,   147,    89,    28,    29,     3,     4,     5,    26,
-     122,    32,    33,   125,   159,    12,    13,    25,    15,    16,
-      17,    24,    19,    20,    21,    22,    27,    28,    24,    26,
-      27,    23,    29,    30,    25,    32,    33,     3,     4,     5,
-      12,    13,    14,    15,    70,    71,    12,    13,    22,    15,
-      16,    17,    22,    19,    20,    21,    22,     3,     4,     5,
-      26,    27,    29,    29,    30,    29,    32,    33,    29,     3,
-       4,     5,    10,    11,   143,   144,    22,    31,    25,    29,
-      26,    27,    24,    23,    30,    37,    32,    33,    22,     3,
-       4,     5,    26,    38,    23,    18,    30,    29,    32,    33,
-       6,     3,     4,     5,    12,     3,     4,     5,    22,    23,
-       6,     7,     8,     9,    25,    27,    30,    61,    32,    33,
-      22,    89,   116,   145,    22,    -1,   146,    29,    30,    -1,
+      22,    23,    57,    35,     0,    49,    29,   138,     4,    53,
+       6,    12,    13,    24,    36,     0,   147,   115,   116,    24,
+      31,     6,    23,     0,    12,    13,    31,    49,   159,    22,
+      52,    53,    55,    23,    89,    23,     5,    60,    28,     5,
+      62,   139,   140,   141,   142,   143,   144,   145,   146,    23,
+       5,     3,     4,     5,    28,    78,    26,    79,    34,    35,
+      36,    57,     5,    46,    16,    17,   110,    19,    20,    21,
+      22,    12,    13,    22,    26,    24,    24,    29,    30,    25,
+      32,    33,    31,   138,    67,    68,    69,    24,   110,    23,
+      23,   123,   147,    89,    28,    25,     3,     4,     5,    22,
+     122,    24,    22,   125,   159,    12,    13,    22,    15,    16,
+      17,    29,    19,    20,    21,    22,    28,    29,    29,    26,
+      27,    29,    29,    30,    25,    32,    33,     3,     4,     5,
+      12,    13,    14,    15,    28,    29,    12,    13,    31,    15,
+      16,    17,    29,    19,    20,    21,    22,     3,     4,     5,
+      26,    27,    24,    29,    30,    23,    32,    33,    37,     3,
+       4,     5,    32,    33,    27,    28,    22,    10,    11,    38,
+      26,    27,    70,    71,    30,    23,    32,    33,    22,     3,
+       4,     5,    26,   143,   144,    18,    30,    29,    32,    33,
+      11,     3,     4,     5,    25,     3,     4,     5,    22,    23,
+       6,     7,     8,     9,     6,    27,    30,    61,    32,    33,
+      22,    89,   116,   145,    22,   146,    -1,    29,    30,    -1,
       32,    33,    30,    -1,    32,    33
 };
 
@@ -766,43 +763,43 @@ static const yytype_int16 yycheck[] =
 static const yytype_int8 yystos[] =
 {
        0,    12,    13,    14,    15,    41,    42,    43,    44,    45,
-      46,    52,    45,     0,    43,     5,    47,    48,     5,     5,
-      47,    22,    24,    31,    49,    28,    29,    22,    29,    23,
-      45,    53,    54,     3,     4,     5,    22,    30,    32,    33,
-      62,    64,    65,    66,    67,    68,    69,    71,    72,    26,
-      50,    62,    24,    31,    48,    23,    53,    26,    55,     5,
-      23,    28,    22,    49,    62,    25,    67,    34,    35,    36,
-      32,    33,    27,    50,    51,    62,    50,    55,    23,    16,
-      17,    19,    20,    21,    27,    29,    44,    45,    55,    56,
-      57,    58,    59,    60,    61,    62,    64,    24,    55,    54,
-      23,    62,    70,    23,    67,    67,    67,    71,    71,    27,
-      28,    25,    55,    29,    62,    22,    22,    29,    29,    27,
-      57,    29,    31,    25,    23,    28,    50,    29,    63,    72,
-      73,    74,    75,    76,    63,    62,    49,    62,    23,     6,
-       7,     8,     9,    10,    11,    37,    38,    23,    29,    58,
-      72,    72,    72,    72,    73,    73,    74,    75,    58,    18,
-      58
+      51,    44,     0,    43,    51,     5,    46,    47,     5,     5,
+      46,    22,    24,    31,    48,    28,    29,    22,    29,    23,
+      44,    52,    53,     3,     4,     5,    22,    30,    32,    33,
+      61,    63,    64,    65,    66,    67,    68,    70,    71,    26,
+      49,    61,    24,    31,    47,    23,    52,    26,    54,     5,
+      23,    28,    22,    48,    61,    25,    66,    34,    35,    36,
+      32,    33,    27,    49,    50,    61,    49,    54,    23,    16,
+      17,    19,    20,    21,    27,    29,    43,    44,    54,    55,
+      56,    57,    58,    59,    60,    61,    63,    24,    54,    53,
+      23,    61,    69,    23,    66,    66,    66,    70,    70,    27,
+      28,    25,    54,    29,    61,    22,    22,    29,    29,    27,
+      56,    29,    31,    25,    23,    28,    49,    29,    62,    71,
+      72,    73,    74,    75,    62,    61,    48,    61,    23,     6,
+       7,     8,     9,    10,    11,    37,    38,    23,    29,    57,
+      71,    71,    71,    71,    72,    72,    73,    74,    57,    18,
+      57
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    40,    41,    42,    42,    43,    43,    44,    44,    45,
-      45,    46,    47,    47,    48,    48,    48,    48,    49,    49,
-      50,    50,    50,    51,    51,    52,    52,    52,    52,    53,
-      53,    54,    54,    54,    55,    55,    56,    56,    57,    57,
-      58,    58,    58,    58,    58,    58,    58,    58,    58,    59,
-      59,    60,    61,    61,    62,    63,    64,    64,    65,    65,
-      65,    66,    66,    67,    67,    67,    68,    68,    69,    69,
-      69,    70,    70,    71,    71,    71,    71,    72,    72,    72,
-      73,    73,    73,    73,    73,    74,    74,    74,    75,    75,
-      76,    76
+       0,    40,    41,    42,    42,    42,    42,    43,    43,    44,
+      44,    45,    46,    46,    47,    47,    47,    47,    48,    48,
+      49,    49,    49,    50,    50,    51,    51,    51,    51,    52,
+      52,    53,    53,    53,    54,    54,    55,    55,    56,    56,
+      57,    57,    57,    57,    57,    57,    57,    57,    57,    58,
+      58,    59,    60,    60,    61,    62,    63,    63,    64,    64,
+      64,    65,    65,    66,    66,    66,    67,    67,    68,    68,
+      68,    69,    69,    70,    70,    70,    70,    71,    71,    71,
+      72,    72,    72,    72,    72,    73,    73,    73,    74,    74,
+      75,    75
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     1,     2,     1,     1,     1,     4,     3,     1,
+       0,     2,     1,     2,     2,     1,     1,     4,     3,     1,
        1,     1,     1,     3,     4,     3,     2,     1,     3,     4,
        1,     2,     3,     3,     1,     6,     5,     6,     5,     1,
        3,     2,     4,     5,     2,     3,     1,     2,     1,     1,
@@ -1659,217 +1656,217 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* Program: CompUnit  */
-#line 127 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 124 "/home/yang/playground/src/sysy/parser.y"
              {
         root = unique_ptr<CompUnit>((yyvsp[0].compUnit));
     }
-#line 1667 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1664 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 3: /* CompUnit: CompUnit DeclDef  */
-#line 133 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+  case 3: /* CompUnit: CompUnit Decl  */
+#line 130 "/home/yang/playground/src/sysy/parser.y"
+                  {
+        (yyval.compUnit) = (yyvsp[-1].compUnit);
+        (yyval.compUnit)->declList.push_back(unique_ptr<Decl>((yyvsp[0].decl)));
+    }
+#line 1673 "/home/yang/playground/generated/parser.tab.cpp"
+    break;
+
+  case 4: /* CompUnit: CompUnit FuncDef  */
+#line 134 "/home/yang/playground/src/sysy/parser.y"
                      {
         (yyval.compUnit) = (yyvsp[-1].compUnit);
-        (yyval.compUnit)->declDefList.push_back(unique_ptr<DeclDef>((yyvsp[0].declDef)));
+        (yyval.compUnit)->funcDefList.push_back(unique_ptr<FuncDef>((yyvsp[0].funcDef)));
     }
-#line 1676 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1682 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 4: /* CompUnit: DeclDef  */
-#line 137 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
-            {
-        (yyval.compUnit) = new CompUnit();
-        (yyval.compUnit)->declDefList.push_back(unique_ptr<DeclDef>((yyvsp[0].declDef)));
-    }
-#line 1685 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
-    break;
-
-  case 5: /* DeclDef: Decl  */
-#line 144 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+  case 5: /* CompUnit: Decl  */
+#line 138 "/home/yang/playground/src/sysy/parser.y"
          {
-        (yyval.declDef) = new DeclDef();
-        (yyval.declDef)->decl = unique_ptr<Decl>((yyvsp[0].decl));
+        (yyval.compUnit) = new CompUnit();
+        (yyval.compUnit)->declList.push_back(unique_ptr<Decl>((yyvsp[0].decl)));
     }
-#line 1694 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1691 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
-  case 6: /* DeclDef: FuncDef  */
-#line 148 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+  case 6: /* CompUnit: FuncDef  */
+#line 142 "/home/yang/playground/src/sysy/parser.y"
             {
-        (yyval.declDef) = new DeclDef();
-        (yyval.declDef)->funcDef = unique_ptr<FuncDef>((yyvsp[0].funcDef));
+        (yyval.compUnit) = new CompUnit(); 
+        (yyval.compUnit)->funcDefList.push_back(unique_ptr<FuncDef>((yyvsp[0].funcDef)));
     }
-#line 1703 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1700 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 7: /* Decl: CONST BType DefList SEMICOLON  */
-#line 155 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 149 "/home/yang/playground/src/sysy/parser.y"
                                   {
         (yyval.decl) = new Decl();
         (yyval.decl)->isConst = true;
         (yyval.decl)->bType = (yyvsp[-2].ty);
         (yyval.decl)->defList.swap((yyvsp[-1].defList)->list);
     }
-#line 1714 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1711 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 8: /* Decl: BType DefList SEMICOLON  */
-#line 161 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 155 "/home/yang/playground/src/sysy/parser.y"
                             {
         (yyval.decl) = new Decl();
         (yyval.decl)->isConst = false;
         (yyval.decl)->bType = (yyvsp[-2].ty);
         (yyval.decl)->defList.swap((yyvsp[-1].defList)->list);
     }
-#line 1725 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1722 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 9: /* BType: INTTYPE  */
-#line 170 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 164 "/home/yang/playground/src/sysy/parser.y"
             {
         (yyval.ty) = BType::INT;
     }
-#line 1733 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1730 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 10: /* BType: FLOATTYPE  */
-#line 173 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 167 "/home/yang/playground/src/sysy/parser.y"
               {
         (yyval.ty) = BType::FLOAT;
     }
-#line 1741 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1738 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 11: /* VoidType: VOID  */
-#line 179 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 173 "/home/yang/playground/src/sysy/parser.y"
          {
         (yyval.ty) = BType::VOID;
     }
-#line 1749 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1746 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 12: /* DefList: Def  */
-#line 185 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 179 "/home/yang/playground/src/sysy/parser.y"
         {
         (yyval.defList) = new DefList();
         (yyval.defList)->list.push_back(unique_ptr<Def>((yyvsp[0].def)));
     }
-#line 1758 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1755 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 13: /* DefList: DefList COMMA Def  */
-#line 189 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 183 "/home/yang/playground/src/sysy/parser.y"
                       {
         (yyval.defList) = (yyvsp[-2].defList);
         (yyval.defList)->list.push_back(unique_ptr<Def>((yyvsp[0].def)));
     }
-#line 1767 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1764 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 14: /* Def: ID Arrays ASSIGN InitVal  */
-#line 196 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 190 "/home/yang/playground/src/sysy/parser.y"
                              {
         (yyval.def) = new Def();
         (yyval.def)->id = unique_ptr<string>((yyvsp[-3].token));
         (yyval.def)->arrays.swap((yyvsp[-2].arrays)->list);
         (yyval.def)->initVal = unique_ptr<InitVal>((yyvsp[0].initVal));
     }
-#line 1778 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1775 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 15: /* Def: ID ASSIGN InitVal  */
-#line 202 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 196 "/home/yang/playground/src/sysy/parser.y"
                       {
         (yyval.def) = new Def();
         (yyval.def)->id = unique_ptr<string>((yyvsp[-2].token));
         (yyval.def)->initVal = unique_ptr<InitVal>((yyvsp[0].initVal));
     }
-#line 1788 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1785 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 16: /* Def: ID Arrays  */
-#line 207 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 201 "/home/yang/playground/src/sysy/parser.y"
               {
         (yyval.def) = new Def();
         (yyval.def)->id = unique_ptr<string>((yyvsp[-1].token));
         (yyval.def)->arrays.swap((yyvsp[0].arrays)->list);
     }
-#line 1798 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1795 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 17: /* Def: ID  */
-#line 212 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 206 "/home/yang/playground/src/sysy/parser.y"
        {
         (yyval.def) = new Def();
         (yyval.def)->id = unique_ptr<string>((yyvsp[0].token));
     }
-#line 1807 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1804 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 18: /* Arrays: LB Exp RB  */
-#line 219 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 213 "/home/yang/playground/src/sysy/parser.y"
               {
         (yyval.arrays) = new ArrayList();
         (yyval.arrays)->list.push_back(unique_ptr<AddExp>((yyvsp[-1].addExp)));
     }
-#line 1816 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1813 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 19: /* Arrays: Arrays LB Exp RB  */
-#line 223 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 217 "/home/yang/playground/src/sysy/parser.y"
                      {
         (yyval.arrays) = (yyvsp[-3].arrays);
         (yyval.arrays)->list.push_back(unique_ptr<AddExp>((yyvsp[-1].addExp)));
     }
-#line 1825 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1822 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 20: /* InitVal: Exp  */
-#line 230 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 224 "/home/yang/playground/src/sysy/parser.y"
         {
         (yyval.initVal) = new InitVal();
         (yyval.initVal)->exp = unique_ptr<AddExp>((yyvsp[0].addExp));
     }
-#line 1834 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1831 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 21: /* InitVal: LC RC  */
-#line 234 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 228 "/home/yang/playground/src/sysy/parser.y"
           {
         (yyval.initVal) = new InitVal();
     }
-#line 1842 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1839 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 22: /* InitVal: LC InitValList RC  */
-#line 237 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 231 "/home/yang/playground/src/sysy/parser.y"
                       {
         (yyval.initVal) = new InitVal();
         (yyval.initVal)->initValList.swap((yyvsp[-1].initValList)->list);
     }
-#line 1851 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1848 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 23: /* InitValList: InitValList COMMA InitVal  */
-#line 244 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 238 "/home/yang/playground/src/sysy/parser.y"
                               {
         (yyval.initValList) = (yyvsp[-2].initValList);
         (yyval.initValList)->list.push_back(unique_ptr<InitVal>((yyvsp[0].initVal)));
     }
-#line 1860 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1857 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 24: /* InitValList: InitVal  */
-#line 248 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 242 "/home/yang/playground/src/sysy/parser.y"
             {
         (yyval.initValList) = new InitValList();
         (yyval.initValList)->list.push_back(unique_ptr<InitVal>((yyvsp[0].initVal)));
     }
-#line 1869 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1866 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 25: /* FuncDef: BType ID LP FuncFParamList RP Block  */
-#line 255 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 249 "/home/yang/playground/src/sysy/parser.y"
                                         {
         (yyval.funcDef) = new FuncDef();
         (yyval.funcDef)->returnType = (yyvsp[-5].ty);
@@ -1877,22 +1874,22 @@ yyreduce:
         (yyval.funcDef)->funcFParamList.swap((yyvsp[-2].funcFParamList)->list);
         (yyval.funcDef)->block = unique_ptr<Block>((yyvsp[0].block));
     }
-#line 1881 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1878 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 26: /* FuncDef: BType ID LP RP Block  */
-#line 262 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 256 "/home/yang/playground/src/sysy/parser.y"
                          {
         (yyval.funcDef) = new FuncDef();
         (yyval.funcDef)->returnType = (yyvsp[-4].ty);
         (yyval.funcDef)->id = unique_ptr<string>((yyvsp[-3].token));
         (yyval.funcDef)->block = unique_ptr<Block>((yyvsp[0].block));
     }
-#line 1892 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1889 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 27: /* FuncDef: VoidType ID LP FuncFParamList RP Block  */
-#line 268 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 262 "/home/yang/playground/src/sysy/parser.y"
                                            {
         (yyval.funcDef) = new FuncDef();
         (yyval.funcDef)->returnType = (yyvsp[-5].ty);
@@ -1900,62 +1897,62 @@ yyreduce:
         (yyval.funcDef)->funcFParamList.swap((yyvsp[-2].funcFParamList)->list);
         (yyval.funcDef)->block = unique_ptr<Block>((yyvsp[0].block));
     }
-#line 1904 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1901 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 28: /* FuncDef: VoidType ID LP RP Block  */
-#line 275 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 269 "/home/yang/playground/src/sysy/parser.y"
                             {
         (yyval.funcDef) = new FuncDef();
         (yyval.funcDef)->returnType = (yyvsp[-4].ty);
         (yyval.funcDef)->id = unique_ptr<string>((yyvsp[-3].token));
         (yyval.funcDef)->block = unique_ptr<Block>((yyvsp[0].block));
     }
-#line 1915 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1912 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 29: /* FuncFParamList: FuncFParam  */
-#line 284 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 278 "/home/yang/playground/src/sysy/parser.y"
                {
         (yyval.funcFParamList) = new FuncFParamList();
         (yyval.funcFParamList)->list.push_back(unique_ptr<FuncFParam>((yyvsp[0].funcFParam)));
     }
-#line 1924 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1921 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 30: /* FuncFParamList: FuncFParamList COMMA FuncFParam  */
-#line 288 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 282 "/home/yang/playground/src/sysy/parser.y"
                                     {
         (yyval.funcFParamList) = (yyvsp[-2].funcFParamList);
         (yyval.funcFParamList)->list.push_back(unique_ptr<FuncFParam>((yyvsp[0].funcFParam)));
     }
-#line 1933 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1930 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 31: /* FuncFParam: BType ID  */
-#line 295 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 289 "/home/yang/playground/src/sysy/parser.y"
              {
         (yyval.funcFParam) = new FuncFParam();
         (yyval.funcFParam)->bType = (yyvsp[-1].ty);
         (yyval.funcFParam)->id = unique_ptr<string>((yyvsp[0].token));
         (yyval.funcFParam)->isArray = false;
     }
-#line 1944 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1941 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 32: /* FuncFParam: BType ID LB RB  */
-#line 301 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 295 "/home/yang/playground/src/sysy/parser.y"
                    {
         (yyval.funcFParam) = new FuncFParam();
         (yyval.funcFParam)->bType = (yyvsp[-3].ty);
         (yyval.funcFParam)->id = unique_ptr<string>((yyvsp[-2].token));
         (yyval.funcFParam)->isArray = true;
     }
-#line 1955 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1952 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 33: /* FuncFParam: BType ID LB RB Arrays  */
-#line 307 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 301 "/home/yang/playground/src/sysy/parser.y"
                           {
         (yyval.funcFParam) = new FuncFParam();
         (yyval.funcFParam)->bType = (yyvsp[-4].ty);
@@ -1963,566 +1960,566 @@ yyreduce:
         (yyval.funcFParam)->isArray = true;
         (yyval.funcFParam)->arrays.swap((yyvsp[0].arrays)->list);
     }
-#line 1967 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1964 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 34: /* Block: LC RC  */
-#line 317 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 311 "/home/yang/playground/src/sysy/parser.y"
           {
         (yyval.block) = new Block();
     }
-#line 1975 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1972 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 35: /* Block: LC BlockItemList RC  */
-#line 320 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 314 "/home/yang/playground/src/sysy/parser.y"
                         {
         (yyval.block) = new Block();
         (yyval.block)->blockItemList.swap((yyvsp[-1].blockItemList)->list);
     }
-#line 1984 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1981 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 36: /* BlockItemList: BlockItem  */
-#line 327 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 321 "/home/yang/playground/src/sysy/parser.y"
               {
         (yyval.blockItemList) = new BlockItemList();
         (yyval.blockItemList)->list.push_back(unique_ptr<BlockItem>((yyvsp[0].blockItem)));
     }
-#line 1993 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1990 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 37: /* BlockItemList: BlockItemList BlockItem  */
-#line 331 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 325 "/home/yang/playground/src/sysy/parser.y"
                             {
         (yyval.blockItemList) = (yyvsp[-1].blockItemList);
         (yyval.blockItemList)->list.push_back(unique_ptr<BlockItem>((yyvsp[0].blockItem)));
     }
-#line 2002 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 1999 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 38: /* BlockItem: Decl  */
-#line 338 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 332 "/home/yang/playground/src/sysy/parser.y"
          {
         (yyval.blockItem) = new BlockItem();
         (yyval.blockItem)->decl = unique_ptr<Decl>((yyvsp[0].decl));
     }
-#line 2011 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2008 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 39: /* BlockItem: Stmt  */
-#line 342 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 336 "/home/yang/playground/src/sysy/parser.y"
          {
         (yyval.blockItem) = new BlockItem();
         (yyval.blockItem)->stmt = unique_ptr<Stmt>((yyvsp[0].stmt));
     }
-#line 2020 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2017 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 40: /* Stmt: SEMICOLON  */
-#line 348 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 342 "/home/yang/playground/src/sysy/parser.y"
               {
         (yyval.stmt) = new Stmt();
         (yyval.stmt)->sType = StmtType::SEMI;
     }
-#line 2029 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2026 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 41: /* Stmt: LVal ASSIGN Exp SEMICOLON  */
-#line 352 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 346 "/home/yang/playground/src/sysy/parser.y"
                               {
         (yyval.stmt) = new Stmt();
         (yyval.stmt)->sType = StmtType::ASGN;
         (yyval.stmt)->lVal = unique_ptr<LVal>((yyvsp[-3].lVal));
         (yyval.stmt)->exp = unique_ptr<AddExp>((yyvsp[-1].addExp));
     }
-#line 2040 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2037 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 42: /* Stmt: Exp SEMICOLON  */
-#line 358 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 352 "/home/yang/playground/src/sysy/parser.y"
                   {
         (yyval.stmt) = new Stmt();
         (yyval.stmt)->sType = StmtType::EXP;
         (yyval.stmt)->exp = unique_ptr<AddExp>((yyvsp[-1].addExp));
     }
-#line 2050 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2047 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 43: /* Stmt: CONTINUE SEMICOLON  */
-#line 363 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 357 "/home/yang/playground/src/sysy/parser.y"
                        {
         (yyval.stmt) = new Stmt();
         (yyval.stmt)->sType = StmtType::CONTINUE;
     }
-#line 2059 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2056 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 44: /* Stmt: BREAK SEMICOLON  */
-#line 367 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 361 "/home/yang/playground/src/sysy/parser.y"
                     {
         (yyval.stmt) = new Stmt();
         (yyval.stmt)->sType = StmtType::BREAK;
     }
-#line 2068 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2065 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 45: /* Stmt: Block  */
-#line 371 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 365 "/home/yang/playground/src/sysy/parser.y"
           {
         (yyval.stmt) = new Stmt();
         (yyval.stmt)->sType = StmtType::BLK;
         (yyval.stmt)->block = unique_ptr<Block>((yyvsp[0].block));
     }
-#line 2078 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2075 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 46: /* Stmt: ReturnStmt  */
-#line 376 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 370 "/home/yang/playground/src/sysy/parser.y"
                {
         (yyval.stmt) = new Stmt();
         (yyval.stmt)->sType = StmtType::RET;
         (yyval.stmt)->returnStmt = unique_ptr<ReturnStmt>((yyvsp[0].returnStmt));
     }
-#line 2088 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2085 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 47: /* Stmt: IfStmt  */
-#line 381 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 375 "/home/yang/playground/src/sysy/parser.y"
            {
         (yyval.stmt) = new Stmt();
         (yyval.stmt)->sType = StmtType::IF;
         (yyval.stmt)->ifStmt = unique_ptr<IfStmt>((yyvsp[0].ifStmt));
     }
-#line 2098 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2095 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 48: /* Stmt: IterationStmt  */
-#line 386 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 380 "/home/yang/playground/src/sysy/parser.y"
                   {
         (yyval.stmt) = new Stmt();
         (yyval.stmt)->sType = StmtType::WHILE;
         (yyval.stmt)->whileStmtAST = unique_ptr<WhileStmt>((yyvsp[0].whileStmtAST));
     }
-#line 2108 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2105 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 49: /* IfStmt: IF LP Cond RP Stmt  */
-#line 394 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 388 "/home/yang/playground/src/sysy/parser.y"
                                              {
         (yyval.ifStmt) = new IfStmt();
         (yyval.ifStmt)->cond = unique_ptr<LOrExp>((yyvsp[-2].lOrExp));
         (yyval.ifStmt)->ifStmt = unique_ptr<Stmt>((yyvsp[0].stmt));
     }
-#line 2118 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2115 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 50: /* IfStmt: IF LP Cond RP Stmt ELSE Stmt  */
-#line 399 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 393 "/home/yang/playground/src/sysy/parser.y"
                                  {
         (yyval.ifStmt) = new IfStmt();
         (yyval.ifStmt)->cond = unique_ptr<LOrExp>((yyvsp[-4].lOrExp));
         (yyval.ifStmt)->ifStmt = unique_ptr<Stmt>((yyvsp[-2].stmt));
         (yyval.ifStmt)->elseStmt = unique_ptr<Stmt>((yyvsp[0].stmt));
     }
-#line 2129 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2126 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 51: /* IterationStmt: WHILE LP Cond RP Stmt  */
-#line 408 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 402 "/home/yang/playground/src/sysy/parser.y"
                           {
         (yyval.whileStmtAST) = new WhileStmt();
         (yyval.whileStmtAST)->cond = unique_ptr<LOrExp>((yyvsp[-2].lOrExp));
         (yyval.whileStmtAST)->stmt = unique_ptr<Stmt>((yyvsp[0].stmt));
     }
-#line 2139 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2136 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 52: /* ReturnStmt: RETURN Exp SEMICOLON  */
-#line 416 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 410 "/home/yang/playground/src/sysy/parser.y"
                          {
         (yyval.returnStmt) = new ReturnStmt();
         (yyval.returnStmt)->exp = unique_ptr<AddExp>((yyvsp[-1].addExp));
     }
-#line 2148 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2145 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 53: /* ReturnStmt: RETURN SEMICOLON  */
-#line 420 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 414 "/home/yang/playground/src/sysy/parser.y"
                      {
         (yyval.returnStmt) = new ReturnStmt();
     }
-#line 2156 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2153 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 54: /* Exp: AddExp  */
-#line 426 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 420 "/home/yang/playground/src/sysy/parser.y"
            {
         (yyval.addExp) = (yyvsp[0].addExp);
     }
-#line 2164 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2161 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 55: /* Cond: LOrExp  */
-#line 432 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 426 "/home/yang/playground/src/sysy/parser.y"
            {
         (yyval.lOrExp) = (yyvsp[0].lOrExp);
     }
-#line 2172 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2169 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 56: /* LVal: ID  */
-#line 438 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 432 "/home/yang/playground/src/sysy/parser.y"
        {
         (yyval.lVal) = new LVal();
         (yyval.lVal)->id = unique_ptr<string>((yyvsp[0].token));
     }
-#line 2181 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2178 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 57: /* LVal: ID Arrays  */
-#line 442 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 436 "/home/yang/playground/src/sysy/parser.y"
               {
         (yyval.lVal) = new LVal();
         (yyval.lVal)->id = unique_ptr<string>((yyvsp[-1].token));
         (yyval.lVal)->arrays.swap((yyvsp[0].arrays)->list);
     }
-#line 2191 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2188 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 58: /* PrimaryExp: LP Exp RP  */
-#line 450 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 444 "/home/yang/playground/src/sysy/parser.y"
               {
         (yyval.primaryExp) = new PrimaryExp();
         (yyval.primaryExp)->exp = unique_ptr<AddExp>((yyvsp[-1].addExp));
     }
-#line 2200 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2197 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 59: /* PrimaryExp: LVal  */
-#line 454 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 448 "/home/yang/playground/src/sysy/parser.y"
          {
         (yyval.primaryExp) = new PrimaryExp();
         (yyval.primaryExp)->lval = unique_ptr<LVal>((yyvsp[0].lVal));
     }
-#line 2209 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2206 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 60: /* PrimaryExp: Number  */
-#line 458 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 452 "/home/yang/playground/src/sysy/parser.y"
            {
         (yyval.primaryExp) = new PrimaryExp();
         (yyval.primaryExp)->number = unique_ptr<NumberNode>((yyvsp[0].number));
     }
-#line 2218 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2215 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 61: /* Number: INT  */
-#line 465 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 459 "/home/yang/playground/src/sysy/parser.y"
         {
         (yyval.number) = new NumberNode();
         (yyval.number)->isInt = true;
         (yyval.number)->intval = (yyvsp[0].int_val);
     }
-#line 2228 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2225 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 62: /* Number: FLOAT  */
-#line 470 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 464 "/home/yang/playground/src/sysy/parser.y"
           {
         (yyval.number) = new NumberNode();
         (yyval.number)->isInt = false;
         (yyval.number)->floatval = (yyvsp[0].float_val);
     }
-#line 2238 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2235 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 63: /* UnaryExp: PrimaryExp  */
-#line 478 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 472 "/home/yang/playground/src/sysy/parser.y"
                {
         (yyval.unaryExp) = new UnaryExp();
         (yyval.unaryExp)->primaryExp = unique_ptr<PrimaryExp>((yyvsp[0].primaryExp));
     }
-#line 2247 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2244 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 64: /* UnaryExp: Call  */
-#line 482 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 476 "/home/yang/playground/src/sysy/parser.y"
          {
         (yyval.unaryExp) = new UnaryExp();
         (yyval.unaryExp)->call = unique_ptr<Call>((yyvsp[0].call));
     }
-#line 2256 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2253 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 65: /* UnaryExp: UnaryOp UnaryExp  */
-#line 486 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 480 "/home/yang/playground/src/sysy/parser.y"
                      {
         (yyval.unaryExp) = new UnaryExp();
         (yyval.unaryExp)->op = (yyvsp[-1].op);
         (yyval.unaryExp)->unaryExp = unique_ptr<UnaryExp>((yyvsp[0].unaryExp));
     }
-#line 2266 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2263 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 66: /* Call: ID LP RP  */
-#line 494 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 488 "/home/yang/playground/src/sysy/parser.y"
              {
         (yyval.call) = new Call();
         (yyval.call)->id = unique_ptr<string>((yyvsp[-2].token));
     }
-#line 2275 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2272 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 67: /* Call: ID LP FuncCParamList RP  */
-#line 498 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 492 "/home/yang/playground/src/sysy/parser.y"
                             {
         (yyval.call) = new Call();
         (yyval.call)->id = unique_ptr<string>((yyvsp[-3].token));
         (yyval.call)->funcCParamList.swap((yyvsp[-1].funcCParamList)->list);
     }
-#line 2285 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2282 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 68: /* UnaryOp: ADD  */
-#line 506 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 500 "/home/yang/playground/src/sysy/parser.y"
         {
         (yyval.op) = UnaryOp::ADD;
     }
-#line 2293 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2290 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 69: /* UnaryOp: MINUS  */
-#line 509 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 503 "/home/yang/playground/src/sysy/parser.y"
           {
         (yyval.op) = UnaryOp::MINUS;
     }
-#line 2301 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2298 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 70: /* UnaryOp: NOT  */
-#line 512 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 506 "/home/yang/playground/src/sysy/parser.y"
         {
         (yyval.op) = UnaryOp::NOT;
     }
-#line 2309 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2306 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 71: /* FuncCParamList: Exp  */
-#line 518 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 512 "/home/yang/playground/src/sysy/parser.y"
         {
         (yyval.funcCParamList) = new FuncCParamList();
         (yyval.funcCParamList)->list.push_back(unique_ptr<AddExp>((yyvsp[0].addExp)));
     }
-#line 2318 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2315 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 72: /* FuncCParamList: FuncCParamList COMMA Exp  */
-#line 522 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 516 "/home/yang/playground/src/sysy/parser.y"
                              {
         (yyval.funcCParamList) = (FuncCParamList*) (yyvsp[-2].funcCParamList);
         (yyval.funcCParamList)->list.push_back(unique_ptr<AddExp>((yyvsp[0].addExp)));
     }
-#line 2327 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2324 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 73: /* MulExp: UnaryExp  */
-#line 529 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 523 "/home/yang/playground/src/sysy/parser.y"
              {
         (yyval.mulExp) = new MulExp();
         (yyval.mulExp)->unaryExp = unique_ptr<UnaryExp>((yyvsp[0].unaryExp));
     }
-#line 2336 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2333 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 74: /* MulExp: MulExp MUL UnaryExp  */
-#line 533 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 527 "/home/yang/playground/src/sysy/parser.y"
                         {
         (yyval.mulExp) = new MulExp();
         (yyval.mulExp)->mulExp = unique_ptr<MulExp>((yyvsp[-2].mulExp));
         (yyval.mulExp)->op = MulOp::MUL;
         (yyval.mulExp)->unaryExp = unique_ptr<UnaryExp>((yyvsp[0].unaryExp));
     }
-#line 2347 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2344 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 75: /* MulExp: MulExp DIV UnaryExp  */
-#line 539 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 533 "/home/yang/playground/src/sysy/parser.y"
                         {
         (yyval.mulExp) = new MulExp();
         (yyval.mulExp)->mulExp = unique_ptr<MulExp>((yyvsp[-2].mulExp));
         (yyval.mulExp)->op = MulOp::DIV;
         (yyval.mulExp)->unaryExp = unique_ptr<UnaryExp>((yyvsp[0].unaryExp));
     }
-#line 2358 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2355 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 76: /* MulExp: MulExp MOD UnaryExp  */
-#line 545 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 539 "/home/yang/playground/src/sysy/parser.y"
                         {
         (yyval.mulExp) = new MulExp();
         (yyval.mulExp)->mulExp = unique_ptr<MulExp>((yyvsp[-2].mulExp));
         (yyval.mulExp)->op = MulOp::MOD;
         (yyval.mulExp)->unaryExp = unique_ptr<UnaryExp>((yyvsp[0].unaryExp));
     }
-#line 2369 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2366 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 77: /* AddExp: MulExp  */
-#line 554 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 548 "/home/yang/playground/src/sysy/parser.y"
            {
         (yyval.addExp) = new AddExp();
         (yyval.addExp)->mulExp = unique_ptr<MulExp>((yyvsp[0].mulExp));
     }
-#line 2378 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2375 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 78: /* AddExp: AddExp ADD MulExp  */
-#line 558 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 552 "/home/yang/playground/src/sysy/parser.y"
                       {
         (yyval.addExp) = new AddExp();
         (yyval.addExp)->addExp = unique_ptr<AddExp>((yyvsp[-2].addExp));
         (yyval.addExp)->op = AddOp::ADD;
         (yyval.addExp)->mulExp = unique_ptr<MulExp>((yyvsp[0].mulExp));
     }
-#line 2389 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2386 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 79: /* AddExp: AddExp MINUS MulExp  */
-#line 564 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 558 "/home/yang/playground/src/sysy/parser.y"
                         {
         (yyval.addExp) = new AddExp();
         (yyval.addExp)->addExp = unique_ptr<AddExp>((yyvsp[-2].addExp));
         (yyval.addExp)->op = AddOp::MINUS;
         (yyval.addExp)->mulExp = unique_ptr<MulExp>((yyvsp[0].mulExp));
     }
-#line 2400 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2397 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 80: /* RelExp: AddExp  */
-#line 573 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 567 "/home/yang/playground/src/sysy/parser.y"
            {
         (yyval.relExp) = new RelExp();
         (yyval.relExp)->addExp = unique_ptr<AddExp>((yyvsp[0].addExp));
     }
-#line 2409 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2406 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 81: /* RelExp: RelExp GTE AddExp  */
-#line 577 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 571 "/home/yang/playground/src/sysy/parser.y"
                       {
         (yyval.relExp) = new RelExp();
         (yyval.relExp)->relExp = unique_ptr<RelExp>((yyvsp[-2].relExp));
         (yyval.relExp)->op = RelOp::GTE;
         (yyval.relExp)->addExp = unique_ptr<AddExp>((yyvsp[0].addExp));
     }
-#line 2420 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2417 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 82: /* RelExp: RelExp LTE AddExp  */
-#line 583 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 577 "/home/yang/playground/src/sysy/parser.y"
                       {
         (yyval.relExp) = new RelExp();
         (yyval.relExp)->relExp = unique_ptr<RelExp>((yyvsp[-2].relExp));
         (yyval.relExp)->op = RelOp::LTE;
         (yyval.relExp)->addExp = unique_ptr<AddExp>((yyvsp[0].addExp));
     }
-#line 2431 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2428 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 83: /* RelExp: RelExp GT AddExp  */
-#line 589 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 583 "/home/yang/playground/src/sysy/parser.y"
                      {
         (yyval.relExp) = new RelExp();
         (yyval.relExp)->relExp = unique_ptr<RelExp>((yyvsp[-2].relExp));
         (yyval.relExp)->op = RelOp::GT;
         (yyval.relExp)->addExp = unique_ptr<AddExp>((yyvsp[0].addExp));
     }
-#line 2442 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2439 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 84: /* RelExp: RelExp LT AddExp  */
-#line 595 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 589 "/home/yang/playground/src/sysy/parser.y"
                      {
         (yyval.relExp) = new RelExp();
         (yyval.relExp)->relExp = unique_ptr<RelExp>((yyvsp[-2].relExp));
         (yyval.relExp)->op = RelOp::LT;
         (yyval.relExp)->addExp = unique_ptr<AddExp>((yyvsp[0].addExp));
     }
-#line 2453 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2450 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 85: /* EqExp: RelExp  */
-#line 604 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 598 "/home/yang/playground/src/sysy/parser.y"
            {
         (yyval.eqExp) = new EqExp();
         (yyval.eqExp)->relExp = unique_ptr<RelExp>((yyvsp[0].relExp));
     }
-#line 2462 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2459 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 86: /* EqExp: EqExp EQ RelExp  */
-#line 608 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 602 "/home/yang/playground/src/sysy/parser.y"
                     {
         (yyval.eqExp) = new EqExp();
         (yyval.eqExp)->eqExp = unique_ptr<EqExp>((yyvsp[-2].eqExp));
         (yyval.eqExp)->op = EqOp::EQ;
         (yyval.eqExp)->relExp = unique_ptr<RelExp>((yyvsp[0].relExp));
     }
-#line 2473 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2470 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 87: /* EqExp: EqExp NEQ RelExp  */
-#line 614 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 608 "/home/yang/playground/src/sysy/parser.y"
                      {
         (yyval.eqExp) = new EqExp();
         (yyval.eqExp)->eqExp = unique_ptr<EqExp>((yyvsp[-2].eqExp));
         (yyval.eqExp)->op = EqOp::NEQ;
         (yyval.eqExp)->relExp = unique_ptr<RelExp>((yyvsp[0].relExp));
     }
-#line 2484 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2481 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 88: /* LAndExp: EqExp  */
-#line 623 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 617 "/home/yang/playground/src/sysy/parser.y"
           {
         (yyval.lAndExp) = new LAndExp();
         (yyval.lAndExp)->eqExp = unique_ptr<EqExp>((yyvsp[0].eqExp));
     }
-#line 2493 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2490 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 89: /* LAndExp: LAndExp AND EqExp  */
-#line 627 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 621 "/home/yang/playground/src/sysy/parser.y"
                       {
         (yyval.lAndExp) = new LAndExp();
         (yyval.lAndExp)->lAndExp = unique_ptr<LAndExp>((yyvsp[-2].lAndExp));
         (yyval.lAndExp)->eqExp = unique_ptr<EqExp>((yyvsp[0].eqExp));
     }
-#line 2503 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2500 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 90: /* LOrExp: LAndExp  */
-#line 635 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 629 "/home/yang/playground/src/sysy/parser.y"
             {
         (yyval.lOrExp) = new LOrExp();
         (yyval.lOrExp)->lAndExp = unique_ptr<LAndExp>((yyvsp[0].lAndExp));
     }
-#line 2512 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2509 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
   case 91: /* LOrExp: LOrExp OR LAndExp  */
-#line 639 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 633 "/home/yang/playground/src/sysy/parser.y"
                       {
         (yyval.lOrExp) = new LOrExp();
         (yyval.lOrExp)->lOrExp = unique_ptr<LOrExp>((yyvsp[-2].lOrExp));
         (yyval.lOrExp)->lAndExp = unique_ptr<LAndExp>((yyvsp[0].lAndExp));
     }
-#line 2522 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2519 "/home/yang/playground/generated/parser.tab.cpp"
     break;
 
 
-#line 2526 "K:/WorkSpace/OUCC2025_/generated/parser.tab.cpp"
+#line 2523 "/home/yang/playground/generated/parser.tab.cpp"
 
       default: break;
     }
@@ -2751,7 +2748,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 644 "K:/WorkSpace/OUCC2025_/src/sysy/parser.y"
+#line 638 "/home/yang/playground/src/sysy/parser.y"
 
 
 void initFileName(char *name) {

@@ -198,17 +198,12 @@ Value *GenerateIR::typeConversion(Value *value, BasicKind targetType) {
 }
 
 void GenerateIR::visit(CompUnit &ast) {
-  for (const auto &def : ast.declDefList) {
-    def->accept(*this);
+  for (const auto &decl : ast.declList) {
+    decl->accept(*this);
   }
-}
-
-void GenerateIR::visit(DeclDef &ast) {
-  if (ast.decl) {
-    ast.decl->accept(*this);
-    return;
+  for (const auto &funcDef : ast.funcDefList) {
+    funcDef->accept(*this);
   }
-  ast.funcDef->accept(*this);
 }
 
 void GenerateIR::visit(Decl &ast) {
@@ -1020,8 +1015,7 @@ void GenerateIR::handleScalarVar(LVal &ast) {
     auto arrType = static_cast<ArrayType *>(type);
     // std::vector<Value *> indices(arrType->getDimensions().size(),
     //                              new ConstantNumber(Number(0)));
-    std::vector<Value *> indices(2,
-                             new ConstantNumber(Number(0)));
+    std::vector<Value *> indices(2, new ConstantNumber(Number(0)));
     auto gepInst = std::make_unique<GetElementPtrInst>(ptr, indices);
     _curVal = gepInst.get();
     _curBlock->pushInstruction(std::move(gepInst));

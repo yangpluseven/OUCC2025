@@ -72,8 +72,6 @@ public:
 
   void visit(CompUnit &ast) override;
 
-  void visit(DeclDef &ast) override;
-
   void visit(Decl &ast) override;
 
   void visit(Def &ast) override;

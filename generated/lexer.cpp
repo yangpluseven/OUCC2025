@@ -1,6 +1,6 @@
-#line 1 "K:/WorkSpace/OUCC2025_/generated/lexer.cpp"
+#line 2 "/home/yang/playground/generated/lexer.cpp"
 
-#line 3 "K:/WorkSpace/OUCC2025_/generated/lexer.cpp"
+#line 4 "/home/yang/playground/generated/lexer.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -584,8 +584,8 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
-#line 4 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 1 "/home/yang/playground/src/sysy/lexer.l"
+#line 4 "/home/yang/playground/src/sysy/lexer.l"
     #include <string>
 
     #include "ast.h"
@@ -595,14 +595,14 @@ char *yytext;
     int yycolumn=1;
     #define YY_USER_ACTION      yylloc.first_line=yylloc.last_line=yylineno; \
         yylloc.first_column=yycolumn;  yylloc.last_column=yycolumn+yyleng-1; yycolumn+=yyleng;
-#line 598 "K:/WorkSpace/OUCC2025_/generated/lexer.cpp"
+#line 599 "/home/yang/playground/generated/lexer.cpp"
 /* TODO: Float rules is direct copied from C
  * maybe shrinking down is needed?
  */
 /* EXP ([Ee][-+]?[0-9]+) */
 /* FLOAT (([0-9]*\.[0-9]+|[0-9]+\.){EXP}?[fF]?)|[0-9]+{EXP}[fF]? */
 /* Invalid ([0-9]+[A-Za-z]+[0-9]*|0[0-9]*[8-9]+[0-9]*) */
-#line 605 "K:/WorkSpace/OUCC2025_/generated/lexer.cpp"
+#line 606 "/home/yang/playground/generated/lexer.cpp"
 
 #define INITIAL 0
 
@@ -819,10 +819,10 @@ YY_DECL
 		}
 
 	{
-#line 46 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 46 "/home/yang/playground/src/sysy/lexer.l"
 
 
-#line 825 "K:/WorkSpace/OUCC2025_/generated/lexer.cpp"
+#line 826 "/home/yang/playground/generated/lexer.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -891,217 +891,217 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 48 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 48 "/home/yang/playground/src/sysy/lexer.l"
 {yylval.int_val = strtol(yytext, nullptr, 0); return INT;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 49 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 49 "/home/yang/playground/src/sysy/lexer.l"
 {yylval.float_val = strtof(yytext, nullptr); return FLOAT;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 51 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 51 "/home/yang/playground/src/sysy/lexer.l"
 {return INTTYPE;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 52 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 52 "/home/yang/playground/src/sysy/lexer.l"
 {return FLOATTYPE;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 53 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 53 "/home/yang/playground/src/sysy/lexer.l"
 {return VOID;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 54 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 54 "/home/yang/playground/src/sysy/lexer.l"
 {return CONST;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 55 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 55 "/home/yang/playground/src/sysy/lexer.l"
 {return RETURN;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 56 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 56 "/home/yang/playground/src/sysy/lexer.l"
 {return IF;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 57 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 57 "/home/yang/playground/src/sysy/lexer.l"
 {return ELSE;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 58 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 58 "/home/yang/playground/src/sysy/lexer.l"
 {return WHILE;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 59 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 59 "/home/yang/playground/src/sysy/lexer.l"
 {return BREAK;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 60 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 60 "/home/yang/playground/src/sysy/lexer.l"
 {return CONTINUE;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 62 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 62 "/home/yang/playground/src/sysy/lexer.l"
 {yylval.token = new string(yytext); return ID;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 64 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 64 "/home/yang/playground/src/sysy/lexer.l"
 {return GTE;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 65 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 65 "/home/yang/playground/src/sysy/lexer.l"
 {return LTE;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 66 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 66 "/home/yang/playground/src/sysy/lexer.l"
 {return GT;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 67 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 67 "/home/yang/playground/src/sysy/lexer.l"
 {return LT;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 68 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 68 "/home/yang/playground/src/sysy/lexer.l"
 {return EQ;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 69 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 69 "/home/yang/playground/src/sysy/lexer.l"
 {return NEQ;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 71 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 71 "/home/yang/playground/src/sysy/lexer.l"
 {return LP;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 72 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 72 "/home/yang/playground/src/sysy/lexer.l"
 {return RP;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 73 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 73 "/home/yang/playground/src/sysy/lexer.l"
 {return LB;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 74 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 74 "/home/yang/playground/src/sysy/lexer.l"
 {return RB;}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 75 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 75 "/home/yang/playground/src/sysy/lexer.l"
 {return LC;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 76 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 76 "/home/yang/playground/src/sysy/lexer.l"
 {return RC;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 77 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 77 "/home/yang/playground/src/sysy/lexer.l"
 {return COMMA;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 78 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 78 "/home/yang/playground/src/sysy/lexer.l"
 {return SEMICOLON;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 80 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 80 "/home/yang/playground/src/sysy/lexer.l"
 {return NOT;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 81 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 81 "/home/yang/playground/src/sysy/lexer.l"
 {return ASSIGN;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 82 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 82 "/home/yang/playground/src/sysy/lexer.l"
 {return MINUS;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 83 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 83 "/home/yang/playground/src/sysy/lexer.l"
 {return ADD;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 84 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 84 "/home/yang/playground/src/sysy/lexer.l"
 {return MUL;}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 85 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 85 "/home/yang/playground/src/sysy/lexer.l"
 {return DIV;}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 86 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 86 "/home/yang/playground/src/sysy/lexer.l"
 {return MOD;}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 87 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 87 "/home/yang/playground/src/sysy/lexer.l"
 {return AND;}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 88 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 88 "/home/yang/playground/src/sysy/lexer.l"
 {return OR;}
 	YY_BREAK
 case 37:
 /* rule 37 can match eol */
 YY_RULE_SETUP
-#line 90 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 90 "/home/yang/playground/src/sysy/lexer.l"
 {yycolumn=1;}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 91 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 91 "/home/yang/playground/src/sysy/lexer.l"
 {/* Ignore useless whitespaces */}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 93 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 93 "/home/yang/playground/src/sysy/lexer.l"
 {/* Ignore Comments */}
 	YY_BREAK
 case 40:
 /* rule 40 can match eol */
 YY_RULE_SETUP
-#line 94 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 94 "/home/yang/playground/src/sysy/lexer.l"
 {/* Ignore Comments */}
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 96 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 96 "/home/yang/playground/src/sysy/lexer.l"
 {printf("Error type A :Mysterious character \"%s\"\n\t at Line %d\n", yytext, yylineno);}
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 97 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 97 "/home/yang/playground/src/sysy/lexer.l"
 ECHO;
 	YY_BREAK
-#line 1104 "K:/WorkSpace/OUCC2025_/generated/lexer.cpp"
+#line 1105 "/home/yang/playground/generated/lexer.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2118,6 +2118,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 97 "K:/WorkSpace/OUCC2025_/src/sysy/lexer.l"
+#line 97 "/home/yang/playground/src/sysy/lexer.l"
 
 

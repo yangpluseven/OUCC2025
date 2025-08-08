@@ -2,8 +2,6 @@
 
 void CompUnit::accept(ASTVisitor &visitor) { visitor.visit(*this); }
 
-void DeclDef::accept(ASTVisitor &visitor) { visitor.visit(*this); }
-
 void Def::accept(ASTVisitor &visitor) { visitor.visit(*this); }
 
 void Decl::accept(ASTVisitor &visitor) { visitor.visit(*this); }

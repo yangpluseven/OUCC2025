@@ -60,7 +60,6 @@
 };
 
 %type <compUnit> CompUnit;
-%type <declDef> DeclDef;
 %type <decl> Decl;
 %type <defList> DefList;
 %type <def> Def;
@@ -128,24 +127,32 @@ Program:
 
 // 编译单元
 CompUnit:
-    CompUnit DeclDef {
+    CompUnit Decl {
         $$ = $1;
-        $$->declDefList.push_back(unique_ptr<DeclDef>($2));
+        $$->declList.push_back(unique_ptr<Decl>($2));
     }|
-    DeclDef {
-        $$ = new CompUnit();
-        $$->declDefList.push_back(unique_ptr<DeclDef>($1));
-    };
-
-//声明或者函数定义
-DeclDef:
+    CompUnit FuncDef {
+        $$ = $1;
+        $$->funcDefList.push_back(unique_ptr<FuncDef>($2));
+    }|
     Decl {
-        $$ = new DeclDef();
-        $$->decl = unique_ptr<Decl>($1);
+        $$ = new CompUnit();
+        $$->declList.push_back(unique_ptr<Decl>($1));
     }|
     FuncDef {
-        $$ = new DeclDef();
-        $$->funcDef = unique_ptr<FuncDef>($1);
+        $$ = new CompUnit(); 
+        $$->funcDefList.push_back(unique_ptr<FuncDef>($1));
+    };
+
+// 定义列表
+DefList:
+    Def {
+        $$ = new DefList();
+        $$->list.push_back(unique_ptr<Def>($1));
+    }|
+    DefList COMMA Def {
+        $$ = $1;
+        $$->list.push_back(unique_ptr<Def>($3));
     };
 
 // 变量或常量声明
@@ -176,17 +183,6 @@ BType:
 VoidType:
     VOID {
         $$ = BType::VOID;
-    };
-
-// 定义列表
-DefList:
-    Def {
-        $$ = new DefList();
-        $$->list.push_back(unique_ptr<Def>($1));
-    }|
-    DefList COMMA Def {
-        $$ = $1;
-        $$->list.push_back(unique_ptr<Def>($3));
     };
 
 // 定义

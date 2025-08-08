@@ -53,14 +53,8 @@ public:
 
 class CompUnit : public BaseNode {
 public:
-  vector<unique_ptr<DeclDef>> declDefList;
-  void accept(ASTVisitor &visitor) override;
-};
-
-class DeclDef : public BaseNode {
-public:
-  unique_ptr<Decl> decl = nullptr;
-  unique_ptr<FuncDef> funcDef = nullptr;
+  vector<unique_ptr<Decl>> declList;
+  vector<unique_ptr<FuncDef>> funcDefList;
   void accept(ASTVisitor &visitor) override;
 };
 
@@ -271,8 +265,6 @@ public:
 class ASTVisitor {
 public:
   virtual void visit(CompUnit &ast) = 0;
-
-  virtual void visit(DeclDef &ast) = 0;
 
   virtual void visit(Decl &ast) = 0;
 
