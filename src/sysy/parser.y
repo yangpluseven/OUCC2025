@@ -37,7 +37,7 @@
     StmtNode* stmt;
     ReturnStmtNode* returnStmt;
     IfStmtNode* ifStmt;
-    WhileStmtNode* whileStmtAST;
+    WhileStmtNode* whileStmt;
     LValNode* lVal;
     PrimaryExpNode* primaryExp;
     NumberNode* number;
@@ -74,7 +74,7 @@
 %type <stmt> Stmt;
 %type <returnStmt> ReturnStmt;
 %type <ifStmt> IfStmt;
-%type <whileStmtAST> IterationStmt;
+%type <whileStmt> WhileStmt;
 %type <lVal> LVal;
 %type <primaryExp> PrimaryExp;
 %type <number> Number;
@@ -376,7 +376,7 @@ Stmt:
         $$->sType = StmtType::IF;
         $$->ifStmt = unique_ptr<IfStmtNode>($1);
     }|
-    IterationStmt {
+    WhileStmt {
         $$ = new StmtNode();
         $$->sType = StmtType::WHILE;
         $$->whileStmtAST = unique_ptr<WhileStmtNode>($1);
@@ -397,7 +397,7 @@ IfStmt:
     };
 
 //循环语句
-IterationStmt:
+WhileStmt:
     WHILE LP Cond RP Stmt {
         $$ = new WhileStmtNode();
         $$->cond = unique_ptr<LOrExpNode>($3);
