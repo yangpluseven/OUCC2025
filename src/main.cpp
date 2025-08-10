@@ -11,7 +11,7 @@ extern FILE *yyin;
 extern unique_ptr<CompUnitNode> root;
 
 enum class OutputTypeEnum { LLVM, MIR, ASM };
-enum class OptLevelEnum { O0, O1 };
+enum class OptLevelEnum { NUL ,O0, O1 };
 
 void writeGlobals(std::ofstream &ofs, ir::Module *module) {
   std::vector<ir::GlobalVariable *> symbolsInData;
@@ -97,7 +97,7 @@ int main(int argc, const char *argv[]) {
       {"0", OptLevelEnum::O0}, {"1", OptLevelEnum::O1}};
   OptLevelEnum optLevel;
   app.add_option("-O,--optimize", optLevel, "Enable optimization level 1")
-      ->default_val(OptLevelEnum::O0)
+      ->default_val(OptLevelEnum::NUL)
       ->transform(CLI::CheckedTransformer(opt_map, CLI::ignore_case));
 
   bool emitLLVM = false, emitMIR = false, emitASM = false;
@@ -146,7 +146,7 @@ int main(int argc, const char *argv[]) {
   if (optLevel == OptLevelEnum::O1) {
     // std::cout << ">> Running optimization passes..." << std::endl;
     passManager.runOpti();
-  } else {
+  } else if (optLevel == OptLevelEnum::NUL) {
     passManager.runLight();
   }
   switch (outputType) {

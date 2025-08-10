@@ -20,8 +20,8 @@ public:
       l0 |= ConstProp(_module).onModule();
       l0 |= BranchOpti(_module).onModule();
     }
-    MemoryProm(_module).onModule();
-    DeadCodeElim(_module).onModule();
+    // MemoryProm(_module).onModule();
+    // DeadCodeElim(_module).onModule();
     // ConstProp(_module).onModule();
     // BranchOpti(_module).onModule();
     // DeadCodeElim(_module).onModule();
