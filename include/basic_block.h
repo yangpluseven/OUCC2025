@@ -22,6 +22,10 @@ private:
   std::vector<std::unique_ptr<InstBase>> _instructions;
   std::vector<std::unique_ptr<InstBase>> _unreachables;
 
+protected:
+  // Perhaps we only care about the relative order?
+  int indexInFunc = -1;
+
 public:
   explicit BlockBase(int id);
   void setFunction(FuncBase *func) { _function = func; }
@@ -31,6 +35,9 @@ public:
   // Form the .ll IR string for the whole block, including the label and string
   // for all instructions
   std::string str() const override;
+
+  void setIndexInFunc(int index) { indexInFunc = index; }
+  int getIndexInFunc() const { return indexInFunc; }
 
   bool empty() const { return _instructions.empty(); }
   // Check the last instruction

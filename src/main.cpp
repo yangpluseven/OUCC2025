@@ -143,10 +143,11 @@ int main(int argc, const char *argv[]) {
   genIR.checkTerminator();
   auto mod = genIR.getModule();
   pass::PassManager passManager(mod);
-  // ATTENTION!
   if (optLevel == OptLevelEnum::O1) {
     // std::cout << ">> Running optimization passes..." << std::endl;
-    passManager.run();
+    passManager.runOpti();
+  } else {
+    passManager.runLight();
   }
   switch (outputType) {
   case OutputTypeEnum::LLVM: {
@@ -196,7 +197,7 @@ int main(int argc, const char *argv[]) {
     // std::cout << "Generating ASM..." << std::endl;
     riscv::ModuleRegAlloc regAlloc(mod);
     regAlloc.allocate();
-    // passManager.runLast();
+    passManager.runLast();
     writeGlobals(ofs, mod);
     ofs << "\t.text\n";
     for (const auto &mFunc : mod->getMFuncs()) {

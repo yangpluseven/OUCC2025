@@ -170,7 +170,7 @@ enum yysymbol_kind_t
   YYSYMBOL_BlockItem = 56,                 /* BlockItem  */
   YYSYMBOL_Stmt = 57,                      /* Stmt  */
   YYSYMBOL_IfStmt = 58,                    /* IfStmt  */
-  YYSYMBOL_IterationStmt = 59,             /* IterationStmt  */
+  YYSYMBOL_WhileStmt = 59,                 /* WhileStmt  */
   YYSYMBOL_ReturnStmt = 60,                /* ReturnStmt  */
   YYSYMBOL_Cond = 61,                      /* Cond  */
   YYSYMBOL_LVal = 62,                      /* LVal  */
@@ -611,7 +611,7 @@ static const char *const yytname[] =
   "$accept", "Program", "CompUnit", "DefList", "Decl", "BType", "VoidType",
   "Def", "Arrays", "InitVal", "InitValList", "FuncDef", "FuncFParamList",
   "FuncFParam", "Block", "BlockItemList", "BlockItem", "Stmt", "IfStmt",
-  "IterationStmt", "ReturnStmt", "Cond", "LVal", "PrimaryExp", "Number",
+  "WhileStmt", "ReturnStmt", "Cond", "LVal", "PrimaryExp", "Number",
   "UnaryExp", "Call", "UnaryOp", "FuncCParamList", "MulExp", "AddExp",
   "RelExp", "EqExp", "LAndExp", "LOrExp", YY_NULLPTR
 };
@@ -1998,11 +1998,11 @@ yyreduce:
     }
     break;
 
-  case 48: /* Stmt: IterationStmt  */
-                  {
+  case 48: /* Stmt: WhileStmt  */
+              {
         (yyval.stmt) = new StmtNode();
         (yyval.stmt)->sType = StmtType::WHILE;
-        (yyval.stmt)->whileStmtAST = unique_ptr<WhileStmtNode>((yyvsp[0].whileStmtAST));
+        (yyval.stmt)->whileStmtAST = unique_ptr<WhileStmtNode>((yyvsp[0].whileStmt));
     }
     break;
 
@@ -2023,11 +2023,11 @@ yyreduce:
     }
     break;
 
-  case 51: /* IterationStmt: WHILE LP Cond RP Stmt  */
+  case 51: /* WhileStmt: WHILE LP Cond RP Stmt  */
                           {
-        (yyval.whileStmtAST) = new WhileStmtNode();
-        (yyval.whileStmtAST)->cond = unique_ptr<LOrExpNode>((yyvsp[-2].lOrExp));
-        (yyval.whileStmtAST)->stmt = unique_ptr<StmtNode>((yyvsp[0].stmt));
+        (yyval.whileStmt) = new WhileStmtNode();
+        (yyval.whileStmt)->cond = unique_ptr<LOrExpNode>((yyvsp[-2].lOrExp));
+        (yyval.whileStmt)->stmt = unique_ptr<StmtNode>((yyvsp[0].stmt));
     }
     break;
 

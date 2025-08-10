@@ -69,8 +69,8 @@ std::string BinaryInst::str() const {
 
 std::unique_ptr<Instruction> BinaryInst::cloneEmpty() const {
   auto cloned = std::make_unique<BinaryInst>(getType()->clone(), _op);
-  cloned->_cloneTarget = const_cast<BinaryInst *>(this);
-  cloned->_notRemapped = true;
+  cloned->cloneTarget = const_cast<BinaryInst *>(this);
+  cloned->notRemapped = true;
   return cloned;
 }
 
@@ -154,8 +154,8 @@ std::string CmpInst::str() const {
 
 std::unique_ptr<Instruction> CmpInst::cloneEmpty() const {
   auto cloned = std::make_unique<CmpInst>(_op, nullptr, nullptr);
-  cloned->_cloneTarget = const_cast<CmpInst *>(this);
-  cloned->_notRemapped = true;
+  cloned->cloneTarget = const_cast<CmpInst *>(this);
+  cloned->notRemapped = true;
   return cloned;
 }
 
@@ -208,8 +208,8 @@ std::string CastInst::str() const {
 
 std::unique_ptr<Instruction> CastInst::cloneEmpty() const {
   auto cloned = std::make_unique<CastInst>(getType()->clone(), _op, nullptr);
-  cloned->_cloneTarget = const_cast<CastInst *>(this);
-  cloned->_notRemapped = true;
+  cloned->cloneTarget = const_cast<CastInst *>(this);
+  cloned->notRemapped = true;
   return cloned;
 }
 
@@ -233,8 +233,8 @@ std::string RetInst::str() const {
 
 std::unique_ptr<Instruction> RetInst::cloneEmpty() const {
   auto cloned = std::make_unique<RetInst>(nullptr);
-  cloned->_cloneTarget = const_cast<RetInst *>(this);
-  cloned->_notRemapped = true;
+  cloned->cloneTarget = const_cast<RetInst *>(this);
+  cloned->notRemapped = true;
   return cloned;
 }
 
@@ -273,8 +273,8 @@ std::unique_ptr<Instruction> BranchInst::cloneEmpty() const {
   auto cloned = getNumOperands() > 1
                     ? std::make_unique<BranchInst>(nullptr, nullptr, nullptr)
                     : std::make_unique<BranchInst>(nullptr);
-  cloned->_cloneTarget = const_cast<BranchInst *>(this);
-  cloned->_notRemapped = true;
+  cloned->cloneTarget = const_cast<BranchInst *>(this);
+  cloned->notRemapped = true;
   return cloned;
 }
 
@@ -295,8 +295,8 @@ std::string AllocaInst::str() const {
 
 std::unique_ptr<Instruction> AllocaInst::cloneEmpty() const {
   auto cloned = std::make_unique<AllocaInst>(getType()->clone());
-  cloned->_cloneTarget = const_cast<AllocaInst *>(this);
-  cloned->_notRemapped = true;
+  cloned->cloneTarget = const_cast<AllocaInst *>(this);
+  cloned->notRemapped = true;
   return cloned;
 }
 
@@ -322,8 +322,8 @@ std::string LoadInst::str() const {
 
 std::unique_ptr<Instruction> LoadInst::cloneEmpty() const {
   auto cloned = std::make_unique<LoadInst>(getType()->clone(), nullptr);
-  cloned->_cloneTarget = const_cast<LoadInst *>(this);
-  cloned->_notRemapped = true;
+  cloned->cloneTarget = const_cast<LoadInst *>(this);
+  cloned->notRemapped = true;
   return cloned;
 }
 
@@ -346,8 +346,8 @@ std::string StoreInst::str() const {
 
 std::unique_ptr<Instruction> StoreInst::cloneEmpty() const {
   auto cloned = std::make_unique<StoreInst>(nullptr, nullptr);
-  cloned->_cloneTarget = const_cast<StoreInst *>(this);
-  cloned->_notRemapped = true;
+  cloned->cloneTarget = const_cast<StoreInst *>(this);
+  cloned->notRemapped = true;
   return cloned;
 }
 
@@ -402,8 +402,8 @@ std::string GetElementPtrInst::str() const {
 
 std::unique_ptr<Instruction> GetElementPtrInst::cloneEmpty() const {
   auto cloned = std::make_unique<GetElementPtrInst>(getType()->clone());
-  cloned->_cloneTarget = const_cast<GetElementPtrInst *>(this);
-  cloned->_notRemapped = true;
+  cloned->cloneTarget = const_cast<GetElementPtrInst *>(this);
+  cloned->notRemapped = true;
   return cloned;
 }
 
@@ -442,8 +442,8 @@ std::string CallInst::str() const {
 
 std::unique_ptr<Instruction> CallInst::cloneEmpty() const {
   auto cloned = std::make_unique<CallInst>(nullptr, std::vector<Value *>{});
-  cloned->_cloneTarget = const_cast<CallInst *>(this);
-  cloned->_notRemapped = true;
+  cloned->cloneTarget = const_cast<CallInst *>(this);
+  cloned->notRemapped = true;
   return cloned;
 }
 
@@ -465,14 +465,17 @@ void PhiInst::setIncomingBlock(size_t index, BasicBlock *block) {
   _incoming.at(index) = block;
 }
 
-void PhiInst::removeIncoming(size_t index) {
+bool PhiInst::removeIncoming(size_t index) {
   assert(index < _incoming.size() && "Index out of range");
   _incoming.erase(_incoming.begin() + index);
   eraseOperand(index);
   if (getNumOperands() == 1) {
     replaceAllUsesWith(getOperand(0));
-    getBlock()->eraseInstruction(this);
+    auto res = getBlock()->eraseInstruction(this);
+    assert(res);
+    return true;
   }
+  return false;
 }
 
 std::string PhiInst::str() const {

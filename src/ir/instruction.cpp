@@ -25,15 +25,15 @@ std::string Instruction::getName() const {
 }
 
 void InstBase::remapValues(const ValueMap &map) {
-  auto it = map.find(_cloneTarget->getBlock());
+  auto it = map.find(cloneTarget->getBlock());
   if (it != map.end()) {
     // Dangerous operation, no type check (ATTENTION)
     auto blockValue = static_cast<BasicBlock *>(it->second);
     setBlock(blockValue);
   }
 
-  for (size_t i = 0; i < _cloneTarget->getNumOperands(); i++) {
-    Value *oldVal = _cloneTarget->getOperand(i);
+  for (size_t i = 0; i < cloneTarget->getNumOperands(); i++) {
+    Value *oldVal = cloneTarget->getOperand(i);
     auto it = map.find(oldVal);
     if (it != map.end()) {
       setOperand(i, it->second);
@@ -42,6 +42,6 @@ void InstBase::remapValues(const ValueMap &map) {
     }
   }
 
-  _notRemapped = false;
+  notRemapped = false;
 }
 } // namespace ir

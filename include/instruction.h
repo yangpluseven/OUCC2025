@@ -18,9 +18,9 @@ private:
 
 protected:
   // Only used during clone process
-  InstBase *_cloneTarget = nullptr;
-  bool _notRemapped = false;
-    int _indexInBlock = -1;
+  InstBase *cloneTarget = nullptr;
+  bool notRemapped = false;
+  int indexInBlock = -1;
   InstBase(std::unique_ptr<Type> type, int id);
   InstBase(std::unique_ptr<Type> type, const std::vector<Value *> &useOperands,
            int id);
@@ -31,17 +31,17 @@ public:
   BlockBase *getBlock() const { return _block; }
   // Used in optimization mostly
   void setBlock(BlockBase *block) { _block = block; }
-  void setIndexInBlock(int index) { _indexInBlock = index; }
+  void setIndexInBlock(int index) { indexInBlock = index; }
 
   int getID() const { return _id; }
 
   using ValueMap = std::unordered_map<Value *, Value *>;
 
-  // Use _cloneTarget to find the old instruction, use the map oldVal -> newVal
-  // to map the operands. Set _cloneTarget to nullptr after the process
+  // Use cloneTarget to find the old instruction, use the map oldVal -> newVal
+  // to map the operands. Set cloneTarget to nullptr after the process
   // and set notRemapped to false
   void remapValues(const ValueMap &map);
-  bool isRemapped() const { return !_notRemapped; }
+  bool isRemapped() const { return !notRemapped; }
 
   virtual bool isTerminator() const { return false; }
 };

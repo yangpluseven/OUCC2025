@@ -771,9 +771,20 @@ void MachineFunc::move(ir::MoveInst *inst, MachineBlock *block) {
   case ValueKind::Arg:
     srcInst = handleArg(static_cast<ir::Argument *>(src), block);
     break;
-  case ValueKind::Inst:
-    srcInst = _instMap[static_cast<Instruction *>(src)];
-    break;
+  case ValueKind::Inst: {
+    // TODO: If src is a PhiInst, we need to handle it differently
+    auto inst = static_cast<Instruction *>(src);
+    if (inst->getInstKind() == InstKind::Phi) {
+      auto phiInst = static_cast<ir::PhiInst *>(inst);
+      auto bBlock = static_cast<ir::BasicBlock *>(phiInst->getBlock());
+      auto mBlock = blockMap[bBlock];
+      srcInst = static_cast<MachineInst *>(mBlock->insertInstruction(
+          0, make_unique<RR>(RROp::MV, dest->getRegType()->clone(),
+                             _instMap[phiInst])));
+    } else {
+      srcInst = _instMap[inst];
+    }
+  } break;
   case ValueKind::ConstNum:
     if (src->getType()->isF32()) {
       srcInst =

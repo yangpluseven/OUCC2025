@@ -51,7 +51,7 @@ std::vector<Reg *> MachineInst::getRegs() const {
 }
 
 bool MachineInst::spill(Reg *spilledReg, int offset, MachineBlock *block) {
-  block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+  block->pushInstruction(getBlock()->getOwnership(indexInBlock));
   return true;
 }
 
@@ -110,7 +110,7 @@ std::vector<Reg *> Call::getWrite() const {
 
 bool LEA::spill(Reg *spilledReg, int offset, MachineBlock *block) {
   if (spilledReg != getDest()) {
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   } else {
     auto ptr = block->pushMInst(std::make_unique<LEA>(
@@ -123,7 +123,7 @@ bool LEA::spill(Reg *spilledReg, int offset, MachineBlock *block) {
 
 bool Jump::spill(Reg *spilledReg, int offset, MachineBlock *block) {
   if (!hasCond()) {
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   }
   if (getSrc(0) == spilledReg && getSrc(1) == spilledReg) {
@@ -137,23 +137,23 @@ bool Jump::spill(Reg *spilledReg, int offset, MachineBlock *block) {
     auto ptr = block->pushInstruction(
         std::make_unique<LoadFrom>(LoadItem::SPILL, getSrc(0), offset));
     setOperand(0, ptr);
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   } else if (getSrc(1) == spilledReg) {
     const auto ptr = block->pushInstruction(
         std::make_unique<LoadFrom>(LoadItem::SPILL, getSrc(1), offset));
     setOperand(1, ptr);
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   } else {
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   }
 }
 
 bool LI::spill(Reg *spilledReg, int offset, MachineBlock *block) {
   if (spilledReg != getDest()) {
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   } else {
     auto ptr = block->pushMInst(std::make_unique<LI>(spilledReg, getImm()));
@@ -165,7 +165,7 @@ bool LI::spill(Reg *spilledReg, int offset, MachineBlock *block) {
 
 bool LLA::spill(Reg *spilledReg, int offset, MachineBlock *block) {
   if (spilledReg != getDest()) {
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   } else {
     auto ptr = block->pushMInst(std::make_unique<LLA>(getDest(), _global));
@@ -177,7 +177,7 @@ bool LLA::spill(Reg *spilledReg, int offset, MachineBlock *block) {
 
 bool LoadFrom::spill(Reg *spilledReg, int offset, MachineBlock *block) {
   if (spilledReg != getDest()) {
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   } else {
     auto ptr = block->pushMInst(
@@ -208,10 +208,10 @@ bool Load::spill(Reg *spilledReg, int offset, MachineBlock *block) {
     const auto ptr = block->pushInstruction(std::make_unique<LoadFrom>(
         LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
     setOperand(0, ptr);
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   } else {
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   }
 }
@@ -236,10 +236,10 @@ bool RR::spill(Reg *spilledReg, int offset, MachineBlock *block) {
     const auto ptr = block->pushInstruction(std::make_unique<LoadFrom>(
         LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
     setOperand(0, ptr);
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   } else {
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   }
 }
@@ -264,10 +264,10 @@ bool RRI::spill(Reg *spilledReg, int offset, MachineBlock *block) {
     const auto ptr = block->pushInstruction(std::make_unique<LoadFrom>(
         LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
     setOperand(0, ptr);
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   } else {
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   }
 }
@@ -309,7 +309,7 @@ bool RRR::spill(Reg *spilledReg, int offset, MachineBlock *block) {
         LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
     setOperand(0, ptr1);
     setOperand(1, ptr2);
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   } else if (getDest() == spilledReg) {
     auto ptr = block->pushMInst(
@@ -323,23 +323,23 @@ bool RRR::spill(Reg *spilledReg, int offset, MachineBlock *block) {
     const auto ptr = block->pushInstruction(std::make_unique<LoadFrom>(
         LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
     setOperand(0, ptr);
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   } else if (getSrc(1) == spilledReg) {
     const auto ptr = block->pushInstruction(std::make_unique<LoadFrom>(
         LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
     setOperand(1, ptr);
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   } else {
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   }
 }
 
 bool StoreTo::spill(Reg *spilledReg, int offset, MachineBlock *block) {
   if (getSrc(0) != spilledReg) {
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   } else {
     auto ptr = block->pushMInst(std::make_unique<LoadFrom>(
@@ -357,22 +357,22 @@ bool Store::spill(Reg *spilledReg, int offset, MachineBlock *block) {
         LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
     setOperand(0, ptr1);
     setOperand(1, ptr2);
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   } else if (getSrc(0) == spilledReg) {
     const auto ptr = block->pushInstruction(std::make_unique<LoadFrom>(
         LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
     setOperand(0, ptr);
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   } else if (getSrc(1) == spilledReg) {
     const auto ptr = block->pushInstruction(std::make_unique<LoadFrom>(
         LoadItem::SPILL, spilledReg->getRegType()->clone(), offset));
     setOperand(1, ptr);
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   } else {
-    block->pushInstruction(getBlock()->getOwnership(_indexInBlock));
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
     return true;
   }
 }

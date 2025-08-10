@@ -12,7 +12,24 @@ private:
 public:
   explicit PassManager(const ir::Module *module) : _module(module) {}
 
-  void run() const {
+  void runLight() const {
+    bool l0 = true;
+    while (l0) {
+      l0 = false;
+      l0 |= DeadCodeElim(_module).onModule();
+      l0 |= ConstProp(_module).onModule();
+      l0 |= BranchOpti(_module).onModule();
+    }
+    MemoryProm(_module).onModule();
+    DeadCodeElim(_module).onModule();
+    // ConstProp(_module).onModule();
+    // BranchOpti(_module).onModule();
+    // DeadCodeElim(_module).onModule();
+    // ConstProp(_module).onModule();
+    // BranchOpti(_module).onModule();
+  }
+
+  void runOpti() const {
     bool once = false;
     bool l1 = true;
     while (l1) {
@@ -28,9 +45,9 @@ public:
       // l1 |= MemoryProm(_module).onModule();
       if (!once) {
         once = true;
-        MemoryProm(_module).onModule();
-        DeadCodeElim(_module).onModule();
-        ConstProp(_module).onModule();
+        l1 |= MemoryProm(_module).onModule();
+        // DeadCodeElim(_module).onModule();
+        // ConstProp(_module).onModule();
         // BranchOpti(_module).onModule();
         // DeadCodeElim(_module).onModule();
         // ConstProp(_module).onModule();

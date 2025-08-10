@@ -166,7 +166,7 @@ public:
   void addIncoming(Value *value, BasicBlock *block);
   BasicBlock *getIncomingBlock(size_t index) const;
   void setIncomingBlock(size_t index, BasicBlock *block);
-  void removeIncoming(size_t index);
+  bool removeIncoming(size_t index);
   std::string str() const override;
   std::unique_ptr<Instruction> cloneEmpty() const override {
     // TODO

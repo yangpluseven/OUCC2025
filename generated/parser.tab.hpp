@@ -116,7 +116,7 @@ union YYSTYPE
     StmtNode* stmt;
     ReturnStmtNode* returnStmt;
     IfStmtNode* ifStmt;
-    WhileStmtNode* whileStmtAST;
+    WhileStmtNode* whileStmt;
     LValNode* lVal;
     PrimaryExpNode* primaryExp;
     NumberNode* number;
