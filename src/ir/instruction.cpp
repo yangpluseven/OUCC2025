@@ -27,7 +27,7 @@ std::string Instruction::getName() const {
 void InstBase::remapValues(const ValueMap &map) {
   auto it = map.find(cloneTarget->getBlock());
   if (it != map.end()) {
-    // Dangerous operation, no type check (ATTENTION)
+    // Dangerous operation, no type check (NOTICE)
     auto blockValue = static_cast<BasicBlock *>(it->second);
     setBlock(blockValue);
   }

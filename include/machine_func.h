@@ -60,7 +60,7 @@ public:
   int maxFuncParamNum = 0;
   std::unordered_map<ir::BasicBlock *, MachineBlock *> blockMap;
 
-  // Not sure about the type but I guess it's fine (ATTENTION)
+  // Not sure about the type but I guess it's fine (NOTICE)
   MachineFunc(ir::Function *func);
 
   PhiNode *pushPhiNode(std::unique_ptr<PhiNode> phiNode);

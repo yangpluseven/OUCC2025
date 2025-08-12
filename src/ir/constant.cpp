@@ -35,7 +35,7 @@ ConstantNumber::ConstantNumber(bool value)
 ConstantNumber::ConstantNumber(const Number &num)
     : Constant(determineType(num)), _value(num) {}
 
-// Probably should just move the type (ATTENTION)
+// Probably should just move the type (NOTICE)
 ConstantNumber::ConstantNumber(ConstantNumber &&other) noexcept
     : Constant(std::move(other.getType()->clone())),
       _value(std::move(other._value)) {}

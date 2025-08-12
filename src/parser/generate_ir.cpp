@@ -286,7 +286,7 @@ void GenerateIR::handleArrayDef(DefNode &ast) {
     }
     std::vector<Value *> args{rawCastInst, new ConstantNumber(Number(0)),
                               new ConstantNumber(Number(x))};
-    // Try memclr maybe (ATTENTION)
+    // Try memclr maybe (NOTICE)
     _curBlock->pushInstruction(
         std::make_unique<CallInst>(_symbolTable->getFunction("memset"), args));
 
@@ -377,7 +377,7 @@ void GenerateIR::visit(FuncDefNode &ast) {
   // _hasBranch = false;
   ast.block->accept(*this);
 
-  // Maybe not the best way to handle default return value (ATTENTION)
+  // Maybe not the best way to handle default return value (NOTICE)
   if (type->getBasicKind() != BasicKind::VOID) {
     Constant *retVal;
     if (type->getBasicKind() == BasicKind::I32) {
@@ -440,7 +440,7 @@ void GenerateIR::visit(FuncFParamNode &ast) {
   auto rawArg = arg.get();
   _curFunction->addArg(std::move(arg));
 
-  // Use the SSA name of the argument here to avoid conflict (ATTENTION)
+  // Use the SSA name of the argument here to avoid conflict (NOTICE)
   auto allocaInst =
       _symbolTable->makeLocal(rawArg->getType()->clone(), rawArg->getName());
   auto rawInst = allocaInst.get();
@@ -491,7 +491,7 @@ void GenerateIR::handleAssignStmt(StmtNode &ast) {
   auto type = lVal->getType();
   ast.exp->accept(*this);
   auto rVal = _curVal;
-  // Theoretically, type should not be a basic type (ATTENTION)
+  // Theoretically, type should not be a basic type (NOTICE)
   if (type->isBasic()) {
     rVal = typeConversion(rVal, static_cast<BasicType *>(type)->getBasicKind());
   } else {

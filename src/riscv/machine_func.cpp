@@ -88,6 +88,8 @@ MachineFunc::MachineFunc(ir::Function *func)
   initArgOffsets();
 }
 
+// The original implementation assumes that all inner params should be stored in
+// memory (ATTENTION)
 void MachineFunc::initCallerNums() {
   size_t iSize = 0, fSize = 0;
   for (auto arg : _origin->getArgs()) {
@@ -345,10 +347,11 @@ void MachineFunc::gep(ir::GetElementPtrInst *inst, MachineBlock *block) {
         MAKE_I32, inst->getType()->getBaseType()->getSize() / 8));
     break;
   case ValueKind::Arg: {
-    offset = _argOffsets[static_cast<ir::Argument *>(ptr)];
-    base = block->pushMInst(
-        make_unique<LoadFrom>(offset.first ? LoadItem::INNER : LoadItem::OUTER,
-                              MAKE_I32, offset.second));
+    // offset = _argOffsets[static_cast<ir::Argument *>(ptr)];
+    // base = block->pushMInst(
+    //     make_unique<LoadFrom>(offset.first ? LoadItem::INNER : LoadItem::OUTER,
+    //                           MAKE_I32, offset.second));
+    base = handleArg(static_cast<ir::Argument *>(ptr), block);
     mul1 = block->pushMInst(make_unique<LI>(
         MAKE_I32, inst->getType()->getBaseType()->getSize() / 8));
     break;

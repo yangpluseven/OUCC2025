@@ -332,7 +332,7 @@ StoreInst::StoreInst(Value *val, Value *ptr)
 
 InstKind StoreInst::getInstKind() const { return InstKind::Store; }
 
-// Not sure (ATTENTION)
+// Not sure (NOTICE)
 std::string StoreInst::str() const {
   const auto val = getOperand(0);
   const auto ptr = getOperand(1);

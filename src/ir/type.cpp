@@ -140,7 +140,7 @@ PointerType::PointerType(std::unique_ptr<Type> pointeeType)
 }
 
 size_t PointerType::getSize() const {
-  return 64; // 64-bit pointer (ATTENTION)
+  return 64; // 64-bit pointer
 }
 
 std::string PointerType::str() const { return _pointeeType->str() + "*"; }

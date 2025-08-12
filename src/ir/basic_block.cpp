@@ -18,7 +18,7 @@ bool BlockBase::hasTerminator() const {
 
 InstBase *BlockBase::pushInstruction(std::unique_ptr<InstBase> inst) {
   assert(inst && "Cannot insert nullptr instruction");
-  // Maybe need assert here? (ATTENTION)
+  // Maybe need assert here? (NOTICE)
   if (hasTerminator()) {
     inst->setBlock(this);
     auto ret = inst.get();
