@@ -16,6 +16,14 @@ bool BlockBase::hasTerminator() const {
   return !empty() && _instructions.back()->isTerminator();
 }
 
+InstBase *BlockBase::pushUnreachable(std::unique_ptr<InstBase> inst) {
+  assert(inst && "Cannot insert nullptr instruction");
+  inst->setBlock(this);
+  auto ret = inst.get();
+  _unreachables.push_back(std::move(inst));
+  return ret;
+}
+
 InstBase *BlockBase::pushInstruction(std::unique_ptr<InstBase> inst) {
   assert(inst && "Cannot insert nullptr instruction");
   // Maybe need assert here? (NOTICE)

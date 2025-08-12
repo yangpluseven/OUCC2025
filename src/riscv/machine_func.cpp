@@ -3,6 +3,9 @@
 #include "registers.h"
 #include <sstream>
 
+#define MAKE_I32 std::make_unique<ir::BasicType>(ir::BasicKind::I32)
+#define MAKE_F32 std::make_unique<ir::BasicType>(ir::BasicKind::F32)
+
 namespace riscv {
 
 using ir::GlobalVariable;
@@ -85,24 +88,29 @@ MachineFunc::MachineFunc(ir::Function *func)
       _origin(func) {
   initCallerNums();
   initLocalOffsets();
-  initArgOffsets();
+  // initArgOffsets();
 }
 
 // The original implementation assumes that all inner params should be stored in
 // memory (ATTENTION)
 void MachineFunc::initCallerNums() {
-  size_t iSize = 0, fSize = 0;
-  for (auto arg : _origin->getArgs()) {
-    auto type = arg->getType();
-    if (type->isBasic() && static_cast<ir::BasicType *>(type)->getBasicKind() ==
-                               ir::BasicKind::F32) {
-      fSize = std::min(fSize + 1, MReg::fCallerRegs.size());
-    } else {
-      iSize = std::min(iSize + 1, MReg::iCallerRegs.size());
-    }
-  }
-  _iCallerNum = iSize;
-  _fCallerNum = fSize;
+  // size_t iSize = 0, fSize = 0;
+  // for (auto arg : _origin->getArgs()) {
+  //   auto type = arg->getType();
+  //   if (type->isBasic() && static_cast<ir::BasicType *>(type)->getBasicKind()
+  //   ==
+  //                              ir::BasicKind::F32) {
+  //     fSize = std::min(fSize + 1, MReg::fCallerRegs.size());
+  //   } else {
+  //     iSize = std::min(iSize + 1, MReg::iCallerRegs.size());
+  //   }
+  // }
+  // _iCallerNum = iSize;
+  // _fCallerNum = fSize;
+
+  // For test only (ATTENTION)
+  _iCallerNum = 0;
+  _fCallerNum = 0;
   return;
 }
 
@@ -158,14 +166,64 @@ void MachineFunc::initArgOffsets() {
   }
 }
 
+void MachineFunc::initArgMap() {
+  assert(!empty());
+  auto firstBlock = static_cast<MachineBlock *>(getFirstBlock());
+  int iSize = 0, fSize = 0;
+  auto args = _origin->getArgs();
+  for (auto arg : args) {
+    auto type = arg->getType();
+    if (type->isF32()) {
+      if (fSize < MReg::fCallerRegs.size()) {
+        auto moveInst = firstBlock->pushMInst(make_unique<RR>(
+            RROp::MV, arg->makeRegType(), MReg::fCallerInsts[fSize]));
+        auto dest = static_cast<ir::VReg *>(moveInst->getDest());
+        for (auto &reg : MReg::fCallerRegs) {
+          dest->addConflict(reg);
+        }
+        argMap[arg] = moveInst;
+        _argOffsets[arg] = {true, -1};
+      } else {
+        _argOffsets[arg] = {false, MReg::argsStackOffset(iSize, fSize)};
+      }
+      fSize++;
+    } else {
+      if (iSize < MReg::iCallerRegs.size()) {
+        auto moveInst = firstBlock->pushMInst(make_unique<RR>(
+            RROp::MV, arg->makeRegType(), MReg::iCallerInsts[iSize]));
+        auto dest = static_cast<ir::VReg *>(moveInst->getDest());
+        for (auto &reg : MReg::iCallerRegs) {
+          dest->addConflict(reg);
+        }
+        argMap[arg] = moveInst;
+        _argOffsets[arg] = {true, -1};
+      } else {
+        _argOffsets[arg] = {false, MReg::argsStackOffset(iSize, fSize)};
+      }
+      iSize++;
+    }
+  }
+}
+
 MachineInst *MachineFunc::handleArg(ir::Argument *arg, MachineBlock *block) {
   bool isInner = _argOffsets[arg].first;
-  auto inst =
-      make_unique<LoadFrom>(isInner ? LoadItem::INNER : LoadItem::OUTER,
-                            arg->makeRegType(), _argOffsets[arg].second);
-  auto machineInst = block->pushInstruction(std::move(inst));
-  return static_cast<MachineInst *>(machineInst);
+  if (isInner) {
+    return argMap[arg];
+  } else {
+    auto machineInst = block->pushMInst(make_unique<LoadFrom>(
+        LoadItem::OUTER, arg->makeRegType(), _argOffsets[arg].second));
+    return machineInst;
+  }
 }
+
+// MachineInst *MachineFunc::handleArg(ir::Argument *arg, MachineBlock *block) {
+//   bool isInner = _argOffsets[arg].first;
+//   auto inst =
+//       make_unique<LoadFrom>(isInner ? LoadItem::INNER : LoadItem::OUTER,
+//                             arg->makeRegType(), _argOffsets[arg].second);
+//   auto machineInst = block->pushInstruction(std::move(inst));
+//   return static_cast<MachineInst *>(machineInst);
+// }
 
 void MachineFunc::binary(ir::BinaryInst *inst, MachineBlock *block) {
   auto operand1 = inst->getOperand(0);
@@ -269,7 +327,11 @@ int MachineFunc::call(ir::CallInst *inst, MachineBlock *block) {
       switch (param->getValueKind()) {
       case ValueKind::Arg: {
         auto tmp = handleArg(static_cast<ir::Argument *>(param), block);
-        tmp->setDest(callerRegs[curSize]);
+        if (tmp->getMInstKind() == MInstKind::LoadFrom) {
+          tmp->setDest(callerRegs[curSize]);
+        } else {
+          block->pushMInst(make_unique<RR>(RROp::MV, callerRegs[curSize], tmp));
+        }
         break;
       }
       case ValueKind::Inst:
@@ -349,7 +411,8 @@ void MachineFunc::gep(ir::GetElementPtrInst *inst, MachineBlock *block) {
   case ValueKind::Arg: {
     // offset = _argOffsets[static_cast<ir::Argument *>(ptr)];
     // base = block->pushMInst(
-    //     make_unique<LoadFrom>(offset.first ? LoadItem::INNER : LoadItem::OUTER,
+    //     make_unique<LoadFrom>(offset.first ? LoadItem::INNER :
+    //     LoadItem::OUTER,
     //                           MAKE_I32, offset.second));
     base = handleArg(static_cast<ir::Argument *>(ptr), block);
     mul1 = block->pushMInst(make_unique<LI>(
@@ -821,3 +884,6 @@ std::string MachineFunc::str() const {
 }
 
 } // namespace riscv
+
+#undef MAKE_I32
+#undef MAKE_F32

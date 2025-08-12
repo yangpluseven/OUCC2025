@@ -42,6 +42,7 @@ public:
   bool empty() const { return _instructions.empty(); }
   // Check the last instruction
   bool hasTerminator() const;
+  InstBase *pushUnreachable(std::unique_ptr<InstBase> inst);
   InstBase *pushInstruction(std::unique_ptr<InstBase> inst);
   InstBase *insertInstruction(size_t index, std::unique_ptr<InstBase> inst);
   InstBase *getTerminator() const;
@@ -53,10 +54,7 @@ public:
   std::unique_ptr<InstBase> getOwnership(size_t index);
   std::unique_ptr<InstBase> getOwnership(InstBase *inst);
   size_t size() const { return _instructions.size(); }
-  void clear() {
-    _instructions.clear();
-    _unreachables.clear();
-  }
+  void clear() { _instructions.clear(); }
   void clearUnreachables() { _unreachables.clear(); }
   void setIndexInBlock() const;
 

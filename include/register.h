@@ -5,6 +5,11 @@
 #include "core.h"
 #include "type.h"
 #include <stdexcept>
+#include <unordered_set>
+
+namespace riscv {
+class MReg;
+}
 
 namespace ir {
 
@@ -24,6 +29,7 @@ public:
 class VReg : public Reg {
 private:
   int _id;
+  std::unordered_set<riscv::MReg *> _conflictRegs;
 
 public:
   VReg(BasicType *type, int id) : Reg(type), _id(id) {}
@@ -37,6 +43,8 @@ public:
       throw std::runtime_error("Invalid type in VReg");
     }
   }
+  void addConflict(riscv::MReg *reg);
+  bool isConflictWith(riscv::MReg *reg);
 };
 
 } // namespace ir

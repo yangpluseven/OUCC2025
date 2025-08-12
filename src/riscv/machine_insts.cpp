@@ -377,6 +377,18 @@ bool Store::spill(Reg *spilledReg, int offset, MachineBlock *block) {
   }
 }
 
+bool GetArg::spill(Reg *spilledReg, int offset, MachineBlock *block) {
+  if (spilledReg != getDest()) {
+    block->pushInstruction(getBlock()->getOwnership(indexInBlock));
+    return true;
+  } else {
+    getBlock()->pushUnreachable(getBlock()->getOwnership(indexInBlock));
+    block->pushInstruction(
+        std::make_unique<StoreTo>(StoreItem::SPILL, this, offset));
+    return true;
+  }
+}
+
 } // namespace riscv
 
 #undef MAKE_VOID

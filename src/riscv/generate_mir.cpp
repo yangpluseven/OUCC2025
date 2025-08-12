@@ -26,6 +26,8 @@ unique_ptr<MachineFunc> GenerateMIR::funcToMIR(ir::Function *func) {
   machineFunc->blockMap[exitBBlock.get()] = exitMBlock.get();
   makeMachineBlocks(machineFunc.get());
 
+  machineFunc->initArgMap();
+
   for (auto &block : *func) {
     for (size_t i = 0; i < block->size(); i++) {
       auto inst = static_cast<ir::Instruction *>(block->getInstruction(i));

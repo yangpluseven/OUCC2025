@@ -33,6 +33,7 @@ enum class MInstKind {
   StoreTo,
   Store,
   PhiNode,
+  GetArg,
 };
 
 enum class RRIOp { ADDI, ANDI, SLLIW, SRAIW, SRLI, SRLIW, XORI, SLTI };
@@ -620,6 +621,18 @@ public:
 
   MInstKind getMInstKind() const override { return MInstKind::PhiNode; }
   // Printing a PhiNode is not allowed
+  std::string str() const override { return ""; }
+};
+
+class GetArg : public MachineInst {
+public:
+  GetArg(std::unique_ptr<ir::Type> type) : MachineInst(std::move(type)) {}
+
+  GetArg(ir::Reg *dest) : MachineInst(dest) {}
+
+  MInstKind getMInstKind() const override { return MInstKind::GetArg; }
+  bool spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
+  // Printing a GetArg is not allowed
   std::string str() const override { return ""; }
 };
 

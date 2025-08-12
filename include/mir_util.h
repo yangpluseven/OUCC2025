@@ -6,9 +6,6 @@
 #include <bitset>
 #include <limits>
 
-#define MAKE_I32 std::make_unique<ir::BasicType>(ir::BasicKind::I32)
-#define MAKE_F32 std::make_unique<ir::BasicType>(ir::BasicKind::F32)
-
 namespace riscv {
 
 MachineInst *loadImmI(MachineBlock *block, int imm);

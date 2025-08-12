@@ -1,9 +1,9 @@
 #ifndef RISCV_REGISTERS_H
 #define RISCV_REGISTERS_H
 
-#include "type.h"
 #include "machine_insts.h"
 #include "register.h"
+#include "type.h"
 #include <string>
 #include <vector>
 
@@ -24,11 +24,15 @@ public:
   static MReg *const sp;
   static MReg *const gp;
   static MReg *const tp;
+
   static MReg *const t0;
   static MReg *const t1;
   static MReg *const t2;
-  static MReg *const s0;
-  static MReg *const s1;
+  static MReg *const t3;
+  static MReg *const t4;
+  static MReg *const t5;
+  static MReg *const t6;
+
   static MReg *const a0;
   static MReg *const a1;
   static MReg *const a2;
@@ -37,6 +41,9 @@ public:
   static MReg *const a5;
   static MReg *const a6;
   static MReg *const a7;
+
+  static MReg *const s0;
+  static MReg *const s1;
   static MReg *const s2;
   static MReg *const s3;
   static MReg *const s4;
@@ -47,10 +54,7 @@ public:
   static MReg *const s9;
   static MReg *const s10;
   static MReg *const s11;
-  static MReg *const t3;
-  static MReg *const t4;
-  static MReg *const t5;
-  static MReg *const t6;
+
   static MReg *const fa0;
   static MReg *const fa1;
   static MReg *const fa2;
@@ -71,6 +75,7 @@ public:
   static MReg *const fs9;
   static MReg *const fs10;
   static MReg *const fs11;
+
   static MReg *const ft0;
   static MReg *const ft1;
   static MReg *const ft2;
@@ -89,9 +94,71 @@ public:
   static MachineInst *const spInst;
   static MachineInst *const gpInst;
   static MachineInst *const tpInst;
-  static MachineInst *const a0Inst;
-  static MachineInst *const fa0Inst;
+
   static MachineInst *const t0Inst;
+  static MachineInst *const t1Inst;
+  static MachineInst *const t2Inst;
+  static MachineInst *const t3Inst;
+  static MachineInst *const t4Inst;
+  static MachineInst *const t5Inst;
+  static MachineInst *const t6Inst;
+
+  static MachineInst *const a0Inst;
+  static MachineInst *const a1Inst;
+  static MachineInst *const a2Inst;
+  static MachineInst *const a3Inst;
+  static MachineInst *const a4Inst;
+  static MachineInst *const a5Inst;
+  static MachineInst *const a6Inst;
+  static MachineInst *const a7Inst;
+
+  static MachineInst *const s0Inst;
+  static MachineInst *const s1Inst;
+  static MachineInst *const s2Inst;
+  static MachineInst *const s3Inst;
+  static MachineInst *const s4Inst;
+  static MachineInst *const s5Inst;
+  static MachineInst *const s6Inst;
+  static MachineInst *const s7Inst;
+  static MachineInst *const s8Inst;
+  static MachineInst *const s9Inst;
+  static MachineInst *const s10Inst;
+  static MachineInst *const s11Inst;
+
+  static MachineInst *const fa0Inst;
+  static MachineInst *const fa1Inst;
+  static MachineInst *const fa2Inst;
+  static MachineInst *const fa3Inst;
+  static MachineInst *const fa4Inst;
+  static MachineInst *const fa5Inst;
+  static MachineInst *const fa6Inst;
+  static MachineInst *const fa7Inst;
+
+  static MachineInst *const fs0Inst;
+  static MachineInst *const fs1Inst;
+  static MachineInst *const fs2Inst;
+  static MachineInst *const fs3Inst;
+  static MachineInst *const fs4Inst;
+  static MachineInst *const fs5Inst;
+  static MachineInst *const fs6Inst;
+  static MachineInst *const fs7Inst;
+  static MachineInst *const fs8Inst;
+  static MachineInst *const fs9Inst;
+  static MachineInst *const fs10Inst;
+  static MachineInst *const fs11Inst;
+
+  static MachineInst *const ft0Inst;
+  static MachineInst *const ft1Inst;
+  static MachineInst *const ft2Inst;
+  static MachineInst *const ft3Inst;
+  static MachineInst *const ft4Inst;
+  static MachineInst *const ft5Inst;
+  static MachineInst *const ft6Inst;
+  static MachineInst *const ft7Inst;
+  static MachineInst *const ft8Inst;
+  static MachineInst *const ft9Inst;
+  static MachineInst *const ft10Inst;
+  static MachineInst *const ft11Inst;
 
   static const std::vector<MReg *> iRegs;
   static const std::vector<MReg *> fRegs;
@@ -99,6 +166,9 @@ public:
   static const std::vector<MReg *> fCallerRegs;
   static const std::vector<MReg *> iCalleeRegs;
   static const std::vector<MReg *> fCalleeRegs;
+
+  static const std::vector<MachineInst *> iCallerInsts;
+  static const std::vector<MachineInst *> fCallerInsts;
 
   MReg(ir::BasicType *type, std::string name)
       : Reg(type), _name(std::move(name)) {}

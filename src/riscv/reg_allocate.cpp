@@ -432,6 +432,9 @@ void FuncRegAlloc::solveSpill() {
             if (usedRegs.find(mreg) != usedRegs.end()) {
               continue;
             }
+            if (vreg->isConflictWith(mreg)) {
+              continue;
+            }
             vRegToMRegMap[vreg] = mreg;
             toSpill = false;
             break;

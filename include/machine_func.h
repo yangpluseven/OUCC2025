@@ -59,6 +59,7 @@ private:
 public:
   int maxFuncParamNum = 0;
   std::unordered_map<ir::BasicBlock *, MachineBlock *> blockMap;
+  std::unordered_map<ir::Argument *, MachineInst *> argMap;
 
   // Not sure about the type but I guess it's fine (NOTICE)
   MachineFunc(ir::Function *func);
@@ -68,6 +69,9 @@ public:
     assert(inst && mInst);
     _instMap[inst] = mInst;
   }
+
+  // For test only now (ATTENTION)
+  void initArgMap();
 
   int getFCallerNum() const { return _fCallerNum; }
   int getICallerNum() const { return _iCallerNum; }

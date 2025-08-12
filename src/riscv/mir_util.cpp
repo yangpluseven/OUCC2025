@@ -1,5 +1,8 @@
 #include "mir_util.h"
 
+#define MAKE_I32 std::make_unique<ir::BasicType>(ir::BasicKind::I32)
+#define MAKE_F32 std::make_unique<ir::BasicType>(ir::BasicKind::F32)
+
 namespace riscv {
 
 MachineInst *loadImmI(MachineBlock *block, int imm) {
@@ -378,3 +381,6 @@ MachineInst *binRegReg(MachineBlock *block, ir::BinaryInst *binInst,
   }
 }
 } // namespace riscv
+
+#undef MAKE_I32
+#undef MAKE_F32
