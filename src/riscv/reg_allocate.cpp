@@ -525,6 +525,9 @@ std::unordered_map<ir::VReg *, MReg *> FuncRegAlloc::calcVRegToMReg() {
         if (usedRegs.find(mreg) != usedRegs.end()) {
           continue;
         }
+        if (vreg->isConflictWith(mreg)) {
+          continue;
+        }
         vRegToMReg[vreg] = mreg;
         break;
       }

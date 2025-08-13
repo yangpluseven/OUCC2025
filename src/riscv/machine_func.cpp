@@ -99,6 +99,9 @@ MachineFunc::MachineFunc(ir::Function *func)
         break;
       }
     }
+    if (!_noInnerCalls) {
+      break;
+    }
   }
 }
 
