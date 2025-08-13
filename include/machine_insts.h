@@ -243,7 +243,7 @@ public:
   MInstKind getMInstKind() const override { return MInstKind::LLA; }
   // ATTENTION LA and LLA !
   std::string str() const override {
-    return fmt::format("la\t{}, {}", getDest()->str(), _global->getRawName());
+    return fmt::format("lla\t{}, {}", getDest()->str(), _global->getRawName());
   }
 };
 
