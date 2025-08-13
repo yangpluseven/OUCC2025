@@ -89,6 +89,17 @@ MachineFunc::MachineFunc(ir::Function *func)
   initCallerNums();
   initLocalOffsets();
   // initArgOffsets();
+
+  _noInnerCalls = true; // Assume no inner calls by default
+  for (auto &blockPtr : *func) {
+    for (auto &instPtr : *blockPtr) {
+      auto inst = static_cast<ir::Instruction *>(instPtr.get());
+      if (inst->getInstKind() == ir::InstKind::Call) {
+        _noInnerCalls = false;
+        break;
+      }
+    }
+  }
 }
 
 // The original implementation assumes that all inner params should be stored in
@@ -132,6 +143,7 @@ void MachineFunc::initLocalOffsets() {
   return;
 }
 
+// Old implementation, not used now (ATTENTION)
 void MachineFunc::initArgOffsets() {
   int iCallerNum = 0, fCallerNum = 0;
   auto args = _origin->getArgs();
@@ -166,6 +178,7 @@ void MachineFunc::initArgOffsets() {
   }
 }
 
+// New implementation, try to promote arguments (ATTENTION)
 void MachineFunc::initArgMap() {
   assert(!empty());
   auto firstBlock = static_cast<MachineBlock *>(getFirstBlock());
@@ -175,13 +188,18 @@ void MachineFunc::initArgMap() {
     auto type = arg->getType();
     if (type->isF32()) {
       if (fSize < MReg::fCallerRegs.size()) {
-        auto moveInst = firstBlock->pushMInst(make_unique<RR>(
-            RROp::MV, arg->makeRegType(), MReg::fCallerInsts[fSize]));
-        auto dest = static_cast<ir::VReg *>(moveInst->getDest());
-        for (auto &reg : MReg::fCallerRegs) {
-          dest->addConflict(reg);
+        if (_noInnerCalls) {
+          argMap[arg] = firstBlock->pushMInst(
+              make_unique<GetArg>(MReg::fCallerRegs[fSize]));
+        } else {
+          auto moveInst = firstBlock->pushMInst(make_unique<RR>(
+              RROp::MV, arg->makeRegType(), MReg::fCallerInsts[fSize]));
+          auto dest = static_cast<ir::VReg *>(moveInst->getDest());
+          for (auto &reg : MReg::fCallerRegs) {
+            dest->addConflict(reg);
+          }
+          argMap[arg] = moveInst;
         }
-        argMap[arg] = moveInst;
         _argOffsets[arg] = {true, -1};
       } else {
         _argOffsets[arg] = {false, MReg::argsStackOffset(iSize, fSize)};
@@ -189,13 +207,18 @@ void MachineFunc::initArgMap() {
       fSize++;
     } else {
       if (iSize < MReg::iCallerRegs.size()) {
-        auto moveInst = firstBlock->pushMInst(make_unique<RR>(
-            RROp::MV, arg->makeRegType(), MReg::iCallerInsts[iSize]));
-        auto dest = static_cast<ir::VReg *>(moveInst->getDest());
-        for (auto &reg : MReg::iCallerRegs) {
-          dest->addConflict(reg);
+        if (_noInnerCalls) {
+          argMap[arg] = firstBlock->pushMInst(
+              make_unique<GetArg>(MReg::iCallerRegs[iSize]));
+        } else {
+          auto moveInst = firstBlock->pushMInst(make_unique<RR>(
+              RROp::MV, arg->makeRegType(), MReg::iCallerInsts[iSize]));
+          auto dest = static_cast<ir::VReg *>(moveInst->getDest());
+          for (auto &reg : MReg::iCallerRegs) {
+            dest->addConflict(reg);
+          }
+          argMap[arg] = moveInst;
         }
-        argMap[arg] = moveInst;
         _argOffsets[arg] = {true, -1};
       } else {
         _argOffsets[arg] = {false, MReg::argsStackOffset(iSize, fSize)};

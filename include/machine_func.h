@@ -50,6 +50,8 @@ private:
   std::unordered_map<ir::Instruction *, MachineInst *> _instMap;
   std::vector<std::unique_ptr<PhiNode>> _phiNodes;
 
+  bool _noInnerCalls = false;
+
   void initCallerNums();
   void initLocalOffsets();
   void initArgOffsets();
