@@ -491,6 +491,8 @@ public:
   RRR(RRROp op, ir::Reg *dest, MachineInst *src0, MachineInst *src1)
       : MachineInst(dest, {src0, src1}), _op(op) {}
 
+  RRROp getOp() const { return _op; }
+
   bool spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   MInstKind getMInstKind() const override { return MInstKind::RRR; }
   std::string str() const override {
