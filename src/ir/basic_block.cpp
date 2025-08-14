@@ -124,7 +124,7 @@ std::unique_ptr<InstBase> BlockBase::getOwnership(InstBase *inst) {
   return nullptr;
 }
 
-void BlockBase::setIndexInBlock() const {
+void BlockBase::calcIndexInBlock() const {
   for (size_t i = 0; i < _instructions.size(); i++) {
     _instructions[i]->setIndexInBlock(i);
   }

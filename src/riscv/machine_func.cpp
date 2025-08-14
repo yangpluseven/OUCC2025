@@ -864,17 +864,38 @@ void MachineFunc::move(ir::MoveInst *inst, MachineBlock *block) {
     srcInst = handleArg(static_cast<ir::Argument *>(src), block);
     break;
   case ValueKind::Inst: {
-    // TODO: If src is a PhiInst, we need to handle it differently
-    auto inst = static_cast<Instruction *>(src);
-    if (inst->getInstKind() == InstKind::Phi) {
-      auto phiInst = static_cast<ir::PhiInst *>(inst);
-      auto bBlock = static_cast<ir::BasicBlock *>(phiInst->getBlock());
-      auto mBlock = blockMap[bBlock];
-      srcInst = static_cast<MachineInst *>(mBlock->insertInstruction(
-          0, make_unique<RR>(RROp::MV, dest->getRegType()->clone(),
-                             _instMap[phiInst])));
+    // If src is a PhiInst, we need to handle it differently (ATTENTION)
+    auto sinst = static_cast<Instruction *>(src);
+    bool cond1 = sinst->getInstKind() == InstKind::Phi;
+    bool cond2 = sinst->getBlock()->getIndexInFunc() <
+                     inst->getBlock()->getIndexInFunc() ||
+                 (sinst->getBlock() == inst->getBlock() &&
+                  sinst->getIndexInBlock() < inst->getIndexInBlock());
+    if (cond1 && cond2) {
+      auto curBB = static_cast<ir::BasicBlock *>(inst->getBlock());
+      auto phiInst = static_cast<ir::PhiInst *>(sinst);
+      bool conflict = false;
+      for (size_t i = 0; i < phiInst->getNumOperands(); i++) {
+        auto incomingBlock = phiInst->getIncomingBlock(i);
+        // The source phiInst and current phiInst has a same incoming block, the
+        // source phiInst might be modified before using
+        if (incomingBlock == curBB) {
+          conflict = true;
+          break;
+        }
+      }
+      if (conflict) {
+        // Move the source phiInst to a new register first to protect it's value
+        auto bBlock = static_cast<ir::BasicBlock *>(phiInst->getBlock());
+        auto mBlock = blockMap[bBlock];
+        srcInst = static_cast<MachineInst *>(mBlock->insertInstruction(
+            0, make_unique<RR>(RROp::MV, dest->getRegType()->clone(),
+                               _instMap[phiInst])));
+      } else {
+        srcInst = _instMap[sinst];
+      }
     } else {
-      srcInst = _instMap[inst];
+      srcInst = _instMap[sinst];
     }
   } break;
   case ValueKind::ConstNum:

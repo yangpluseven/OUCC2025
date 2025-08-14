@@ -32,6 +32,7 @@ public:
   // Used in optimization mostly
   void setBlock(BlockBase *block) { _block = block; }
   void setIndexInBlock(int index) { indexInBlock = index; }
+  int getIndexInBlock() const { return indexInBlock; }
 
   int getID() const { return _id; }
 

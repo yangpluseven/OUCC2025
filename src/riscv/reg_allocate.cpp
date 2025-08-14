@@ -472,7 +472,7 @@ void FuncRegAlloc::solveSpill() {
       for (size_t i = 0; i < _mFunc->size(); i++) {
         auto mBlock = static_cast<MachineBlock *>(_mFunc->getBlock(i));
         auto newMBlock = std::make_unique<MachineBlock>(mBlock->getOrigin());
-        mBlock->setIndexInBlock();
+        mBlock->calcIndexInBlock();
         for (size_t i = 0; i < mBlock->size(); i++) {
           auto inst = mBlock->getMInst(i);
           inst->spill(reg, offset, newMBlock.get());

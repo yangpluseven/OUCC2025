@@ -52,7 +52,9 @@ unique_ptr<MachineFunc> GenerateMIR::funcToMIR(ir::Function *func) {
     }
   }
 
+  func->calcIndexInFunc();
   for (auto &block : *func) {
+    block->calcIndexInBlock();
     auto mBlock =
         machineFunc->blockMap[static_cast<ir::BasicBlock *>(block.get())];
     for (auto &instPtr : *block) {

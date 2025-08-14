@@ -2,13 +2,6 @@
 
 namespace pass {
 
-void calcIndexInFunc(ir::Function *function) {
-  int index = 0;
-  for (auto &block : *function) {
-    block->setIndexInFunc(index++);
-  }
-}
-
 bool removeUnreachable(ir::Function *function) {
   bool changed = false;
   for (int i = 1; i < function->size(); i++) {
@@ -44,7 +37,8 @@ bool removeUnreachable(ir::Function *function) {
         if (!nextBlock)
           continue;
         for (size_t k = 0; k < nextBlock->size(); k++) {
-          auto inst = static_cast<ir::Instruction *>(nextBlock->getInstruction(k));
+          auto inst =
+              static_cast<ir::Instruction *>(nextBlock->getInstruction(k));
           if (const auto phiNode = dynamic_cast<ir::PhiInst *>(inst)) {
             for (int j = 0; j < phiNode->getNumOperands(); j++) {
               if (phiNode->getIncomingBlock(j) == block) {
@@ -138,7 +132,8 @@ bool foldConstBranches(ir::Function *function) {
         if (!nextBlock)
           continue;
         for (size_t k = 0; k < nextBlock->size(); k++) {
-          auto inst = static_cast<ir::Instruction *>(nextBlock->getInstruction(k));
+          auto inst =
+              static_cast<ir::Instruction *>(nextBlock->getInstruction(k));
           if (const auto phiNode = dynamic_cast<ir::PhiInst *>(inst)) {
             for (int j = 0; j < phiNode->getNumOperands(); j++) {
               if (phiNode->getIncomingBlock(j) == block) {
@@ -159,7 +154,7 @@ bool foldConstBranches(ir::Function *function) {
 }
 
 bool BranchOpti::onFunction(ir::Function *function) {
-  calcIndexInFunc(function);
+  function->calcIndexInFunc();
   bool changed = false;
   bool toContinue = true;
   while (toContinue) {

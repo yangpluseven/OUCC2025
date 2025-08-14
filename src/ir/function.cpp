@@ -69,6 +69,13 @@ std::unique_ptr<BlockBase> FuncBase::eraseBlock(size_t index) {
   return removed;
 }
 
+void FuncBase::calcIndexInFunc() const {
+  int index = 0;
+  for (auto &block : *this) {
+    block->setIndexInFunc(index++);
+  }
+}
+
 std::string FuncBase::getRawName() const { return _name; }
 
 std::string Function::getName() const {

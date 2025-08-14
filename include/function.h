@@ -40,6 +40,7 @@ public:
   void pushBlock(std::unique_ptr<BlockBase> block);
   void setBlock(size_t index, std::unique_ptr<BlockBase> block);
   std::unique_ptr<BlockBase> eraseBlock(size_t index);
+  void calcIndexInFunc() const;
 
   BlockBase *getBlock(size_t index) const;
   BlockBase *getEntryBlock() const;

@@ -56,7 +56,7 @@ public:
   size_t size() const { return _instructions.size(); }
   void clear() { _instructions.clear(); }
   void clearUnreachables() { _unreachables.clear(); }
-  void setIndexInBlock() const;
+  void calcIndexInBlock() const;
 
   using iterator = std::vector<std::unique_ptr<InstBase>>::iterator;
   using const_iterator = std::vector<std::unique_ptr<InstBase>>::const_iterator;
