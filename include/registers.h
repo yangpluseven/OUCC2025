@@ -16,8 +16,6 @@ private:
   std::string _name;
 
 public:
-  static std::unique_ptr<ir::BasicType> i32_t;
-  static std::unique_ptr<ir::BasicType> f32_t;
 
   static MReg *const zero;
   static MReg *const ra;

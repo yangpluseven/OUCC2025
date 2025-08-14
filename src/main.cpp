@@ -11,7 +11,7 @@ extern FILE *yyin;
 extern unique_ptr<CompUnitNode> root;
 
 enum class OutputTypeEnum { LLVM, MIR, ASM };
-enum class OptLevelEnum { NUL ,O0, O1 };
+enum class OptLevelEnum { NUL, O0, O1 };
 
 void writeGlobals(std::ofstream &ofs, ir::Module *module) {
   std::vector<ir::GlobalVariable *> symbolsInData;
@@ -151,7 +151,7 @@ int main(int argc, const char *argv[]) {
   }
   switch (outputType) {
   case OutputTypeEnum::LLVM: {
-    // std::cout << ">> Generating LLVM IR..." << std::endl;
+    std::cout << ">> Generating LLVM IR..." << std::endl;
 
     for (const auto &glob : mod->getGlobals())
       ofs << glob->str() << "\n";
@@ -179,6 +179,9 @@ int main(int argc, const char *argv[]) {
     std::cout << ">> Generating MIR..." << std::endl;
     riscv::GenerateMIR genMIR(mod);
     genMIR.generate();
+    if (optLevel == OptLevelEnum::O1) {
+      passManager.runLower();
+    }
 
     for (const auto &mFunc : mod->getMFuncs()) {
       ofs << mFunc->str();
@@ -194,7 +197,10 @@ int main(int argc, const char *argv[]) {
   case OutputTypeEnum::ASM: {
     riscv::GenerateMIR genMIR(mod);
     genMIR.generate();
-    // std::cout << "Generating ASM..." << std::endl;
+    if (optLevel == OptLevelEnum::O1) {
+      passManager.runLower();
+    }
+
     riscv::ModuleRegAlloc regAlloc(mod);
     regAlloc.allocate();
     passManager.runLast();

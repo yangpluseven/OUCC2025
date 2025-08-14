@@ -21,6 +21,9 @@ protected:
   explicit Reg(BasicType *type) : _type(type) {}
 
 public:
+  static std::unique_ptr<ir::BasicType> i32_t;
+  static std::unique_ptr<ir::BasicType> f32_t;
+
   virtual ~Reg() = default;
   virtual std::string str() const = 0;
   BasicType *getRegType() const { return _type; }

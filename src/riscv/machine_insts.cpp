@@ -13,8 +13,11 @@ MachineInst::MachineInst(std::unique_ptr<Type> type)
   assert(getType()->isBasic() && "MachineInst can only have a basic type.");
   switch (getBasicKind()) {
   case BasicKind::I32:
+    _dest = new VReg(static_cast<BasicType *>(ir::Reg::i32_t.get()), getID());
+    break;
   case BasicKind::F32:
-    _dest = new VReg(static_cast<BasicType *>(getType()), getID());
+    _dest = new VReg(static_cast<BasicType *>(ir::Reg::f32_t.get()), getID());
+    break;
   default:
     return;
   }
@@ -26,8 +29,11 @@ MachineInst::MachineInst(std::unique_ptr<Type> type,
   assert(getType()->isBasic() && "MachineInst can only have a basic type.");
   switch (getBasicKind()) {
   case BasicKind::I32:
+    _dest = new VReg(static_cast<BasicType *>(ir::Reg::i32_t.get()), getID());
+    break;
   case BasicKind::F32:
-    _dest = new VReg(static_cast<BasicType *>(getType()), getID());
+    _dest = new VReg(static_cast<BasicType *>(ir::Reg::f32_t.get()), getID());
+    break;
   default:
     return;
   }

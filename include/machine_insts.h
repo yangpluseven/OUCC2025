@@ -344,6 +344,8 @@ public:
   RR(RROp op, ir::Reg *dest, MachineInst *src)
       : MachineInst(dest, {src}), _op(op) {}
 
+  RROp getOp() const { return _op; }
+
   bool spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   MInstKind getMInstKind() const override { return MInstKind::RR; }
   std::string str() const override {

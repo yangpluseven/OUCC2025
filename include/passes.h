@@ -119,6 +119,12 @@ public:
   bool onFunction(riscv::MachineFunc *function) override;
 };
 
+class ReduceMove : public LowerPass {
+public:
+  explicit ReduceMove(const ir::Module *module) : LowerPass(module) {}
+  bool onFunction(riscv::MachineFunc *function) override;
+};
+
 } // namespace pass
 
 #endif // PASS_PASSES_HPP

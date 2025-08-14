@@ -2,18 +2,13 @@
 #include "type.h"
 
 #define DECLARE_INT_REG(name)                                                  \
-  MReg *const MReg::name = new MReg(MReg::i32_t.get(), #name)
+  MReg *const MReg::name = new MReg(ir::Reg::i32_t.get(), #name)
 #define DECLARE_FLOAT_REG(name)                                                \
-  MReg *const MReg::name = new MReg(MReg::f32_t.get(), #name)
+  MReg *const MReg::name = new MReg(ir::Reg::f32_t.get(), #name)
 #define INIT_REG_INST(REG)                                                     \
   MachineInst *const MReg::REG##Inst = new MachineInst(MReg::REG);
 
 namespace riscv {
-
-std::unique_ptr<ir::BasicType> MReg::i32_t =
-    std::make_unique<ir::BasicType>(ir::BasicKind::I32);
-std::unique_ptr<ir::BasicType> MReg::f32_t =
-    std::make_unique<ir::BasicType>(ir::BasicKind::F32);
 
 // int
 DECLARE_INT_REG(zero);
