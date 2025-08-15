@@ -41,9 +41,37 @@ bool ReduceMove::onFunction(riscv::MachineFunc *function) {
           continue; // Source and destination must be in the same block
         }
 
-        if (rrInst->getIndexInBlock() != srcInst->getIndexInBlock() + 1) {
-          continue; // The move must be immediately after the source
+        bool invalid = false;
+        block->calcIndexInBlock();
+        for (int j = srcInst->getIndexInBlock() + 1;
+             j < rrInst->getIndexInBlock(); j++) {
+          auto tmpInst = mBlock->getMInst(j);
+          if (tmpInst->getMInstKind() == riscv::MInstKind::Call) {
+            invalid = true; // Found a call instruction, cannot replace
+            break;
+          }
+          if (tmpInst->getDest() == rrInst->getDest()) {
+            invalid = true;
+            break; // Found an instruction that uses the destination register
+          }
+          for (int k = 0; k < tmpInst->getNumOperands(); k++) {
+            if (tmpInst->getSrc(k) == rrInst->getDest()) {
+              invalid = true;
+              break; // Found an instruction that uses the destination register
+            }
+          }
+          if (invalid) {
+            break; // No need to check further
+          }
         }
+
+        if (invalid) {
+          continue; // Cannot replace if the destination is used in between
+        }
+
+        // if (rrInst->getIndexInBlock() != srcInst->getIndexInBlock() + 1) {
+        //   continue; // The move must be immediately after the source
+        // }
 
         if (srcInst->getUses().size() == 1) {
           srcInst->setDest(rrInst->getDest());

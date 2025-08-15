@@ -56,7 +56,13 @@ public:
     }
   }
 
-  void runLower() const { ReduceMove(_module).onModule(); }
+  void runLower() const {
+    bool l0 = true;
+    while (l0) {
+      l0 = false;
+      l0 |= ReduceMove(_module).onModule();
+    }
+  }
 
   void runLast() const { RemoveJump(_module).onModule(); }
 };
