@@ -171,9 +171,26 @@ std::string BasicBlock::getLabel() const {
   return fmt::format("bb{}", getID());
 }
 
+std::string BasicBlock::getLoopInfoComment() const {
+  return loopInfo ? fmt::format("\t\t\t\t\t\t\t\t; Loop: entry {}, out {}",
+                                getFunction()
+                                    ->getBlock(loopInfo->getEnterIndex())
+                                    ->getLabel(),
+                                getFunction()
+                                    ->getBlock(loopInfo->getLeaveIndex())
+                                    ->getLabel())
+                  : "";
+}
+
 std::string BlockBase::str() const {
   fmt::memory_buffer buf;
-  fmt::format_to(std::back_inserter(buf), "{}:\n", getLabel());
+  auto loopInfoComment = getLoopInfoComment();
+  if (!loopInfoComment.empty()) {
+    fmt::format_to(std::back_inserter(buf), "{}:", getLabel());
+    fmt::format_to(std::back_inserter(buf), "{}\n", loopInfoComment);
+  } else {
+    fmt::format_to(std::back_inserter(buf), "{}:\n", getLabel());
+  }
   for (const auto &instPtr : *this) {
     auto instStr = instPtr->str();
     if (!instStr.empty())

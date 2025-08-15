@@ -34,6 +34,7 @@ public:
   void setFunction(FuncBase *func) { _function = func; }
   FuncBase *getFunction() const { return _function; }
   int getID() const { return _id; }
+  virtual std::string getLoopInfoComment() const { return ""; }
   virtual std::string getLabel() const = 0;
   // Form the .ll IR string for the whole block, including the label and string
   // for all instructions
@@ -87,6 +88,7 @@ public:
   ValueKind getValueKind() const override { return ValueKind::Block; }
   // Get the LLVM like block label, example: bb0 bb1
   std::string getLabel() const override;
+  std::string getLoopInfoComment() const override;
   std::string getName() const override {
     return fmt::format("%{}", getLabel());
   }

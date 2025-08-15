@@ -110,6 +110,17 @@ public:
   bool onFunction(ir::Function *function) override;
 };
 
+class LoopInvariantCodeMotion : public FunctionPass {
+private:
+  static size_t _maxDistance;
+
+public:
+  explicit LoopInvariantCodeMotion(const ir::Module *module)
+      : FunctionPass(module) {}
+
+  bool onFunction(ir::Function *function) override;
+};
+
 class RemoveJump : public LowerPass {
 public:
   explicit RemoveJump(const ir::Module *module) : LowerPass(module) {}
@@ -120,16 +131,6 @@ public:
 class ReduceMove : public LowerPass {
 public:
   explicit ReduceMove(const ir::Module *module) : LowerPass(module) {}
-
-  bool onFunction(riscv::MachineFunc *function) override;
-};
-
-class LoopInvariantCodeMotion : public LowerPass {
-private:
-  static size_t _maxDistance;
-public:
-  explicit LoopInvariantCodeMotion(const ir::Module *module)
-      : LowerPass(module) {}
 
   bool onFunction(riscv::MachineFunc *function) override;
 };

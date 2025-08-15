@@ -44,6 +44,11 @@ public:
       }
     }
     IdentifyLoops(_module).onModule();
+    l1 = true;
+    while (l1) {
+      l1 = false;
+      l1 |= LoopInvariantCodeMotion(_module).onModule();
+    }
   }
 
   void runLower() const {
@@ -51,11 +56,6 @@ public:
     while (l0) {
       l0 = false;
       l0 |= ReduceMove(_module).onModule();
-    }
-    l0 = true;
-    while (l0) {
-      l0 = false;
-      l0 |= LoopInvariantCodeMotion(_module).onModule();
     }
   }
 
