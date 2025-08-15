@@ -38,8 +38,8 @@ unique_ptr<MachineFunc> GenerateMIR::funcToMIR(ir::Function *func) {
         // Add phiNode to hold the virtual register
         auto phiNode = machineFunc->pushPhiNode(
             make_unique<PhiNode>(phiInst->makeRegType()));
-        // phiNode->setBlock(
-        //     machineFunc->blockMap[static_cast<ir::BasicBlock *>(block.get())]);
+        phiNode->setBlock(
+            machineFunc->blockMap[static_cast<ir::BasicBlock *>(block.get())]);
         machineFunc->addInstPair(phiInst, phiNode);
 
         // Add move instructions for each incoming value
@@ -52,6 +52,10 @@ unique_ptr<MachineFunc> GenerateMIR::funcToMIR(ir::Function *func) {
         }
       }
     }
+  }
+
+  for (auto loop : func->loops) {
+    machineFunc->loops.push_back(loop);
   }
 
   func->calcIndexInFunc();

@@ -182,4 +182,16 @@ std::string BlockBase::str() const {
   return fmt::to_string(buf);
 }
 
+// Should calculate index in function first!
+void LoopInfo::calcLoopBody(FuncBase *func) {
+  _loopBody.clear();
+  func->getBlock(_enter)->loopInfo = this;
+  for (int i = _enter; i < _leave; i++) {
+    auto block = func->getBlock(i);
+    if (block) {
+      _loopBody.insert(block);
+    }
+  }
+}
+
 } // namespace ir

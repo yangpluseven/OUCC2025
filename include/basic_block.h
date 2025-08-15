@@ -14,6 +14,7 @@ namespace ir {
 class FuncBase;
 class Function;
 class InstBase;
+class LoopInfo;
 
 class BlockBase : public Value {
 private:
@@ -27,6 +28,8 @@ protected:
   int indexInFunc = -1;
 
 public:
+  LoopInfo *loopInfo = nullptr;
+
   explicit BlockBase(int id);
   void setFunction(FuncBase *func) { _function = func; }
   FuncBase *getFunction() const { return _function; }
@@ -86,6 +89,30 @@ public:
   std::string getLabel() const override;
   std::string getName() const override {
     return fmt::format("%{}", getLabel());
+  }
+};
+
+class LoopInfo {
+private:
+  int _before;
+  int _enter;
+  int _leave;
+  std::unordered_set<BlockBase *> _loopBody;
+
+public:
+  LoopInfo(int enter, int leave) : _enter(enter), _leave(leave) {
+    assert(enter > 0 && leave > 0 &&
+           "Loop enter and leave indices must be greater than 0");
+    assert(enter < leave && "Loop enter index must be less than leave index");
+    _before = enter - 1;
+  }
+
+  int getBeforeIndex() const { return _before; }
+  int getEnterIndex() const { return _enter; }
+  int getLeaveIndex() const { return _leave; }
+  void calcLoopBody(FuncBase *func);
+  bool inLoopBody(BlockBase *block) const {
+    return _loopBody.find(block) != _loopBody.end();
   }
 };
 

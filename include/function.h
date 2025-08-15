@@ -10,6 +10,8 @@
 namespace ir {
 
 class BlockBase;
+class LoopInfo;
+
 class Argument : public Value {
 private:
   const std::string _name;
@@ -31,6 +33,8 @@ private:
   std::vector<std::unique_ptr<BlockBase>> _blocks;
 
 public:
+  std::vector<LoopInfo *> loops;
+
   FuncBase(std::unique_ptr<Type> type, std::string name)
       : Value(std::move(type)), _name(std::move(name)) {}
 

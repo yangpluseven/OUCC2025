@@ -12,7 +12,6 @@ protected:
 
 public:
   explicit Pass(const ir::Module *module) { this->module = module; }
-
   virtual ~Pass() = default;
 
   virtual bool onModule() = 0;
@@ -101,27 +100,37 @@ public:
   bool onFunction(ir::Function *function) override;
 };
 
-// class ReducePhi : public FunctionPass {
-// public:
-//   explicit ReducePhi(const ir::Module *module) : FunctionPass(module) {}
-//   bool onFunction(ir::Function *function) override;
-// };
+// This pass only identifies loops, it does not optimize them. It is used to
+// help other passes like LoopInvariantCodeMotion to identify loops in the
+// function. PS: calcLoopBody should be called in real optimizations
+class IdentifyLoops : public FunctionPass {
+public:
+  explicit IdentifyLoops(const ir::Module *module) : FunctionPass(module) {}
 
-// class CommonExpElim : public FunctionPass {
-// public:
-//   explicit CommonExpElim(const ir::Module *module) : FunctionPass(module) {}
-//   bool onFunction(ir::Function *function) override;
-// };
+  bool onFunction(ir::Function *function) override;
+};
 
 class RemoveJump : public LowerPass {
 public:
   explicit RemoveJump(const ir::Module *module) : LowerPass(module) {}
+
   bool onFunction(riscv::MachineFunc *function) override;
 };
 
 class ReduceMove : public LowerPass {
 public:
   explicit ReduceMove(const ir::Module *module) : LowerPass(module) {}
+
+  bool onFunction(riscv::MachineFunc *function) override;
+};
+
+class LoopInvariantCodeMotion : public LowerPass {
+private:
+  static size_t _maxDistance;
+public:
+  explicit LoopInvariantCodeMotion(const ir::Module *module)
+      : LowerPass(module) {}
+
   bool onFunction(riscv::MachineFunc *function) override;
 };
 

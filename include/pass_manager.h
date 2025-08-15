@@ -23,10 +23,6 @@ public:
     MemoryProm(_module).onModule();
     DeadCodeElim(_module).onModule();
     ConstProp(_module).onModule();
-    // BranchOpti(_module).onModule();
-    // DeadCodeElim(_module).onModule();
-    // ConstProp(_module).onModule();
-    // BranchOpti(_module).onModule();
   }
 
   void runOpti() const {
@@ -42,18 +38,12 @@ public:
         l0 |= ConstProp(_module).onModule();
         l0 |= BranchOpti(_module).onModule();
       }
-      // l1 |= MemoryProm(_module).onModule();
       if (!once) {
         once = true;
         l1 |= MemoryProm(_module).onModule();
-        // DeadCodeElim(_module).onModule();
-        // ConstProp(_module).onModule();
-        // BranchOpti(_module).onModule();
-        // DeadCodeElim(_module).onModule();
-        // ConstProp(_module).onModule();
-        // BranchOpti(_module).onModule();
       }
     }
+    IdentifyLoops(_module).onModule();
   }
 
   void runLower() const {
@@ -61,6 +51,11 @@ public:
     while (l0) {
       l0 = false;
       l0 |= ReduceMove(_module).onModule();
+    }
+    l0 = true;
+    while (l0) {
+      l0 = false;
+      l0 |= LoopInvariantCodeMotion(_module).onModule();
     }
   }
 
