@@ -20,8 +20,15 @@ Instruction::Instruction(std::unique_ptr<Type> type,
                          const std::vector<Value *> &useOperands)
     : InstBase(std::move(type), useOperands, _counter++) {}
 
-std::string Instruction::getName() const {
-  return fmt::format("%v{}", getID());
+std::string InstBase::baseStr() const {
+  const std::string name = getName();
+  std::string completeStr = str();
+  const size_t pos = completeStr.find(name);
+  if (pos == std::string::npos) {
+    return "";
+  }
+  completeStr.erase(pos, name.length());
+  return completeStr;
 }
 
 void InstBase::remapValues(const ValueMap &map) {
@@ -44,4 +51,9 @@ void InstBase::remapValues(const ValueMap &map) {
 
   notRemapped = false;
 }
+
+std::string Instruction::getName() const {
+  return fmt::format("%v{}", getID());
+}
+
 } // namespace ir

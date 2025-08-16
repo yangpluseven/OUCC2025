@@ -35,6 +35,7 @@ public:
   int getIndexInBlock() const { return indexInBlock; }
 
   int getID() const { return _id; }
+  std::string baseStr() const;
 
   using ValueMap = std::unordered_map<Value *, Value *>;
 

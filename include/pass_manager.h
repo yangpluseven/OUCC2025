@@ -49,6 +49,11 @@ public:
       l1 = false;
       l1 |= LoopInvariantCodeMotion(_module).onModule();
     }
+    l1 = true;
+    while (l1) {
+      l1 = false;
+      l1 |= CommonExpElim(_module).onModule();
+    }
   }
 
   void runLower() const {

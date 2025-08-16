@@ -338,6 +338,8 @@ private:
   }
 
 public:
+  bool isReturn = false;
+
   RR(RROp op, std::unique_ptr<ir::Type> type, MachineInst *src)
       : MachineInst(std::move(type), {src}), _op(op) {}
 

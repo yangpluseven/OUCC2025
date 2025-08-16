@@ -560,9 +560,13 @@ void MachineFunc::ret(ir::RetInst *inst, MachineBlock *block,
     throw std::runtime_error("Invalid return value for Ret instruction");
   }
   if (retVal->getType()->isF32()) {
-    block->pushMInst(make_unique<RR>(RROp::MV, MReg::fa0, retInst));
+    auto retMv = make_unique<RR>(RROp::MV, MReg::fa0, retInst);
+    retMv->isReturn = true; // Mark as return instruction
+    block->pushMInst(std::move(retMv));
   } else {
-    block->pushMInst(make_unique<RR>(RROp::MV, MReg::a0, retInst));
+    auto retMv = make_unique<RR>(RROp::MV, MReg::a0, retInst);
+    retMv->isReturn = true; // Mark as return instruction
+    block->pushMInst(std::move(retMv));
   }
   block->pushMInst(make_unique<Jump>(exitBlock));
 }

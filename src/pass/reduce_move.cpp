@@ -23,6 +23,10 @@ bool ReduceMove::onFunction(riscv::MachineFunc *function) {
           continue;
         }
 
+        if (rrInst->isReturn) {
+          continue; // Skip return instructions
+        }
+
         if (dynamic_cast<riscv::MReg *>(rrInst->getSrc(0))) {
           continue;
         }

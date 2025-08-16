@@ -121,6 +121,12 @@ public:
   bool onFunction(ir::Function *function) override;
 };
 
+class CommonExpElim : public FunctionPass {
+public:
+  explicit CommonExpElim(const ir::Module *module) : FunctionPass(module) {}
+  bool onFunction(ir::Function *function) override;
+};
+
 class RemoveJump : public LowerPass {
 public:
   explicit RemoveJump(const ir::Module *module) : LowerPass(module) {}
