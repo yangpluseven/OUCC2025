@@ -28,7 +28,7 @@ void writeGlobals(std::ofstream &ofs, ir::Module *module) {
   }
   for (const auto &global : symbolsInBss) {
     const int size = static_cast<int>(global->getTypeSize() / 8);
-    ofs << "\t.align 8\n";
+    ofs << "\t.align 2\n";
     ofs << "\t.size " << global->getRawName() << ", " << std::to_string(size)
         << '\n';
     ofs << global->getRawName() << ":\n";
@@ -39,7 +39,7 @@ void writeGlobals(std::ofstream &ofs, ir::Module *module) {
   }
   for (const auto &global : symbolsInData) {
     const int size = static_cast<int>(global->getTypeSize()) / 8;
-    ofs << "\t.align 8\n";
+    ofs << "\t.align 2\n";
     ofs << "\t.size " << global->getRawName() << ", " << std::to_string(size)
         << '\n';
     ofs << global->getRawName() << ":\n";
