@@ -60,10 +60,11 @@ int trailingZeros(int x) {
   return count;
 }
 
+// Be aware of add and addw ! (ATTENTION)
 MachineInst *addRegRegI(MachineBlock *block, MachineInst *src0,
                         MachineInst *src1) {
-  auto inst =
-      block->pushMInst(std::make_unique<RRR>(RRROp::ADD, MAKE_I32, src0, src1));
+  auto inst = block->pushMInst(
+      std::make_unique<RRR>(RRROp::ADDW, MAKE_I32, src0, src1));
   return inst;
 }
 
