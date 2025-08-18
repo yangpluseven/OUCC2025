@@ -23,21 +23,25 @@ void writeGlobals(std::ofstream &ofs, ir::Module *module) {
       symbolsInData.push_back(global);
     }
   }
-  if ((!symbolsInBss.empty()) || (!symbolsInData.empty())) {
-    ofs << "\t.align 2\n";
-    ofs << "\t.section .data\n";
+  if (!symbolsInBss.empty()) {
+    ofs << "\t.bss\n";
   }
   for (const auto &global : symbolsInBss) {
     const int size = static_cast<int>(global->getTypeSize() / 8);
-    // ofs << "\t.size " << global->getRawName() << ", " << std::to_string(size)
-    //     << '\n';
+    ofs << "\t.align 2\n";
+    ofs << "\t.size " << global->getRawName() << ", " << std::to_string(size)
+        << '\n';
     ofs << global->getRawName() << ":\n";
-    ofs << "\t.zero " << std::to_string(size) << '\n';
+    ofs << "\t.space " << std::to_string(size) << '\n';
+  }
+  if (!symbolsInData.empty()) {
+    ofs << "\t.data\n";
   }
   for (const auto &global : symbolsInData) {
     const int size = static_cast<int>(global->getTypeSize()) / 8;
-    // ofs << "\t.size " << global->getRawName() << ", " << std::to_string(size)
-    //     << '\n';
+    ofs << "\t.align 2\n";
+    ofs << "\t.size " << global->getRawName() << ", " << std::to_string(size)
+        << '\n';
     ofs << global->getRawName() << ":\n";
     const int num = size / 4;
     if (global->isSingle()) {
@@ -76,7 +80,6 @@ void writeGlobals(std::ofstream &ofs, ir::Module *module) {
     }
   }
 }
-
 
 int main(int argc, const char *argv[]) {
   CLI::App app{"A compiler for SysY language", "compile2025-0"};
