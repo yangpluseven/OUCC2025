@@ -23,25 +23,21 @@ void writeGlobals(std::ofstream &ofs, ir::Module *module) {
       symbolsInData.push_back(global);
     }
   }
-  if (!symbolsInBss.empty()) {
-    ofs << "\t.bss\n";
+  if ((!symbolsInBss.empty()) || (!symbolsInData.empty())) {
+    ofs << "\t.align 2\n";
+    ofs << "\t.section .data\n";
   }
   for (const auto &global : symbolsInBss) {
     const int size = static_cast<int>(global->getTypeSize() / 8);
-    ofs << "\t.align 2\n";
-    ofs << "\t.size " << global->getRawName() << ", " << std::to_string(size)
-        << '\n';
+    // ofs << "\t.size " << global->getRawName() << ", " << std::to_string(size)
+    //     << '\n';
     ofs << global->getRawName() << ":\n";
-    ofs << "\t.space " << std::to_string(size) << '\n';
-  }
-  if (!symbolsInData.empty()) {
-    ofs << "\t.data\n";
+    ofs << "\t.zero " << std::to_string(size) << '\n';
   }
   for (const auto &global : symbolsInData) {
     const int size = static_cast<int>(global->getTypeSize()) / 8;
-    ofs << "\t.align 2\n";
-    ofs << "\t.size " << global->getRawName() << ", " << std::to_string(size)
-        << '\n';
+    // ofs << "\t.size " << global->getRawName() << ", " << std::to_string(size)
+    //     << '\n';
     ofs << global->getRawName() << ":\n";
     const int num = size / 4;
     if (global->isSingle()) {
@@ -205,7 +201,7 @@ int main(int argc, const char *argv[]) {
     regAlloc.allocate();
     passManager.runLast();
     writeGlobals(ofs, mod);
-    ofs << "\t.text\n";
+    ofs << "\t.section .text\n";
     for (const auto &mFunc : mod->getMFuncs()) {
       ofs << mFunc->str();
       ofs << "\tret\n";

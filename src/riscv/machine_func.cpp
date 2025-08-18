@@ -924,7 +924,7 @@ void MachineFunc::move(ir::MoveInst *inst, MachineBlock *block) {
 
 std::string MachineFunc::str() const {
   fmt::memory_buffer buf;
-  fmt::format_to(std::back_inserter(buf), "\t.align 4\n\t.global {}\n{}:\n",
+  fmt::format_to(std::back_inserter(buf), "\t.global {}\n{}:\n",
                  getName(), getName());
   for (const auto &block : *this) {
     auto mBlock = static_cast<MachineBlock *>(block.get());
