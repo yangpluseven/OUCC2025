@@ -155,6 +155,13 @@ public:
   bool onFunction(riscv::MachineFunc *function) override;
 };
 
+class LowerBranchOpti : public LowerPass {
+public:
+  explicit LowerBranchOpti(const ir::Module *module) : LowerPass(module) {}
+
+  bool onFunction(riscv::MachineFunc *function) override;
+};
+
 class MultiplyReduction : public LowerPass {
 public:
   explicit MultiplyReduction(const ir::Module *module) : LowerPass(module) {}

@@ -36,7 +36,18 @@ enum class MInstKind {
   GetArg,
 };
 
-enum class RRIOp { ADDI, ANDI, SLLIW, SRAIW, SRLI, SRLIW, XORI, SLTI, SLLI };
+enum class RRIOp {
+  ADDI,
+  ADDIW,
+  ANDI,
+  SLLIW,
+  SRAIW,
+  SRLI,
+  SRLIW,
+  XORI,
+  SLTI,
+  SLLI
+};
 
 enum class RROp { CVT, FABS, MV, NEG, SEQZ, SNEZ };
 
@@ -195,6 +206,8 @@ public:
 
   bool spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   bool hasCond() const { return _op != JumpOp::NUL; }
+  JumpOp getOp() const { return _op; }
+  void setOp(JumpOp op) { _op = op; }
   MInstKind getMInstKind() const override { return MInstKind::Jump; }
   std::string str() const override;
   MachineBlock *getTargetBlock() const { return _target; }
@@ -404,6 +417,8 @@ private:
     switch (_op) {
     case RRIOp::ADDI:
       return "addi";
+    case RRIOp::ADDIW:
+      return "addiw";
     case RRIOp::ANDI:
       return "andi";
     case RRIOp::SLLIW:

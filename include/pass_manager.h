@@ -64,6 +64,7 @@ public:
       // l0 |= MultiplyReduction(_module).onModule();
       // l0 |= LowerDCE(_module).onModule();
     }
+    LowerBranchOpti(_module).onModule();
   }
 
   void runLast() const { RemoveJump(_module).onModule(); }
