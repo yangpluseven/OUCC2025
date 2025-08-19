@@ -177,9 +177,9 @@ int main(int argc, const char *argv[]) {
   } break;
   case OutputTypeEnum::MIR: {
     std::cout << ">> Generating MIR..." << std::endl;
-    riscv::GenerateMIR genMIR(mod);
+    riscv::GenerateMIR genMIR(mod, optLevel == OptLevelEnum::O1);
     genMIR.generate();
-    if (optLevel == OptLevelEnum::O1) {
+    if (optLevel == OptLevelEnum::O1, optLevel == OptLevelEnum::O1) {
       passManager.runLower();
     }
 
@@ -195,7 +195,7 @@ int main(int argc, const char *argv[]) {
       std::cout << ">> MIR written to " << outputFile << std::endl;
   } break;
   case OutputTypeEnum::ASM: {
-    riscv::GenerateMIR genMIR(mod);
+    riscv::GenerateMIR genMIR(mod, optLevel == OptLevelEnum::O1);
     genMIR.generate();
     if (optLevel == OptLevelEnum::O1) {
       passManager.runLower();

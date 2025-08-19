@@ -12,6 +12,7 @@ class GenerateMIR {
 private:
   ir::Module *_module;
   bool _isProcessed = false;
+  bool _opti = false;
 
   void makeMachineBlocks(MachineFunc *mFunc);
   std::unique_ptr<MachineFunc> funcToMIR(ir::Function *func);
@@ -25,7 +26,8 @@ private:
   }
 
 public:
-  explicit GenerateMIR(ir::Module *module) : _module(module) {}
+  explicit GenerateMIR(ir::Module *module, bool opti)
+      : _module(module), _opti(opti) {}
 
   void generate() {
     if (_isProcessed) {
