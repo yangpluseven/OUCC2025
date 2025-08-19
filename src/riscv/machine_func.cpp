@@ -435,11 +435,6 @@ void MachineFunc::gep(ir::GetElementPtrInst *inst, MachineBlock *block) {
         MAKE_I32, inst->getType()->getBaseType()->getSize() / 8));
     break;
   case ValueKind::Arg: {
-    // offset = _argOffsets[static_cast<ir::Argument *>(ptr)];
-    // base = block->pushMInst(
-    //     make_unique<LoadFrom>(offset.first ? LoadItem::INNER :
-    //     LoadItem::OUTER,
-    //                           MAKE_I32, offset.second));
     base = handleArg(static_cast<ir::Argument *>(ptr), block);
     mul1 = block->pushMInst(make_unique<LI>(
         MAKE_I32, inst->getType()->getBaseType()->getSize() / 8));
@@ -495,6 +490,85 @@ void MachineFunc::gep(ir::GetElementPtrInst *inst, MachineBlock *block) {
   }
   auto mulResult =
       block->pushMInst(make_unique<RRR>(RRROp::MUL, MAKE_I32, mul1, mul2));
+  auto addResult =
+      block->pushMInst(make_unique<RRR>(RRROp::ADD, MAKE_I32, base, mulResult));
+  _instMap[inst] = addResult;
+}
+
+void MachineFunc::gepOpti(ir::GetElementPtrInst *inst, MachineBlock *block) {
+  auto ptr = inst->getOperand(0);
+  MachineInst *base = nullptr;
+  int imm = 0;
+  std::pair<bool, int> offset;
+  switch (ptr->getValueKind()) {
+  case ValueKind::Global:
+    base = block->pushMInst(
+        make_unique<LLA>(MAKE_I32, static_cast<GlobalVariable *>(ptr)));
+    imm = inst->getType()->getBaseType()->getSize() / 8;
+    break;
+  case ValueKind::Arg: {
+    base = handleArg(static_cast<ir::Argument *>(ptr), block);
+    imm = inst->getType()->getBaseType()->getSize() / 8;
+    break;
+  }
+  case ValueKind::Inst: {
+    if (inst->getNumOperands() == 3) {
+      imm = ptr->getType()->getBaseType()->getBaseType()->getSize() / 8;
+    } else {
+      imm = ptr->getType()->getBaseType()->getSize() / 8;
+    }
+    auto pInst = static_cast<Instruction *>(ptr);
+    if (pInst->getInstKind() == InstKind::Alloca) {
+      int offset = _localOffsets[static_cast<ir::AllocaInst *>(pInst)];
+      base = block->pushMInst(make_unique<LEA>(MAKE_I32, offset));
+    } else {
+      // Handle other cases
+      base = _instMap[pInst];
+    }
+    break;
+  }
+  default:
+    throw std::runtime_error("Invalid pointer for GEP instruction");
+  }
+
+  auto operand = inst->getLastOperand();
+  MachineInst *mulResult = nullptr;
+  MachineInst *tmp = nullptr;
+  switch (operand->getValueKind()) {
+  case ValueKind::Arg:
+    tmp = handleArg(static_cast<ir::Argument *>(operand), block);
+    mulResult = mulRegImmI64(block, tmp, imm);
+    break;
+  case ValueKind::Inst:
+    tmp = _instMap[static_cast<Instruction *>(operand)];
+    if (tmp->getDest()->getRegType()->getBasicKind() == ir::BasicKind::I32) {
+      mulResult = mulRegImmI64(block, tmp, imm);
+    } else {
+      // Handle other cases, like F32
+      tmp = block->pushMInst(make_unique<RR>(RROp::MV, MAKE_I32, tmp));
+      mulResult = mulRegImmI64(block, tmp, imm);
+    }
+    break;
+  case ValueKind::ConstNum:
+    if (operand->getType()->isF32()) {
+      tmp = loadImmI(block,
+                     static_cast<ir::ConstantNumber *>(operand)->floatValue());
+      mulResult = mulRegImmI64(block, tmp, imm);
+    } else {
+      // tmp = loadImmI(block,
+      //                static_cast<ir::ConstantNumber *>(operand)->intValue());
+      // mulResult = mulRegImmI64(block, tmp, imm);
+      int res = static_cast<ir::ConstantNumber *>(operand)->intValue() * imm;
+      if (res == 0) {
+        _instMap[inst] = base;
+        return;
+      }
+      mulResult = block->pushMInst(make_unique<LI>(MAKE_I32, res));
+    }
+    break;
+  default:
+    throw std::runtime_error("Invalid operand for GEP instruction");
+  }
   auto addResult =
       block->pushMInst(make_unique<RRR>(RRROp::ADD, MAKE_I32, base, mulResult));
   _instMap[inst] = addResult;

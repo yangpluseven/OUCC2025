@@ -81,7 +81,6 @@ private:
   std::unordered_set<ir::AllocaInst *> static analyzePromotableAllocaInsts(
       ir::Function *function);
   static bool isPromotable(ir::AllocaInst *allocaInst);
-  void removeUnreachableBlocks(ir::Function *func);
   void insertPhi(ir::Function *func,
                  std::unordered_map<ir::BasicBlock *,
                                     std::unordered_set<ir::BasicBlock *>> &df,
@@ -137,6 +136,35 @@ public:
 class ReduceMove : public LowerPass {
 public:
   explicit ReduceMove(const ir::Module *module) : LowerPass(module) {}
+
+  bool onFunction(riscv::MachineFunc *function) override;
+};
+
+class LowerCSE : public LowerPass {
+public:
+  explicit LowerCSE(const ir::Module *module) : LowerPass(module) {}
+
+  bool onFunction(riscv::MachineFunc *function) override;
+};
+
+class RemoveUnnecessaryInsts : public LowerPass {
+public:
+  explicit RemoveUnnecessaryInsts(const ir::Module *module)
+      : LowerPass(module) {}
+
+  bool onFunction(riscv::MachineFunc *function) override;
+};
+
+class MultiplyReduction : public LowerPass {
+public:
+  explicit MultiplyReduction(const ir::Module *module) : LowerPass(module) {}
+
+  bool onFunction(riscv::MachineFunc *function) override;
+};
+
+class LowerDCE : public LowerPass {
+public:
+  explicit LowerDCE(const ir::Module *module) : LowerPass(module) {}
 
   bool onFunction(riscv::MachineFunc *function) override;
 };

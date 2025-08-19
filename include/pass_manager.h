@@ -61,6 +61,8 @@ public:
     while (l0) {
       l0 = false;
       l0 |= ReduceMove(_module).onModule();
+      // l0 |= MultiplyReduction(_module).onModule();
+      // l0 |= LowerDCE(_module).onModule();
     }
   }
 

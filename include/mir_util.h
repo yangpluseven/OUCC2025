@@ -63,6 +63,8 @@ MachineInst *mulRegImmF(MachineBlock *block, MachineInst *src, float imm);
 
 MachineInst *mulRegImmI(MachineBlock *block, MachineInst *src, int imm);
 
+MachineInst *mulRegImmI64(MachineBlock *block, MachineInst *src, int imm);
+
 MachineInst *subRegRegF(MachineBlock *block, MachineInst *src0,
                         MachineInst *src1);
 

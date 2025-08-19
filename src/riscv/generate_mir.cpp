@@ -83,7 +83,8 @@ unique_ptr<MachineFunc> GenerateMIR::funcToMIR(ir::Function *func) {
         continue;
       }
       case InstKind::GEP:
-        machineFunc->gep(static_cast<ir::GetElementPtrInst *>(inst), mBlock);
+        machineFunc->gepOpti(static_cast<ir::GetElementPtrInst *>(inst),
+                             mBlock);
         continue;
       case InstKind::Load:
         machineFunc->load(static_cast<ir::LoadInst *>(inst), mBlock);

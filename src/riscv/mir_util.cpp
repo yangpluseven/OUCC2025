@@ -268,6 +268,33 @@ MachineInst *mulRegImmI(MachineBlock *block, MachineInst *src, int imm) {
   }
 }
 
+MachineInst *mulRegImmI64(MachineBlock *block, MachineInst *src, int imm) {
+  if (imm == 0)
+    return loadImmI(block, 0);
+  else if (imm == 1)
+    return block->pushMInst(std::make_unique<RR>(RROp::MV, MAKE_I32, src));
+  else if (imm == -1)
+    return block->pushMInst(std::make_unique<RR>(RROp::NEG, MAKE_I32, src));
+  else if (bitcount(imm) == 1)
+    return block->pushMInst(
+        std::make_unique<RRI>(RRIOp::SLLI, MAKE_I32, src, trailingZeros(imm)));
+  else if (bitcount(imm) == 2 && imm % 2 == 1) {
+    auto midInst = block->pushMInst(std::make_unique<RRI>(
+        RRIOp::SLLI, MAKE_I32, src, 31 - leadingZeros(imm)));
+    return block->pushMInst(
+        std::make_unique<RRR>(RRROp::ADD, MAKE_I32, (midInst), src));
+  } else if (trailingZeros(imm) == 0 &&
+             leadingZeros(imm) + bitcount(imm) == 32) {
+    auto midInst = block->pushMInst(std::make_unique<RRI>(
+        RRIOp::SLLI, MAKE_I32, src, 32 - leadingZeros(imm)));
+    return block->pushMInst(
+        std::make_unique<RRR>(RRROp::SUB, MAKE_I32, (midInst), src));
+  } else {
+    auto midInst = loadImmI(block, imm);
+    return mulRegRegI(block, src, midInst);
+  }
+}
+
 MachineInst *subRegRegF(MachineBlock *block, MachineInst *src0,
                         MachineInst *src1) {
   return block->pushMInst(

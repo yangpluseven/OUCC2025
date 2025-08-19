@@ -36,7 +36,7 @@ enum class MInstKind {
   GetArg,
 };
 
-enum class RRIOp { ADDI, ANDI, SLLIW, SRAIW, SRLI, SRLIW, XORI, SLTI };
+enum class RRIOp { ADDI, ANDI, SLLIW, SRAIW, SRLI, SRLIW, XORI, SLTI, SLLI };
 
 enum class RROp { CVT, FABS, MV, NEG, SEQZ, SNEZ };
 
@@ -418,6 +418,8 @@ private:
       return "xori";
     case RRIOp::SLTI:
       return "slti";
+    case RRIOp::SLLI:
+      return "slli";
     default:
       return "incomplete{RRI.opToString}";
     }
@@ -429,6 +431,8 @@ public:
 
   RRI(RRIOp op, ir::Reg *dest, MachineInst *src, int imm)
       : ImmInst(dest, {src}, imm), _op(op) {}
+
+  RRIOp getOp() const { return _op; }
 
   bool spill(ir::Reg *spilledReg, int offset, MachineBlock *block) override;
   MInstKind getMInstKind() const override { return MInstKind::RRI; }

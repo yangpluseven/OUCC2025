@@ -89,6 +89,7 @@ public:
   void branch(ir::BranchInst *inst, MachineBlock *block);
   int call(ir::CallInst *inst, MachineBlock *block);
   void gep(ir::GetElementPtrInst *inst, MachineBlock *block);
+  void gepOpti(ir::GetElementPtrInst *inst, MachineBlock *block);
   void load(ir::LoadInst *inst, MachineBlock *block);
   void ret(ir::RetInst *inst, MachineBlock *block, MachineBlock *exitBlock);
   void store(ir::StoreInst *inst, MachineBlock *block);
