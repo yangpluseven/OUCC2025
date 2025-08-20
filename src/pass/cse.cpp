@@ -15,17 +15,26 @@ bool CommonExpElim::onFunction(ir::Function *function) {
 
       auto instKind = inst->getInstKind();
       switch (instKind) {
-        case ir::InstKind::Alloca:
-        case ir::InstKind::Call:
-        case ir::InstKind::Branch:
-        case ir::InstKind::Ret:
-        case ir::InstKind::Phi:
-        case ir::InstKind::Load:
-        case ir::InstKind::Store:
-          // Skip these instructions
-          continue;
-        default:
-          break;
+      case ir::InstKind::Alloca:
+      case ir::InstKind::Call:
+      case ir::InstKind::Branch:
+      case ir::InstKind::Ret:
+      case ir::InstKind::Phi:
+        // case ir::InstKind::Load:
+        // case ir::InstKind::Store:
+        // Skip these instructions
+        continue;
+      default:
+        break;
+      }
+
+      if (const auto storeInst = dynamic_cast<ir::StoreInst *>(inst)) {
+        auto *ptr = storeInst->getOperand(1);
+        ir::LoadInst tmpLoad(ptr);
+        auto str = tmpLoad.baseStr();
+        if (!str.empty() && expMap.find(str) != expMap.end()) {
+          expMap.erase(str);
+        }
       }
 
       auto str = inst->baseStr();
