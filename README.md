@@ -1,6 +1,6 @@
 # SysY Compiler - RISC-V Backend Implementation (2025 Compiler System Design Contest)
 
-This project is the preliminary round submission by **OUC/Team水军出击** for the **2025 National College Student Computer System Ability Competition - Compiler System Design Contest - Compiler Implementation Contest**.
+This project is the preliminary round submission by **OUC/Team水军出击** for the **2025 National College Student Computer System Ability Competition - Compiler System Design Contest - Compiler Implementation Contest** (2025年全国大学生计算机系统能力大赛-编译系统设计赛-编译系统实现赛).
 
 The compiler translates **SysY language** (a subset of C) into **RISC-V RV64GC** assembly code, covering the complete compilation workflow: from lexical and syntax analysis, AST construction, intermediate representation (IR) generation and optimization, to final target assembly code generation.
 
