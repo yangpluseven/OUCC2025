@@ -2,7 +2,7 @@
 
 This project is the preliminary round submission by **OUC/Team水军出击** for the **2025 National College Student Computer System Ability Competition - Compiler System Design Contest - Compiler Implementation Contest**.
 
-The compiler translates **SysY language** into **RISC-V RV64GC** assembly code, covering the complete compilation workflow: from lexical and syntax analysis, AST construction, intermediate representation (IR) generation and optimization, to final target assembly code generation.
+The compiler translates **SysY language** (a subset of C) into **RISC-V RV64GC** assembly code, covering the complete compilation workflow: from lexical and syntax analysis, AST construction, intermediate representation (IR) generation and optimization, to final target assembly code generation.
 
 ---
 
@@ -27,7 +27,7 @@ sudo apt install cmake flex bison g++ -y
 ### Build the Project
 
 ```bash
-git clone -b compile https://gitlab.eduxiji.net/T202510423206487/oucc2025.git
+git clone -b compile https://github.com/yangpluseven/OUCC2025.git
 cd oucc2025
 mkdir build && cd build
 cmake ..
@@ -95,10 +95,19 @@ oucc2025/
   * Constant Folding (CF)
   * Memory to Register Promotion (Mem2Reg)
 
+* Optimizations added for the final round include:
+
+  * Strength Reduction
+  * Common Subexpression Elimination (CSE)
+  * Move Instruction Reduction
+  * Jump Optimization
+  * Loop Invariant Code Motion (LICM)
+
 ### Backend
 
-* Uses a separately designed backend IR (referred to as MIR), closer to RISC-V assembly
+* Uses a separately designed backend IR (referred to as **MIR**), closer to RISC-V assembly
 * Initially keeps backend IR in **Static Single Assignment (SSA) form**
+* Provides **machine related** optimizations.
 * Applies **graph coloring register allocation** for mapping virtual registers to physical registers
 * After register allocation, SSA form is broken, and appropriate prologue/epilogue code is added to produce the final **RISC-V RV64GC** assembly
 
